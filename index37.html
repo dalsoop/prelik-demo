@@ -788,72 +788,97 @@ section { padding: 7rem 3rem; }
 }
 .met-sub { margin-top: 0.8rem; font-size: 0.78rem; color: rgba(255,255,255,0.18); line-height: 1.5; }
 
-/* ─────────── TEAM ─────────── */
-#team {}
+/* ─────────── ABOUT MANIFESTO ─────────── */
+.about-manifesto { padding: 0; }
+.am-block {
+  display: flex; gap: 1.2rem; align-items: flex-start;
+  padding: 1.6rem 2rem; border-bottom: 1px solid var(--faint);
+}
+.am-block:last-child { border-bottom: none; }
+.am-num {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.2em;
+  color: var(--blue); flex-shrink: 0; padding-top: 3px; width: 20px;
+}
+.am-title {
+  font-family: var(--display); font-size: 1rem; font-weight: 500;
+  color: var(--ink); margin-bottom: 0.4rem;
+}
+.am-text p { font-size: 0.82rem; line-height: 1.75; color: #666; }
+
+/* ─────────── PROGRAMS ─────────── */
+.prog-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+
+.pc {
+  border: 1px solid var(--faint); margin-right: -1px;
+  position: relative; overflow: hidden; transition: z-index 0s;
+}
+.pc:hover { z-index: 2; }
+
+.pc-top {
+  aspect-ratio: 1; position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+  justify-content: space-between; padding: 1.5rem;
+}
+.pc-top-1 { background: #EDF2FF; }
+.pc-top-2 { background: #EEF0FF; }
+.pc-top-3 { background: #F0F4FF; }
+.pc-top-4 { background: #F2F0FF; }
+
+.pc-idx {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.2em;
+  color: var(--blue); z-index: 1; position: relative;
+}
+.pc-symbol {
+  font-family: var(--display); font-size: 5.5rem; font-weight: 300;
+  line-height: 1; color: rgba(26,86,255,0.12);
+  position: absolute; bottom: 0.8rem; right: 1rem;
+  user-select: none;
+}
+
+.pc-line {
+  height: 2px; background: var(--faint);
+  position: relative; overflow: hidden;
+}
+.pc-line::after {
+  content: ''; position: absolute; top:0; left:0; height:100%; width:0;
+  background: var(--blue);
+  transition: width 0.5s cubic-bezier(0.22,1,0.36,1);
+}
+.pc:hover .pc-line::after { width: 100%; }
+
+.pc-info { padding: 1.5rem; }
+.pc-status {
+  font-family: var(--mono); font-size: 0.52rem; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--blue);
+  border: 1px solid rgba(26,86,255,0.25);
+  display: inline-block; padding: 0.18rem 0.55rem;
+  margin-bottom: 0.8rem;
+}
+.pc-name {
+  font-family: var(--display); font-size: 1.3rem; font-weight: 500;
+  letter-spacing: -0.01em; color: var(--ink); margin-bottom: 0.1rem;
+  transition: color 0.2s;
+}
+.pc:hover .pc-name { color: var(--blue); }
+.pc-name-en {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.14em;
+  color: var(--mid); margin-bottom: 0.9rem;
+}
+.pc-desc { font-size: 0.78rem; line-height: 1.65; color: var(--mid); margin-bottom: 1.2rem; }
+.pc-link {
+  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--mid); text-decoration: none;
+  transition: color 0.2s; display: inline-flex; align-items: center; gap: 0.4rem;
+}
+.pc-link span { transition: transform 0.2s; display: inline-block; }
+.pc:hover .pc-link { color: var(--blue); }
+.pc:hover .pc-link span { transform: translateX(4px); }
 .team-head {
   display: flex; justify-content: space-between; align-items: flex-end;
   margin-bottom: 3.5rem;
 }
 .team-head-right { max-width: 32ch; font-size: 0.85rem; line-height:1.75; color:var(--mid); text-align:right; }
 
-.team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
-
-.tc {
-  border: 1px solid var(--faint); margin-right: -1px;
-  position: relative; overflow: hidden;
-  transition: z-index 0s;
-}
-.tc:hover { z-index: 2; }
-.tc-top {
-  aspect-ratio: 1; background: var(--off);
-  position: relative; overflow: hidden;
-  display: flex; align-items: flex-end; justify-content: flex-start;
-  padding: 1.5rem;
-}
-.tc:nth-child(1) .tc-top { background: #EDF2FF; }
-.tc:nth-child(2) .tc-top { background: #F0F4FF; }
-.tc:nth-child(3) .tc-top { background: #EEF0FF; }
-.tc:nth-child(4) .tc-top { background: #F2F0FF; }
-
-.tc-init {
-  font-family: var(--mono); font-size: 4rem; font-weight: 400;
-  line-height: 1; color: rgba(26,86,255,0.1);
-  position: absolute; bottom: 1rem; right: 1.2rem;
-  user-select: none;
-}
-.tc-role-tag {
-  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.14em;
-  text-transform: uppercase;
-  padding: 0.25rem 0.6rem;
-  background: var(--blue); color: var(--white);
-  position: relative; z-index:1;
-  transform: translateY(4px);
-  opacity: 0;
-  transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.35s ease;
-}
-.tc:hover .tc-role-tag { transform: translateY(0); opacity: 1; }
-
-.tc-line {
-  height: 2px; background: var(--faint);
-  position: relative; overflow: hidden;
-}
-.tc-line::after {
-  content: ''; position: absolute; top:0; left:0; height:100%; width:0;
-  background: var(--blue);
-  transition: width 0.5s cubic-bezier(0.22,1,0.36,1);
-}
-.tc:hover .tc-line::after { width: 100%; }
-
-.tc-info { padding: 1.5rem; }
-.tc-name {
-  font-family: var(--display); font-size: 1.15rem; font-weight: 500;
-  letter-spacing: -0.01em; margin-bottom: 0.25rem;
-}
-.tc-title {
-  font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.14em;
-  text-transform: uppercase; color: var(--blue); margin-bottom: 1rem;
-}
-.tc-bio { font-size: 0.78rem; line-height: 1.65; color: var(--mid); }
 
 /* ─────────── CONTACT ─────────── */
 #contact { background: var(--off); }
@@ -947,7 +972,6 @@ footer {
   display: flex; justify-content: space-between; align-items: flex-start;
   padding-bottom: 3rem; border-bottom: 1px solid rgba(255,255,255,0.07);
 }
-.f-left {}
 .f-logo2 {
   display: flex; align-items: center; gap: 0.6rem;
   text-decoration:none; color:var(--white);
@@ -1009,13 +1033,10 @@ footer {
   .services-head { flex-direction:column; align-items:flex-start; gap:1rem; padding:3rem 1.5rem 0; }
   .svc-head-row,.svc-row { grid-template-columns:40px 1fr; padding:1.2rem 1.5rem; gap:1rem; }
   .svc-head-row .svc-head-cell:nth-child(n+3), .svc-row .svc-desc, .svc-row .svc-cat, .svc-row .svc-arr { display:none; }
-  #metrics { padding:4rem 1.5rem; }
-  .metrics-inner { grid-template-columns:1fr; gap:3rem; }
-  .metrics-right { grid-template-columns:1fr 1fr; }
-  #team { padding:5rem 1.5rem; }
+  #programs { padding:5rem 1.5rem; }
   .team-head { flex-direction:column; align-items:flex-start; gap:1rem; }
   .team-head-right { text-align:left; }
-  .team-grid { grid-template-columns:1fr 1fr; }
+  .prog-grid { grid-template-columns:1fr 1fr; }
   #contact { padding:5rem 1.5rem; }
   .contact-wrap { grid-template-columns:1fr; gap:4rem; }
   .cf-row2 { grid-template-columns:1fr; }
@@ -1028,8 +1049,7 @@ footer {
 }
 @media(max-width:600px){
   .process-steps { grid-template-columns:1fr; }
-  .team-grid { grid-template-columns:1fr 1fr; }
-  .metrics-right { grid-template-columns:1fr; }
+  .prog-grid { grid-template-columns:1fr; }
   .cs-countdown { gap: 0; }
   .cs-unit { padding: 0 0.6rem; }
 }
@@ -1118,7 +1138,7 @@ footer {
     <li><a href="#about">소개</a></li>
     <li><a href="#process">프로세스</a></li>
     <li><a href="#services">서비스</a></li>
-    <li><a href="#team">팀</a></li>
+    <li><a href="#programs">프로그램</a></li>
     <li><a href="#contact">연락처</a></li>
   </ul>
   <div class="nav-right">
@@ -1221,10 +1241,6 @@ footer {
     <div class="hero-right-tag hrt-bl">SEOUL, KR</div>
     <div class="hero-right-tag hrt-br">v3.1.0</div>
 
-    <div class="hero-float-stat">
-      <div class="float-num"><span class="count-up" data-t="98">0</span><span class="c">%</span></div>
-      <div class="float-label">고객 만족도</div>
-    </div>
   </div>
 </section>
 
@@ -1299,29 +1315,30 @@ footer {
   <div class="about-right">
     <div class="about-panel rv d2">
       <div class="about-panel-header">
-        <span class="aph-title">// PRELIK OVERVIEW</span>
+        <span class="aph-title">// PRELIK MANIFESTO</span>
         <span class="aph-status">ACTIVE</span>
       </div>
-      <div class="about-stats-grid">
-        <div class="ast-cell">
-          <div class="ast-big"><span class="count-up" data-t="50">0</span><span class="c">+</span></div>
-          <div class="ast-lbl">협력 기업</div>
-          <div class="ast-bar"><div class="ast-bar-fill" style="--w:85%"></div></div>
+      <div class="about-manifesto">
+        <div class="am-block">
+          <div class="am-num">01</div>
+          <div class="am-text">
+            <div class="am-title">오늘의 작업</div>
+            <p>지금 이 순간의 결과물은 단순한 산출물이 아닙니다. 정밀하게 설계된 모든 작업은 시간이 흘러도 가치를 잃지 않는 유산이 됩니다.</p>
+          </div>
         </div>
-        <div class="ast-cell">
-          <div class="ast-big"><span class="count-up" data-t="6">0</span><span class="c">년</span></div>
-          <div class="ast-lbl">업력</div>
-          <div class="ast-bar"><div class="ast-bar-fill" style="--w:60%"></div></div>
+        <div class="am-block">
+          <div class="am-num">02</div>
+          <div class="am-text">
+            <div class="am-title">미리 만드는 유물</div>
+            <p>PRE — 앞서 준비하고, RELIK — 유산을 남긴다. Prelik은 미래의 시간에서 역산하여 지금 무엇을 만들어야 할지 정의합니다.</p>
+          </div>
         </div>
-        <div class="ast-cell">
-          <div class="ast-big"><span class="count-up" data-t="98">0</span><span class="c">%</span></div>
-          <div class="ast-lbl">고객 만족도</div>
-          <div class="ast-bar"><div class="ast-bar-fill" style="--w:98%"></div></div>
-        </div>
-        <div class="ast-cell">
-          <div class="ast-big"><span class="count-up" data-t="24">0</span><span class="c">명</span></div>
-          <div class="ast-lbl">전문 인력</div>
-          <div class="ast-bar"><div class="ast-bar-fill" style="--w:70%"></div></div>
+        <div class="am-block">
+          <div class="am-num">03</div>
+          <div class="am-text">
+            <div class="am-title">정밀함이 곧 철학</div>
+            <p>빠른 것보다 정확한 것을 추구합니다. 모든 제품과 서비스는 오래 남을 수 있도록 정밀하게 설계됩니다.</p>
+          </div>
         </div>
       </div>
     </div>
@@ -1459,125 +1476,77 @@ footer {
   </div>
 </section>
 
-<!-- Metrics -->
-<section id="metrics">
-  <div class="metrics-inner">
-    <div class="metrics-left">
-      <p class="eyebrow rv">성과 지표</p>
-      <h2 class="section-h rv d1">숫자로<br>보는<br><span class="ac">Prelik</span></h2>
-      <p class="metrics-desc rv d2">6년간 쌓아온 성과를 데이터로 확인하세요. 모든 수치는 실제 프로젝트 데이터를 기반으로 합니다.</p>
-    </div>
-    <div class="metrics-right">
-      <div class="met-cell rv" data-offset="11">
-        <div class="met-ring-wrap">
-          <svg viewBox="0 0 80 80">
-            <circle class="met-ring-bg" cx="40" cy="40" r="35"/>
-            <circle class="met-ring-fill" cx="40" cy="40" r="35"/>
-          </svg>
-          <div class="met-val">95%</div>
-        </div>
-        <div class="met-num"><span class="count-up" data-t="50">0</span><span class="c">+</span></div>
-        <div class="met-key">프로젝트 완료</div>
-        <div class="met-sub">국내외 다양한 산업 분야에서 성공적으로 완료된 프로젝트</div>
-      </div>
-      <div class="met-cell rv d1" data-offset="4">
-        <div class="met-ring-wrap">
-          <svg viewBox="0 0 80 80">
-            <circle class="met-ring-bg" cx="40" cy="40" r="35"/>
-            <circle class="met-ring-fill" cx="40" cy="40" r="35"/>
-          </svg>
-          <div class="met-val">98%</div>
-        </div>
-        <div class="met-num"><span class="count-up" data-t="98">0</span><span class="c">%</span></div>
-        <div class="met-key">고객 만족도</div>
-        <div class="met-sub">프로젝트 완료 후 수집한 고객 만족도 설문 결과</div>
-      </div>
-      <div class="met-cell rv d2" data-offset="110">
-        <div class="met-ring-wrap">
-          <svg viewBox="0 0 80 80">
-            <circle class="met-ring-bg" cx="40" cy="40" r="35"/>
-            <circle class="met-ring-fill" cx="40" cy="40" r="35"/>
-          </svg>
-          <div class="met-val">50%</div>
-        </div>
-        <div class="met-num"><span class="count-up" data-t="24">0</span><span class="c">명</span></div>
-        <div class="met-key">전문 인력</div>
-        <div class="met-sub">각 분야 5년 이상 경력의 전문가로 구성된 팀</div>
-      </div>
-      <div class="met-cell rv d3" data-offset="165">
-        <div class="met-ring-wrap">
-          <svg viewBox="0 0 80 80">
-            <circle class="met-ring-bg" cx="40" cy="40" r="35"/>
-            <circle class="met-ring-fill" cx="40" cy="40" r="35"/>
-          </svg>
-          <div class="met-val">25%</div>
-        </div>
-        <div class="met-num"><span class="count-up" data-t="6">0</span><span class="c">년</span></div>
-        <div class="met-key">업력</div>
-        <div class="met-sub">2019년 설립 이래 꾸준히 성장하는 기업</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Team -->
-<section id="team">
+<!-- Programs -->
+<section id="programs">
   <div class="team-head rv">
     <div>
-      <p class="eyebrow">팀</p>
-      <h2 class="section-h">Prelik을<br>이끄는 <span class="ac">사람들</span></h2>
+      <p class="eyebrow">프로그램</p>
+      <h2 class="section-h">Prelik이<br>만드는 <span class="ac">제품들</span></h2>
     </div>
-    <p class="team-head-right">각 분야 최고의 전문가들이 하나의 목표를 향해 함께합니다. 다양한 배경과 경험이 만나 새로운 가능성을 만들어냅니다.</p>
+    <p class="team-head-right">오늘의 작업을 내일의 유산으로 만드는 Prelik의 철학이 담긴 프로그램들입니다.</p>
   </div>
-  <div class="team-grid">
-    <div class="tc rv">
-      <div class="tc-top">
-        <div class="tc-init">KJ</div>
-        <span class="tc-role-tag">CEO</span>
+  <div class="prog-grid">
+
+    <div class="pc rv">
+      <div class="pc-top pc-top-1">
+        <div class="pc-idx">[ 01 ]</div>
+        <div class="pc-symbol">IC</div>
       </div>
-      <div class="tc-line"></div>
-      <div class="tc-info">
-        <div class="tc-name">김지원</div>
-        <div class="tc-title">대표이사 · CEO</div>
-        <p class="tc-bio">10년+ 전략 컨설팅 경험. 기술과 비즈니스의 교차점에서 새로운 가치를 창출합니다.</p>
-      </div>
-    </div>
-    <div class="tc rv d1">
-      <div class="tc-top">
-        <div class="tc-init">LM</div>
-        <span class="tc-role-tag">CTO</span>
-      </div>
-      <div class="tc-line"></div>
-      <div class="tc-info">
-        <div class="tc-name">이민준</div>
-        <div class="tc-title">기술이사 · CTO</div>
-        <p class="tc-bio">실리콘밸리 출신 엔지니어. 확장 가능한 아키텍처와 기술 문화를 책임집니다.</p>
+      <div class="pc-line"></div>
+      <div class="pc-info">
+        <div class="pc-status">COMING SOON</div>
+        <div class="pc-name">인포커터</div>
+        <div class="pc-name-en">INFOCUTTER</div>
+        <p class="pc-desc">민감한 콘텐츠를 자동으로 감지하고 차단합니다. 텍스트·이미지 속 노출되어서는 안 될 정보를 정밀하게 식별하여 안전한 환경을 만듭니다.</p>
+        <a href="#" class="pc-link">자세히 보기 <span>→</span></a>
       </div>
     </div>
-    <div class="tc rv d2">
-      <div class="tc-top">
-        <div class="tc-init">PH</div>
-        <span class="tc-role-tag">CSO</span>
+
+    <div class="pc rv d1">
+      <div class="pc-top pc-top-2">
+        <div class="pc-idx">[ 02 ]</div>
+        <div class="pc-symbol">VK</div>
       </div>
-      <div class="tc-line"></div>
-      <div class="tc-info">
-        <div class="tc-name">박혜린</div>
-        <div class="tc-title">전략이사 · CSO</div>
-        <p class="tc-bio">글로벌 시장 전문가. 데이터 중심의 성장 전략을 수립하고 실행합니다.</p>
-      </div>
-    </div>
-    <div class="tc rv d3">
-      <div class="tc-top">
-        <div class="tc-init">CS</div>
-        <span class="tc-role-tag">COO</span>
-      </div>
-      <div class="tc-line"></div>
-      <div class="tc-info">
-        <div class="tc-name">최성민</div>
-        <div class="tc-title">운영이사 · COO</div>
-        <p class="tc-bio">프로세스 최적화 전문가. 효율적인 운영 시스템으로 조직의 성과를 높입니다.</p>
+      <div class="pc-line"></div>
+      <div class="pc-info">
+        <div class="pc-status">COMING SOON</div>
+        <div class="pc-name">베일키</div>
+        <div class="pc-name-en">VEILKEY</div>
+        <p class="pc-desc">비밀번호를 AI가 절대 볼 수 없도록 관리합니다. 인증 정보를 암호화된 공간에 격리하여 AI 환경에서도 안전한 접근을 보장합니다.</p>
+        <a href="#" class="pc-link">자세히 보기 <span>→</span></a>
       </div>
     </div>
+
+    <div class="pc rv d2">
+      <div class="pc-top pc-top-3">
+        <div class="pc-idx">[ 03 ]</div>
+        <div class="pc-symbol">GA</div>
+      </div>
+      <div class="pc-line"></div>
+      <div class="pc-info">
+        <div class="pc-status">COMING SOON</div>
+        <div class="pc-name">감정AI</div>
+        <div class="pc-name-en">GAYA</div>
+        <p class="pc-desc">가상세계를 구축하고 AI에 감정을 부여합니다. 인공지능이 감정을 이해하고 반응하는 새로운 차원의 상호작용을 설계합니다.</p>
+        <a href="#" class="pc-link">자세히 보기 <span>→</span></a>
+      </div>
+    </div>
+
+    <div class="pc rv d3">
+      <div class="pc-top pc-top-4">
+        <div class="pc-idx">[ 04 ]</div>
+        <div class="pc-symbol">TD</div>
+      </div>
+      <div class="pc-line"></div>
+      <div class="pc-info">
+        <div class="pc-status">COMING SOON</div>
+        <div class="pc-name">더 달</div>
+        <div class="pc-name-en">THE DAL</div>
+        <p class="pc-desc">AI 에이전트를 달에 이식하여 활용합니다. 극한 환경에서 작동하는 자율 지능 시스템으로 새로운 탐사의 가능성을 엽니다.</p>
+        <a href="#" class="pc-link">자세히 보기 <span>→</span></a>
+      </div>
+    </div>
+
   </div>
 </section>
 
