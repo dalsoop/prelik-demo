@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prelik — AI 개발자의 편</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Manrope:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+@property --ang  { syntax:'<angle>'; initial-value:0deg;   inherits:false; }
+@property --ang2 { syntax:'<angle>'; initial-value:120deg; inherits:false; }
+@property --ang3 { syntax:'<angle>'; initial-value:240deg; inherits:false; }
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:  #020208;
+  --bg2: #080812;
+  --bg3: #0e0e1c;
+  --b:   #16162c;
+  --b2:  #20203a;
+  --ink: #ededfa;
+  --k2:  #6868a0;
+  --k3:  #2e2e50;
+  --g:   #00e890;
+  --a:   #ffab33;
+  --p:   #aa7fff;
+  --br:  #5a5aff;
+  --cy:  #00ccff;
+  --ro:  #ff3d6e;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif;font-size:15px;line-height:1.6;overflow-x:hidden;cursor:none;}
+a{color:inherit;text-decoration:none;}
+
+/* ── CURSOR ── */
+#cur{pointer-events:none;position:fixed;z-index:9999;top:0;left:0;}
+.cd{position:absolute;border-radius:50%;transform:translate(-50%,-50%);}
+.cd-dot{width:10px;height:10px;background:var(--ink);mix-blend-mode:difference;transition:width .25s,height .25s;}
+.cd-dot.big{width:54px;height:54px;}
+.cd-ring{width:40px;height:40px;border:1.5px solid rgba(255,255,255,.2);transition:width .35s cubic-bezier(.16,1,.3,1),height .35s cubic-bezier(.16,1,.3,1),border-color .3s;}
+#sp{position:fixed;inset:0;pointer-events:none;z-index:1;}
+
+/* ── MESH BACKGROUND ── */
+.mesh{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.mo{position:absolute;border-radius:50%;filter:blur(110px);}
+.mo1{width:1000px;height:1000px;top:-350px;left:-250px;background:var(--br);opacity:.13;animation:d1 20s ease-in-out infinite alternate;}
+.mo2{width:700px;height:700px;top:150px;right:-150px;background:var(--cy);opacity:.1;animation:d2 24s ease-in-out infinite alternate;}
+.mo3{width:600px;height:600px;bottom:-100px;left:15%;background:var(--ro);opacity:.1;animation:d3 18s ease-in-out infinite alternate;}
+.mo4{width:500px;height:500px;bottom:100px;right:5%;background:var(--g);opacity:.09;animation:d4 22s ease-in-out infinite alternate;}
+@keyframes d1{from{transform:translate(0,0)scale(1)}to{transform:translate(70px,60px)scale(1.15)}}
+@keyframes d2{from{transform:translate(0,0)}to{transform:translate(-50px,80px)scale(1.1)}}
+@keyframes d3{from{transform:translate(0,0)}to{transform:translate(50px,-60px)scale(1.2)}}
+@keyframes d4{from{transform:translate(0,0)}to{transform:translate(-40px,-50px)scale(1.15)}}
+
+/* ── LOGO MARK ── */
+.logo-mark{
+  width:34px;height:34px;position:relative;flex-shrink:0;
+}
+.logo-mark svg{width:34px;height:34px;}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:300;
+  height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;
+  background:rgba(2,2,8,.72);backdrop-filter:blur(28px);
+  border-bottom:1px solid rgba(255,255,255,.055);
+}
+.nav-logo{display:flex;align-items:center;gap:11px;font-family:'Syne',sans-serif;font-size:19px;font-weight:700;letter-spacing:-.04em;}
+.nc{display:flex;align-items:center;gap:2px;}
+.nl{padding:6px 14px;font-size:13.5px;font-weight:500;color:var(--k2);border-radius:7px;transition:color .15s,background .15s;}
+.nl:hover{color:var(--ink);background:rgba(255,255,255,.04);}
+.nbtn{
+  padding:10px 24px;border-radius:9px;font-size:13.5px;font-weight:600;
+  font-family:'Manrope',sans-serif;border:none;
+  background:linear-gradient(135deg,var(--br),var(--cy));
+  color:#fff;position:relative;overflow:hidden;
+  box-shadow:0 0 28px rgba(90,90,255,.45);
+  transition:transform .2s,box-shadow .2s;
+}
+.nbtn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--cy),var(--ro));opacity:0;transition:opacity .4s;}
+.nbtn:hover::before{opacity:1;}
+.nbtn:hover{transform:translateY(-2px);box-shadow:0 4px 40px rgba(90,90,255,.6),0 0 60px rgba(0,204,255,.2);}
+.nbtn span{position:relative;z-index:1;}
+
+/* ── HERO ── */
+.hero{min-height:100vh;position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:0 56px 90px;overflow:hidden;}
+#cvs{position:absolute;inset:0;z-index:0;}
+
+/* Geometric floating shapes (no emoji) */
+.shapes{position:absolute;inset:0;pointer-events:none;z-index:1;}
+.sh{position:absolute;}
+/* hexagon */
+.sh1{top:14%;right:14%;width:80px;height:80px;animation:sf1 10s ease-in-out infinite;}
+.sh1 svg{width:80px;height:80px;}
+/* diamond */
+.sh2{top:50%;right:24%;width:52px;height:52px;animation:sf2 13s ease-in-out infinite;}
+/* circle ring */
+.sh3{top:24%;right:32%;width:90px;height:90px;animation:sf3 11s ease-in-out infinite;}
+.sh3 svg{width:90px;height:90px;}
+/* triangle */
+.sh4{top:68%;right:10%;width:60px;height:60px;animation:sf4 15s ease-in-out infinite;}
+.sh4 svg{width:60px;height:60px;}
+/* small hex */
+.sh5{top:38%;right:42%;width:44px;height:44px;animation:sf1 9s ease-in-out infinite reverse;}
+.sh5 svg{width:44px;height:44px;}
+/* cross */
+.sh6{top:78%;right:30%;width:40px;height:40px;animation:sf3 12s ease-in-out infinite reverse;}
+.sh6 svg{width:40px;height:40px;}
+@keyframes sf1{0%,100%{transform:translateY(0) rotateX(0) rotateY(0) rotateZ(0)}50%{transform:translateY(-30px) rotateX(20deg) rotateY(40deg) rotateZ(12deg)}}
+@keyframes sf2{0%,100%{transform:translateY(0) rotateZ(45deg)}50%{transform:translateY(-22px) rotateZ(225deg)}}
+@keyframes sf3{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-26px) rotate(180deg)}}
+@keyframes sf4{0%,100%{transform:translateY(0) rotateX(0)}50%{transform:translateY(-35px) rotateX(20deg) rotate(60deg)}}
+
+.hero-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--k3);letter-spacing:.14em;text-transform:uppercase;margin-bottom:40px;display:flex;align-items:center;gap:12px;position:relative;z-index:2;}
+.pd{width:8px;height:8px;border-radius:50%;background:var(--g);box-shadow:0 0 12px var(--g),0 0 24px rgba(0,232,144,.4);animation:pdp 2s ease-in-out infinite;}
+@keyframes pdp{0%,100%{transform:scale(1)}50%{transform:scale(1.6);box-shadow:0 0 20px var(--g),0 0 40px rgba(0,232,144,.3)}}
+
+.hero-title{font-family:'Syne',sans-serif;font-size:clamp(50px,8vw,108px);font-weight:800;letter-spacing:-.045em;line-height:1.0;position:relative;z-index:2;}
+.ht-l{overflow:hidden;display:block;}
+.ht-i{display:block;animation:wu .9s cubic-bezier(.16,1,.3,1) both;}
+.ht-l:nth-child(1) .ht-i{animation-delay:.1s;}
+.ht-l:nth-child(2) .ht-i{animation-delay:.25s;}
+.ht-l:nth-child(3) .ht-i{animation-delay:.4s;}
+@keyframes wu{from{transform:translateY(110%);opacity:0}to{transform:translateY(0);opacity:1}}
+.gsweep{background:linear-gradient(90deg,var(--g),var(--cy),var(--br),var(--ro),var(--a),var(--g));background-size:300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:gs 5s linear infinite;}
+@keyframes gs{from{background-position:0%}to{background-position:300%}}
+.dh{color:var(--k3);}
+
+/* ticker */
+.tkw{overflow:hidden;border-top:1px solid rgba(255,255,255,.045);border-bottom:1px solid rgba(255,255,255,.045);padding:14px 0;background:rgba(8,8,18,.9);position:relative;z-index:2;margin-top:54px;}
+.tk{display:flex;gap:0;white-space:nowrap;animation:tscroll 24s linear infinite;}
+@keyframes tscroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.ti{display:inline-flex;align-items:center;gap:18px;padding:0 36px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--k3);flex-shrink:0;}
+.tag{font-weight:500;padding:2px 8px;border-radius:4px;font-size:11px;}
+.tg{color:var(--g);background:rgba(0,232,144,.1);}
+.ta{color:var(--a);background:rgba(255,171,51,.1);}
+.tp{color:var(--p);background:rgba(170,127,255,.1);}
+.tc{color:var(--cy);background:rgba(0,204,255,.1);}
+.tdot{width:4px;height:4px;border-radius:50%;background:var(--b2);}
+
+.hbot{display:grid;grid-template-columns:1fr auto;gap:60px;align-items:flex-end;padding-top:56px;border-top:1px solid rgba(255,255,255,.05);position:relative;z-index:2;}
+.hdesc{font-size:16px;color:var(--k2);line-height:1.85;max-width:560px;}
+
+/* SVG ring stats */
+.sgrp{display:flex;gap:28px;}
+.srw{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.rsvg{transform:rotate(-90deg);}
+.rtrack{fill:none;stroke:var(--b2);stroke-width:3;}
+.rfill{fill:none;stroke-width:3;stroke-linecap:round;stroke-dasharray:100 100;stroke-dashoffset:100;transition:stroke-dashoffset 1.6s cubic-bezier(.16,1,.3,1);}
+.rf1{stroke:url(#rg1);}
+.rf2{stroke:url(#rg2);}
+.rf3{stroke:url(#rg3);}
+.snum{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;letter-spacing:-.03em;}
+.slbl{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--k3);letter-spacing:.08em;text-transform:uppercase;}
+
+/* ── DIVIDER ── */
+.div-line{height:2px;background:linear-gradient(90deg,transparent,var(--br),var(--cy),var(--ro),transparent);opacity:.35;animation:dls 6s linear infinite;background-size:200%;}
+@keyframes dls{from{background-position:0%}to{background-position:200%}}
+
+/* ── SECTION ── */
+.sec{padding:120px 56px;border-bottom:1px solid rgba(255,255,255,.045);position:relative;z-index:2;}
+.si{max-width:1200px;margin:0 auto;}
+.stag{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--k3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:72px;display:flex;align-items:center;gap:14px;}
+.stag::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.045);}
+
+/* ── PRODUCT CARDS ── */
+.ph-row{display:grid;grid-template-columns:1fr 1fr;gap:80px;margin-bottom:80px;align-items:end;}
+.ph-h{font-family:'Syne',sans-serif;font-size:clamp(34px,4vw,52px);font-weight:800;letter-spacing:-.04em;line-height:1.1;}
+.ph-p{font-size:16px;color:var(--k2);line-height:1.8;}
+.cg{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+
+.pc{
+  position:relative;border-radius:22px;padding:2px;
+  background:linear-gradient(var(--bg2),var(--bg2)) padding-box,
+             conic-gradient(from var(--ang) at 50% 50%,transparent 0deg,var(--g) 60deg,transparent 120deg) border-box;
+  border:2px solid transparent;
+  transition:transform .4s cubic-bezier(.16,1,.3,1);
+  animation:bs1 4s linear infinite;
+}
+.pc.vc{
+  background:linear-gradient(var(--bg2),var(--bg2)) padding-box,
+             conic-gradient(from var(--ang2) at 50% 50%,transparent 0deg,var(--a) 60deg,transparent 120deg) border-box;
+  animation:bs2 4s linear infinite;
+}
+.pc.lc{
+  background:linear-gradient(var(--bg2),var(--bg2)) padding-box,
+             conic-gradient(from var(--ang3) at 50% 50%,transparent 0deg,var(--p) 60deg,transparent 120deg) border-box;
+  animation:bs3 4s linear infinite;
+}
+@keyframes bs1{to{--ang:360deg;}}
+@keyframes bs2{to{--ang2:480deg;}}
+@keyframes bs3{to{--ang3:600deg;}}
+.pc:hover{transform:translateY(-8px) scale(1.01);}
+
+.pi{background:var(--bg2);border-radius:20px;padding:36px;overflow:hidden;position:relative;height:100%;}
+.pi::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .5s;pointer-events:none;}
+.pc .pi::before{background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(0,232,144,.06),transparent);}
+.pc.vc .pi::before{background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(255,171,51,.06),transparent);}
+.pc.lc .pi::before{background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(170,127,255,.06),transparent);}
+.pc:hover .pi::before{opacity:1;}
+
+/* product icon — CSS drawn, no emoji */
+.pc-ico{
+  width:52px;height:52px;border-radius:14px;margin-bottom:22px;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+}
+.pc:hover .pc-ico{transform:scale(1.15) rotate(-6deg);}
+.pc    .pc-ico{background:rgba(0,232,144,.1);}
+.pc.vc .pc-ico{background:rgba(255,171,51,.1);}
+.pc.lc .pc-ico{background:rgba(170,127,255,.1);}
+.pc-ico svg{width:26px;height:26px;}
+
+.pc-nm{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;letter-spacing:-.03em;margin-bottom:10px;}
+.pc-ds{font-size:14px;color:var(--k2);line-height:1.65;margin-bottom:26px;}
+.pc-lk{display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;transition:gap .2s;}
+.pc:hover .pc-lk{gap:12px;}
+.pc    .pc-lk{color:var(--g);}
+.pc.vc .pc-lk{color:var(--a);}
+.pc.lc .pc-lk{color:var(--p);}
+
+/* ── MISSION ── */
+.msec{background:var(--bg2);}
+.mbg{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.mbo{position:absolute;border-radius:50%;filter:blur(90px);}
+.mbo1{width:600px;height:600px;top:-120px;left:-100px;background:var(--br);opacity:.1;animation:d1 15s ease-in-out infinite alternate;}
+.mbo2{width:400px;height:400px;top:30%;right:-80px;background:var(--ro);opacity:.09;animation:d2 18s ease-in-out infinite alternate-reverse;}
+.mbo3{width:350px;height:350px;bottom:-50px;left:30%;background:var(--cy);opacity:.08;animation:d3 12s ease-in-out infinite alternate;}
+
+.mq{font-family:'Syne',sans-serif;font-size:clamp(30px,4vw,56px);font-weight:800;letter-spacing:-.04em;line-height:1.2;max-width:920px;margin-bottom:72px;position:relative;z-index:1;}
+.wr{display:inline-block;overflow:hidden;margin-right:.22em;vertical-align:top;}
+.wri{display:inline-block;transform:translateY(110%);opacity:0;transition:transform .7s cubic-bezier(.16,1,.3,1),opacity .5s;}
+.wr.vis .wri{transform:translateY(0);opacity:1;}
+.wg{color:var(--g);}.wcy{color:var(--cy);}.wro{color:var(--ro);}.wd{color:var(--k3);}
+
+.vrow{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.04);border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.055);position:relative;z-index:1;}
+.vi{background:var(--bg2);padding:44px 40px;position:relative;overflow:hidden;transition:background .25s;}
+.vi:hover{background:rgba(255,255,255,.02);}
+.vi-bar{position:absolute;bottom:0;left:0;right:0;height:3px;transform:scaleX(0);transition:transform .4s cubic-bezier(.16,1,.3,1);transform-origin:left;}
+.vi:nth-child(1) .vi-bar{background:linear-gradient(90deg,var(--g),var(--cy));box-shadow:0 0 16px var(--g);}
+.vi:nth-child(2) .vi-bar{background:linear-gradient(90deg,var(--a),var(--ro));box-shadow:0 0 16px var(--a);}
+.vi:nth-child(3) .vi-bar{background:linear-gradient(90deg,var(--p),var(--br));box-shadow:0 0 16px var(--p);}
+.vi:hover .vi-bar{transform:scaleX(1);}
+.vi-n{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--k3);letter-spacing:.08em;margin-bottom:18px;}
+.vi-t{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;letter-spacing:-.03em;margin-bottom:10px;}
+.vi-d{font-size:13.5px;color:var(--k2);line-height:1.7;}
+
+/* ── STORY ── */
+.stl{display:grid;grid-template-columns:1fr 1fr;gap:80px;}
+.sg-h{font-family:'Syne',sans-serif;font-size:clamp(30px,3.5vw,46px);font-weight:800;letter-spacing:-.04em;line-height:1.1;margin-bottom:24px;}
+.sg-p{font-size:15.5px;color:var(--k2);line-height:1.85;margin-bottom:18px;}
+.sg-s{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--k3);margin-top:16px;}
+.tlrow{display:grid;grid-template-columns:72px 1fr;gap:20px;padding:26px 0;border-bottom:1px solid rgba(255,255,255,.055);transition:all .25s;}
+.tlrow:hover{background:rgba(255,255,255,.02);margin:0 -16px;padding-left:16px;padding-right:16px;border-radius:10px;}
+.tlyr{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--k3);padding-top:3px;letter-spacing:.04em;}
+.tlb{padding-left:22px;position:relative;}
+.tlb::before{content:'';position:absolute;left:0;top:6px;width:9px;height:9px;border-radius:50%;background:var(--b2);border:2px solid var(--b2);transition:all .3s;}
+.tlrow:hover .tlb::before{background:var(--cy);border-color:var(--cy);box-shadow:0 0 16px var(--cy),0 0 28px rgba(0,204,255,.3);}
+.tlt{font-size:15px;font-weight:600;margin-bottom:4px;}
+.tld{font-size:13px;color:var(--k2);line-height:1.6;}
+
+/* ── TEAM ── */
+.th-row{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;margin-bottom:72px;}
+.tm-h{font-family:'Syne',sans-serif;font-size:clamp(36px,5vw,64px);font-weight:800;letter-spacing:-.04em;line-height:1.0;}
+.tm-p{font-size:16px;color:var(--k2);line-height:1.8;}
+.tg{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.mc{background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:28px;text-align:center;position:relative;overflow:hidden;transition:transform .4s cubic-bezier(.16,1,.3,1),border-color .3s,box-shadow .3s;}
+.mc:hover{transform:translateY(-10px);}
+.mcg{position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:160px;height:160px;border-radius:50%;opacity:0;transition:opacity .5s;pointer-events:none;filter:blur(50px);}
+.mc.c1:hover .mcg{opacity:.5;background:var(--g);}
+.mc.c2:hover .mcg{opacity:.5;background:var(--a);}
+.mc.c3:hover .mcg{opacity:.5;background:var(--p);}
+.mc.c1:hover{border-color:rgba(0,232,144,.3);box-shadow:0 20px 60px rgba(0,232,144,.07);}
+.mc.c2:hover{border-color:rgba(255,171,51,.3);box-shadow:0 20px 60px rgba(255,171,51,.07);}
+.mc.c3:hover{border-color:rgba(170,127,255,.3);box-shadow:0 20px 60px rgba(170,127,255,.07);}
+/* Member avatars — initials in circle */
+.mc-av{
+  width:60px;height:60px;border-radius:50%;margin:0 auto 14px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-size:18px;font-weight:800;letter-spacing:-.02em;
+  position:relative;z-index:1;
+  transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+}
+.mc:hover .mc-av{transform:scale(1.12) translateY(-3px);}
+.mc.c1 .mc-av{background:rgba(0,232,144,.12);color:var(--g);}
+.mc.c2 .mc-av{background:rgba(255,171,51,.12);color:var(--a);}
+.mc.c3 .mc-av{background:rgba(170,127,255,.12);color:var(--p);}
+.mc-nm{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;letter-spacing:-.02em;margin-bottom:4px;position:relative;z-index:1;}
+.mc-rl{font-size:12.5px;color:var(--k2);margin-bottom:12px;position:relative;z-index:1;}
+.mc-bd{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 10px;border-radius:5px;position:relative;z-index:1;}
+.mc.c1 .mc-bd{background:rgba(0,232,144,.1);color:var(--g);}
+.mc.c2 .mc-bd{background:rgba(255,171,51,.1);color:var(--a);}
+.mc.c3 .mc-bd{background:rgba(170,127,255,.1);color:var(--p);}
+.mc.hire{border-style:dashed;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:190px;gap:6px;transition:border-color .3s,transform .3s,box-shadow .3s;}
+.mc.hire:hover{border-color:rgba(0,204,255,.35);box-shadow:0 0 40px rgba(0,204,255,.07);transform:translateY(-6px);}
+.hire-mark{
+  width:44px;height:44px;border-radius:50%;border:1.5px solid rgba(255,255,255,.1);
+  display:flex;align-items:center;justify-content:center;margin-bottom:4px;
+  transition:border-color .3s,box-shadow .3s;
+}
+.mc.hire:hover .hire-mark{border-color:rgba(0,204,255,.4);box-shadow:0 0 20px rgba(0,204,255,.15);}
+.hire-plus{
+  width:14px;height:14px;position:relative;
+}
+.hire-plus::before,.hire-plus::after{content:'';position:absolute;background:var(--k3);border-radius:1px;transition:background .3s;}
+.hire-plus::before{width:14px;height:1.5px;top:50%;left:0;transform:translateY(-50%);}
+.hire-plus::after{width:1.5px;height:14px;top:0;left:50%;transform:translateX(-50%);}
+.mc.hire:hover .hire-plus::before,.mc.hire:hover .hire-plus::after{background:var(--cy);}
+.hire-t{font-size:14px;font-weight:600;}
+.hire-s{font-size:12px;color:var(--k3);}
+.hire-l{font-size:13px;font-weight:600;color:var(--cy);margin-top:4px;}
+
+/* ── CONTACT ── */
+.cw{background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:24px;overflow:hidden;position:relative;}
+.cw::before{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(135deg,rgba(90,90,255,.025),rgba(0,204,255,.015),rgba(255,61,110,.015));}
+.ctg{display:grid;grid-template-columns:1fr 1fr;}
+.ctl{padding:72px 64px;border-right:1px solid rgba(255,255,255,.07);position:relative;z-index:1;}
+.ct-h{font-family:'Syne',sans-serif;font-size:clamp(32px,4vw,52px);font-weight:800;letter-spacing:-.04em;line-height:1.1;margin-bottom:20px;}
+.ct-g{background:linear-gradient(90deg,var(--br),var(--cy),var(--g));background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:gs 4s linear infinite;}
+.ct-sub{font-size:16px;color:var(--k2);line-height:1.75;margin-bottom:44px;}
+.cil{display:flex;flex-direction:column;gap:12px;}
+.ci{display:flex;align-items:center;gap:16px;padding:18px 20px;border-radius:13px;border:1px solid rgba(255,255,255,.07);background:var(--bg);transition:all .3s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden;}
+.ci::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;transform:scaleY(0);transition:transform .35s cubic-bezier(.16,1,.3,1);transform-origin:bottom;}
+.ci:nth-child(1)::before{background:linear-gradient(to top,var(--g),var(--cy));box-shadow:0 0 12px var(--g);}
+.ci:nth-child(2)::before{background:linear-gradient(to top,var(--a),var(--ro));box-shadow:0 0 12px var(--a);}
+.ci:nth-child(3)::before{background:linear-gradient(to top,var(--p),var(--br));box-shadow:0 0 12px var(--p);}
+.ci:hover{border-color:rgba(255,255,255,.12);transform:translateX(10px);background:rgba(255,255,255,.02);}
+.ci:hover::before{transform:scaleY(1);}
+/* Contact icons — SVG */
+.ci-ico{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ci:nth-child(1) .ci-ico{background:rgba(0,232,144,.1);}
+.ci:nth-child(2) .ci-ico{background:rgba(255,171,51,.1);}
+.ci:nth-child(3) .ci-ico{background:rgba(170,127,255,.1);}
+.ci-ico svg{width:18px;height:18px;}
+.ci-t{font-size:15px;font-weight:600;}
+.ci-s{font-size:12px;color:var(--k2);margin-top:1px;}
+.ci-a{margin-left:auto;color:var(--k3);transition:transform .25s,color .25s;}
+.ci:hover .ci-a{transform:translateX(6px);color:var(--k2);}
+.ctr{padding:72px 64px;position:relative;z-index:1;}
+.ctr::before{content:'';position:absolute;top:-120px;right:-80px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(90,90,255,.14),transparent 70%);pointer-events:none;}
+.cr-l{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--k3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:20px;}
+.cr-h{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;letter-spacing:-.03em;margin-bottom:12px;}
+.cr-p{font-size:14px;color:var(--k2);line-height:1.7;margin-bottom:28px;}
+.perks{list-style:none;margin-bottom:32px;}
+.perks li{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--k2);padding:9px 0;border-bottom:1px solid rgba(255,255,255,.055);}
+.perks li:last-child{border-bottom:none;}
+.perks li::before{content:'';width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.perks li:nth-child(1)::before{background:var(--g);box-shadow:0 0 10px var(--g);}
+.perks li:nth-child(2)::before{background:var(--cy);box-shadow:0 0 10px var(--cy);}
+.perks li:nth-child(3)::before{background:var(--ro);box-shadow:0 0 10px var(--ro);}
+.perks li:nth-child(4)::before{background:var(--a);box-shadow:0 0 10px var(--a);}
+.cr-btn{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:10px;font-size:14px;font-weight:700;font-family:'Manrope',sans-serif;background:linear-gradient(135deg,var(--br),var(--cy));color:#fff;box-shadow:0 0 28px rgba(90,90,255,.38);transition:transform .2s,box-shadow .2s;}
+.cr-btn:hover{transform:translateY(-3px);box-shadow:0 4px 40px rgba(90,90,255,.55),0 0 60px rgba(0,204,255,.2);}
+
+/* ── FOOTER ── */
+footer{padding:72px 56px 48px;border-top:1px solid rgba(255,255,255,.045);position:relative;z-index:2;}
+.fi{max-width:1200px;margin:0 auto;}
+.fg{display:grid;grid-template-columns:280px repeat(4,1fr);gap:48px;margin-bottom:60px;}
+.fbd{font-size:13px;color:var(--k3);line-height:1.7;margin-top:12px;}
+.fch{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink);margin-bottom:14px;}
+.fl{list-style:none;}
+.fl li{margin-bottom:9px;}
+.fl a{font-size:13.5px;color:var(--k2);transition:color .12s;}
+.fl a:hover{color:var(--ink);}
+.fb{padding-top:32px;border-top:1px solid rgba(255,255,255,.045);display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--k3);}
+.fps{display:flex;gap:8px;}
+.fp{padding:3px 10px;border-radius:5px;font-size:11px;font-weight:600;}
+
+/* ── REVEAL ── */
+.r{opacity:0;transform:translateY(28px);transition:opacity .75s cubic-bezier(.16,1,.3,1),transform .75s cubic-bezier(.16,1,.3,1);}
+.r.in{opacity:1;transform:none;}
+.sr{opacity:0;transform:scale(.95) translateY(24px);transition:opacity .75s cubic-bezier(.16,1,.3,1),transform .75s cubic-bezier(.16,1,.3,1);}
+.sr.in{opacity:1;transform:none;}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}
+</style>
+</head>
+<body>
+
+<div class="mesh" aria-hidden="true">
+  <div class="mo mo1"></div><div class="mo mo2"></div>
+  <div class="mo mo3"></div><div class="mo mo4"></div>
+</div>
+
+<div id="cur">
+  <div class="cd cd-dot" id="dot"></div>
+  <div class="cd cd-ring" id="ring"></div>
+</div>
+<div id="sp"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <!-- Prelik logo mark: three overlapping rings -->
+    <div class="logo-mark">
+      <svg viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="lg1" x1="0" y1="0" x2="34" y2="34" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#5a5aff"/>
+            <stop offset="100%" stop-color="#00ccff"/>
+          </linearGradient>
+        </defs>
+        <circle cx="13" cy="13" r="9" stroke="url(#lg1)" stroke-width="2" opacity=".9"/>
+        <circle cx="21" cy="13" r="9" stroke="url(#lg1)" stroke-width="2" opacity=".6"/>
+        <circle cx="17" cy="21" r="9" stroke="url(#lg1)" stroke-width="2" opacity=".4"/>
+        <circle cx="17" cy="16" r="4" fill="url(#lg1)"/>
+      </svg>
+    </div>
+    Prelik
+  </div>
+  <div class="nc">
+    <a class="nl">Products</a><a class="nl">Company</a>
+    <a class="nl">Blog</a><a class="nl">Careers</a><a class="nl">Docs</a>
+  </div>
+  <button class="nbtn mag"><span>문의하기</span></button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <canvas id="cvs"></canvas>
+
+  <!-- Geometric shapes (SVG, no emoji) -->
+  <div class="shapes" aria-hidden="true">
+    <div class="sh sh1">
+      <svg viewBox="0 0 80 80" fill="none"><polygon points="40,4 76,22 76,58 40,76 4,58 4,22" stroke="#5a5aff" stroke-width="1.5" opacity=".4" fill="rgba(90,90,255,.05)"/><polygon points="40,18 62,28 62,52 40,62 18,52 18,28" stroke="#00ccff" stroke-width="1" opacity=".2" fill="none"/></svg>
+    </div>
+    <div class="sh sh2">
+      <svg viewBox="0 0 52 52" fill="none" style="width:52px;height:52px"><rect x="8" y="8" width="36" height="36" transform="rotate(45 26 26)" stroke="#ff3d6e" stroke-width="1.5" opacity=".4" fill="rgba(255,61,110,.05)"/></svg>
+    </div>
+    <div class="sh sh3">
+      <svg viewBox="0 0 90 90" fill="none"><circle cx="45" cy="45" r="36" stroke="#00ccff" stroke-width="1.5" opacity=".3" stroke-dasharray="6 4"/><circle cx="45" cy="45" r="26" stroke="#5a5aff" stroke-width="1" opacity=".2"/><circle cx="45" cy="45" r="5" fill="#00ccff" opacity=".4"/></svg>
+    </div>
+    <div class="sh sh4">
+      <svg viewBox="0 0 60 60" fill="none"><polygon points="30,6 56,52 4,52" stroke="#00e890" stroke-width="1.5" opacity=".4" fill="rgba(0,232,144,.05)"/></svg>
+    </div>
+    <div class="sh sh5">
+      <svg viewBox="0 0 44 44" fill="none"><polygon points="22,3 41,12 41,32 22,41 3,32 3,12" stroke="#aa7fff" stroke-width="1.5" opacity=".35" fill="rgba(170,127,255,.05)"/></svg>
+    </div>
+    <div class="sh sh6">
+      <svg viewBox="0 0 40 40" fill="none"><line x1="20" y1="4" x2="20" y2="36" stroke="#ffab33" stroke-width="1.5" opacity=".35"/><line x1="4" y1="20" x2="36" y2="20" stroke="#ffab33" stroke-width="1.5" opacity=".35"/><circle cx="20" cy="20" r="6" stroke="#ffab33" stroke-width="1.5" opacity=".2" fill="none"/></svg>
+    </div>
+  </div>
+
+  <div class="hero-label" style="position:relative;z-index:2">
+    <div class="pd"></div>Prelik · Seoul · Est. 2024
+  </div>
+
+  <h1 class="hero-title" style="position:relative;z-index:2">
+    <span class="ht-l"><span class="ht-i dh">우리는 AI와 함께</span></span>
+    <span class="ht-l"><span class="ht-i dh">일하는</span></span>
+    <span class="ht-l"><span class="ht-i"><span class="gsweep">개발자의 편입니다.</span></span></span>
+  </h1>
+
+  <div class="tkw">
+    <div class="tk">
+      <span class="ti"><span class="tag tg">dalforge</span>AI 에이전트 컨테이너 인프라<div class="tdot"></div></span>
+      <span class="ti"><span class="tag ta">VeilKey</span>AES-256-GCM 시크릿 볼트<div class="tdot"></div></span>
+      <span class="ti"><span class="tag tp">Academy</span>AI 인프라 전문 교육<div class="tdot"></div></span>
+      <span class="ti"><span class="tag tc">Proxmox</span>LXC 자동 프로비저닝<div class="tdot"></div></span>
+      <span class="ti"><span class="tag tg">dalforge</span>AI 에이전트 컨테이너 인프라<div class="tdot"></div></span>
+      <span class="ti"><span class="tag ta">VeilKey</span>AES-256-GCM 시크릿 볼트<div class="tdot"></div></span>
+      <span class="ti"><span class="tag tp">Academy</span>AI 인프라 전문 교육<div class="tdot"></div></span>
+      <span class="ti"><span class="tag tc">Proxmox</span>LXC 자동 프로비저닝<div class="tdot"></div></span>
+    </div>
+  </div>
+
+  <div class="hbot">
+    <p class="hdesc r">
+      dalforge로 AI 에이전트 인프라를 구축하고, VeilKey로 자격증명을 보호하세요.<br>
+      Prelik Academy에서 함께 배웁니다. AI 네이티브 개발자를 위한 소프트웨어 회사.
+    </p>
+    <div class="sgrp r d1" id="sg">
+      <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0">
+        <defs>
+          <linearGradient id="rg1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00e890"/><stop offset="100%" stop-color="#00ccff"/></linearGradient>
+          <linearGradient id="rg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#5a5aff"/><stop offset="100%" stop-color="#aa7fff"/></linearGradient>
+          <linearGradient id="rg3" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#ff3d6e"/><stop offset="100%" stop-color="#ffab33"/></linearGradient>
+        </defs>
+      </svg>
+      <div class="srw"><svg class="rsvg" width="72" height="72" viewBox="0 0 72 72"><circle class="rtrack" cx="36" cy="36" r="30" pathLength="100"/><circle class="rfill rf1" id="rf1" cx="36" cy="36" r="30" pathLength="100"/></svg><div class="snum" id="cn1" style="color:var(--g)">0</div><div class="slbl">제품</div></div>
+      <div class="srw"><svg class="rsvg" width="72" height="72" viewBox="0 0 72 72"><circle class="rtrack" cx="36" cy="36" r="30" pathLength="100"/><circle class="rfill rf2" id="rf2" cx="36" cy="36" r="30" pathLength="100"/></svg><div class="snum" id="cn2" style="color:var(--br)">0</div><div class="slbl">개발자</div></div>
+      <div class="srw"><svg class="rsvg" width="72" height="72" viewBox="0 0 72 72"><circle class="rtrack" cx="36" cy="36" r="30" pathLength="100"/><circle class="rfill rf3" id="rf3" cx="36" cy="36" r="30" pathLength="100"/></svg><div class="snum" id="cn3" style="color:var(--ro)">0</div><div class="slbl">컨테이너</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="div-line"></div>
+
+<!-- PRODUCTS -->
+<section class="sec">
+  <div class="si">
+    <div class="stag r">01 — 제품</div>
+    <div class="ph-row"><h2 class="ph-h r">세 가지 제품,<br>하나의 생태계</h2><p class="ph-p r d1">각 도구는 독립적으로 강력하지만, 함께 사용할 때 진가를 발휘합니다.</p></div>
+    <div class="cg">
+      <div class="pc sr"><div class="pi">
+        <div class="pc-ico"><svg viewBox="0 0 26 26" fill="none"><rect x="3" y="3" width="8" height="8" rx="1.5" stroke="#00e890" stroke-width="1.5"/><rect x="15" y="3" width="8" height="8" rx="1.5" stroke="#00e890" stroke-width="1.5" opacity=".6"/><rect x="3" y="15" width="8" height="8" rx="1.5" stroke="#00e890" stroke-width="1.5" opacity=".6"/><rect x="15" y="15" width="8" height="8" rx="1.5" stroke="#00ccff" stroke-width="1.5" opacity=".8"/></svg></div>
+        <div class="pc-nm">dalforge</div>
+        <div class="pc-ds">AI 에이전트 컨테이너 인프라. CLI, 스킬, 훅, 플레이어, 시크릿을 하나의 dal로. Proxmox LXC 자동 프로비저닝.</div>
+        <div class="pc-lk">자세히 보기 <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      </div></div>
+      <div class="pc vc sr d1"><div class="pi">
+        <div class="pc-ico"><svg viewBox="0 0 26 26" fill="none"><path d="M13 3L4 7v6c0 4.4 3.8 8.5 9 9.5 5.2-1 9-5.1 9-9.5V7L13 3z" stroke="#ffab33" stroke-width="1.5" stroke-linejoin="round"/><path d="M9.5 13l2.5 2.5 4.5-4.5" stroke="#ffab33" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+        <div class="pc-nm">VeilKey</div>
+        <div class="pc-ds">AES-256-GCM 암호화 시크릿 볼트. 프로비전 시 env 자동 주입. 제로 노출 아키텍처.</div>
+        <div class="pc-lk">자세히 보기 <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      </div></div>
+      <div class="pc lc sr d2"><div class="pi">
+        <div class="pc-ico"><svg viewBox="0 0 26 26" fill="none"><circle cx="13" cy="9" r="5" stroke="#aa7fff" stroke-width="1.5"/><path d="M4 22c0-4 4-7 9-7s9 3 9 7" stroke="#aa7fff" stroke-width="1.5" stroke-linecap="round"/><path d="M19 6l2-2M21 10h2" stroke="#aa7fff" stroke-width="1.5" stroke-linecap="round" opacity=".5"/></svg></div>
+        <div class="pc-nm">Prelik Academy</div>
+        <div class="pc-ds">AI 인프라 엔지니어링 전문 교육. dalforge 실습, LXC 운영, 에이전트 설계 패턴.</div>
+        <div class="pc-lk">강의 보기 <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<div class="div-line"></div>
+
+<!-- MISSION -->
+<section class="sec msec">
+  <div class="mbg"><div class="mbo mbo1"></div><div class="mbo mbo2"></div><div class="mbo mbo3"></div></div>
+  <div class="si">
+    <div class="stag r">02 — 사명</div>
+    <div class="mq r" id="mq">
+      <span class="wr"><span class="wri">AI는</span></span>
+      <span class="wr"><span class="wri">개발</span></span>
+      <span class="wr"><span class="wri">방식을</span></span>
+      <span class="wr wg"><span class="wri">바꿉니다.</span></span><br>
+      <span class="wr wd"><span class="wri">그</span></span>
+      <span class="wr wd"><span class="wri">변화</span></span>
+      <span class="wr wd"><span class="wri">속에서</span></span>
+      <span class="wr"><span class="wri">개발자</span></span>
+      <span class="wr wcy"><span class="wri">편에</span></span>
+      <span class="wr wro"><span class="wri">서겠습니다.</span></span>
+    </div>
+    <div class="vrow r">
+      <div class="vi"><div class="vi-bar"></div><div class="vi-n">01</div><div class="vi-t">개발자 우선</div><div class="vi-d">모든 제품 결정은 개발자의 실제 워크플로우에서 시작합니다. 화려한 기능보다 실제로 쓰이는 도구.</div></div>
+      <div class="vi"><div class="vi-bar"></div><div class="vi-n">02</div><div class="vi-t">투명한 인프라</div><div class="vi-d">블랙박스 없이. CUE 선언형 설정으로 인프라가 무엇을 하는지 개발자가 정확히 알 수 있습니다.</div></div>
+      <div class="vi"><div class="vi-bar"></div><div class="vi-n">03</div><div class="vi-t">보안은 기본값</div><div class="vi-d">자격증명 보호, 시크릿 주입, 접근 제어는 추가 기능이 아니라 기본값이어야 합니다.</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="div-line"></div>
+
+<!-- STORY -->
+<section class="sec">
+  <div class="si">
+    <div class="stag r">03 — 스토리</div>
+    <div class="stl">
+      <div class="r">
+        <h2 class="sg-h">문제를 먼저<br>경험했습니다.</h2>
+        <p class="sg-p">팀마다 다른 폴더 구조, 산재한 스크립트, 평문으로 남겨진 API 키. AI 도구는 빠르게 발전했지만 그것을 안전하고 일관되게 운영하는 방법은 여전히 각자의 몫이었습니다.</p>
+        <p class="sg-p">dalforge는 그 문제를 해결하기 위해 만들었습니다. 스킬, 훅, 자격증명, 플레이어를 하나의 선언형 단위로 묶고, 버전 관리하고, 자동으로 배포합니다.</p>
+        <div class="sg-s">— Prelik 팀, 서울 · 2024</div>
+      </div>
+      <div class="r d1">
+        <div class="tlrow"><div class="tlyr">2024 Q1</div><div class="tlb"><div class="tlt">첫 번째 프로토타입</div><div class="tld">Go + CUE 조합으로 dalforge 최초 프로토타입. 내부 팀 검증.</div></div></div>
+        <div class="tlrow"><div class="tlyr">2024 Q2</div><div class="tlb"><div class="tlt">VeilKey 분리</div><div class="tld">시크릿 관리를 독립 제품으로. AES-256-GCM 암호화 도입.</div></div></div>
+        <div class="tlrow"><div class="tlyr">2024 Q4</div><div class="tlb"><div class="tlt">Prelik Academy 오픈</div><div class="tld">AI 인프라 교육 출시. 3개월 내 수강생 1,000명 돌파.</div></div></div>
+        <div class="tlrow"><div class="tlyr">2025</div><div class="tlb"><div class="tlt">Public Beta</div><div class="tld">dalforge v0.9 공개. 4,200+ 개발자, 18,000+ 컨테이너.</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="div-line"></div>
+
+<!-- TEAM -->
+<section class="sec" style="background:var(--bg2)">
+  <div class="si">
+    <div class="stag r">04 — 팀</div>
+    <div class="th-row"><h2 class="tm-h r">작은 팀,<br>큰 제품.</h2><p class="tm-p r d1">인프라, 보안, 교육 전문가들이 AI 개발자를 위한 도구를 만들고 있습니다.</p></div>
+    <div class="tg">
+      <div class="mc c1 sr"><div class="mcg"></div><div class="mc-av">JH</div><div class="mc-nm">김정한</div><div class="mc-rl">CEO & Co-founder</div><span class="mc-bd">Infrastructure</span></div>
+      <div class="mc c2 sr d1"><div class="mcg"></div><div class="mc-av">SY</div><div class="mc-nm">이수연</div><div class="mc-rl">CTO & Co-founder</div><span class="mc-bd">Security</span></div>
+      <div class="mc c3 sr d2"><div class="mcg"></div><div class="mc-av">DJ</div><div class="mc-nm">박도준</div><div class="mc-rl">Head of Education</div><span class="mc-bd" style="background:rgba(170,127,255,.1);color:var(--p)">Academy</span></div>
+      <div class="mc hire sr d3">
+        <div class="hire-mark"><div class="hire-plus"></div></div>
+        <div class="hire-t">함께하실 분</div><div class="hire-s">채용 진행 중</div>
+        <a href="#" class="hire-l">채용 보기 →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="div-line"></div>
+
+<!-- CONTACT -->
+<section class="sec" style="border-bottom:none">
+  <div class="si">
+    <div class="stag r">05 — 연락</div>
+    <div class="cw sr">
+      <div class="ctg">
+        <div class="ctl">
+          <h2 class="ct-h">이야기<br><span class="ct-g">나눠봐요.</span></h2>
+          <p class="ct-sub">제품 문의, 파트너십, 강의 협업 등 어떤 주제로든 환영합니다.</p>
+          <div class="cil">
+            <a href="mailto:hello@prelik.io" class="ci">
+              <div class="ci-ico"><svg viewBox="0 0 18 18" fill="none"><rect x="2" y="4" width="14" height="10" rx="1.5" stroke="#00e890" stroke-width="1.4"/><path d="M2 6l7 5 7-5" stroke="#00e890" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+              <div><div class="ci-t">hello@prelik.io</div><div class="ci-s">일반 문의 · 파트너십</div></div>
+              <span class="ci-a">→</span>
+            </a>
+            <a href="#" class="ci">
+              <div class="ci-ico"><svg viewBox="0 0 18 18" fill="none"><rect x="2" y="3" width="14" height="12" rx="1.5" stroke="#ffab33" stroke-width="1.4"/><path d="M5 7h8M5 10h5" stroke="#ffab33" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+              <div><div class="ci-t">채용 문의</div><div class="ci-s">careers@prelik.io</div></div>
+              <span class="ci-a">→</span>
+            </a>
+            <a href="#" class="ci">
+              <div class="ci-ico"><svg viewBox="0 0 18 18" fill="none"><circle cx="9" cy="8" r="4" stroke="#aa7fff" stroke-width="1.4"/><path d="M3 16c0-3 2.7-5 6-5s6 2 6 5" stroke="#aa7fff" stroke-width="1.4" stroke-linecap="round"/></svg></div>
+              <div><div class="ci-t">강의 & 교육 협업</div><div class="ci-s">academy@prelik.io</div></div>
+              <span class="ci-a">→</span>
+            </a>
+          </div>
+        </div>
+        <div class="ctr">
+          <div class="cr-l">We're hiring</div>
+          <div class="cr-h">팀에 합류하세요</div>
+          <div class="cr-p">AI 인프라 엔지니어링에 관심 있는 분들과 함께 일하고 싶습니다. 경험보다 문제를 보는 시각이 중요합니다.</div>
+          <ul class="perks">
+            <li>풀 리모트 근무 (서울 기반)</li>
+            <li>자율적인 업무 환경</li>
+            <li>Prelik Academy 무제한 수강</li>
+            <li>인프라 장비 지원</li>
+          </ul>
+          <a href="#" class="cr-btn mag">채용 공고 보기 →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="fi">
+    <div class="fg">
+      <div>
+        <div class="nav-logo">
+          <div class="logo-mark"><svg viewBox="0 0 34 34" fill="none"><defs><linearGradient id="lg2" x1="0" y1="0" x2="34" y2="34" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#5a5aff"/><stop offset="100%" stop-color="#00ccff"/></linearGradient></defs><circle cx="13" cy="13" r="9" stroke="url(#lg2)" stroke-width="2" opacity=".9"/><circle cx="21" cy="13" r="9" stroke="url(#lg2)" stroke-width="2" opacity=".6"/><circle cx="17" cy="21" r="9" stroke="url(#lg2)" stroke-width="2" opacity=".4"/><circle cx="17" cy="16" r="4" fill="url(#lg2)"/></svg></div>
+          Prelik
+        </div>
+        <div class="fbd">AI 네이티브 개발자를 위한 인프라, 보안, 교육. 서울에 기반한 소프트웨어 회사.</div>
+      </div>
+      <div><div class="fch">Products</div><ul class="fl"><li><a>dalforge</a></li><li><a>VeilKey</a></li><li><a>Academy</a></li><li><a>Docs</a></li></ul></div>
+      <div><div class="fch">Company</div><ul class="fl"><li><a>About</a></li><li><a>Blog</a></li><li><a>Careers</a></li><li><a>Press</a></li></ul></div>
+      <div><div class="fch">Connect</div><ul class="fl"><li><a>GitHub</a></li><li><a>Twitter</a></li><li><a>LinkedIn</a></li><li><a>YouTube</a></li></ul></div>
+      <div><div class="fch">Legal</div><ul class="fl"><li><a>Terms</a></li><li><a>Privacy</a></li><li><a>Security</a></li></ul></div>
+    </div>
+    <div class="fb">
+      <div>© 2025 Prelik Inc. Seoul, Korea</div>
+      <div class="fps">
+        <span class="fp" style="background:rgba(0,232,144,.1);color:var(--g)">dalforge</span>
+        <span class="fp" style="background:rgba(255,171,51,.1);color:var(--a)">VeilKey</span>
+        <span class="fp" style="background:rgba(170,127,255,.1);color:var(--p)">Academy</span>
+        <span class="fp" style="background:rgba(0,204,255,.1);color:var(--cy)">Proxmox</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ── CURSOR ── */
+const dot=document.getElementById('dot'),ring=document.getElementById('ring'),sp=document.getElementById('sp');
+let mx=innerWidth/2,my=innerHeight/2,rx=mx,ry=my;
+const trails=[];
+for(let i=0;i<10;i++){const t=document.createElement('div');t.className='cd';Object.assign(t.style,{position:'absolute',borderRadius:'50%',background:'rgba(90,90,255,.25)',transform:'translate(-50%,-50%)',pointerEvents:'none'});document.getElementById('cur').appendChild(t);trails.push({el:t,x:mx,y:my});}
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  dot.style.left=mx+'px';dot.style.top=my+'px';
+  sp.style.background=`radial-gradient(circle 320px at ${mx}px ${my}px,rgba(90,90,255,.055) 0%,transparent 100%)`;
+});
+(function loop(){
+  rx+=(mx-rx)*.08;ry+=(my-ry)*.08;
+  ring.style.left=rx+'px';ring.style.top=ry+'px';
+  trails.forEach((t,i)=>{
+    const p=i===0?{x:rx,y:ry}:trails[i-1];
+    t.x+=(p.x-t.x)*(0.22-i*.015);t.y+=(p.y-t.y)*(0.22-i*.015);
+    t.el.style.left=t.x+'px';t.el.style.top=t.y+'px';
+    const s=Math.max(1.5,9-i*.7);
+    t.el.style.width=s+'px';t.el.style.height=s+'px';
+    t.el.style.opacity=(0.3-i*.025)+'';
+  });
+  requestAnimationFrame(loop);
+})();
+document.querySelectorAll('a,button,.pc,.mc,.ci,.nl,.tlrow').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{dot.classList.add('big');ring.style.width='64px';ring.style.height='64px';ring.style.borderColor='rgba(90,90,255,.55)';});
+  el.addEventListener('mouseleave',()=>{dot.classList.remove('big');ring.style.width='40px';ring.style.height='40px';ring.style.borderColor='rgba(255,255,255,.2)';});
+});
+
+/* ── MAGNETIC ── */
+document.querySelectorAll('.mag').forEach(el=>{
+  el.addEventListener('mousemove',e=>{const r=el.getBoundingClientRect(),x=(e.clientX-r.left-r.width/2)*.4,y=(e.clientY-r.top-r.height/2)*.4;el.style.transform=`translate(${x}px,${y}px)`;});
+  el.addEventListener('mouseleave',()=>el.style.transform='translate(0,0)');
+});
+
+/* ── PARTICLES ── */
+const cvs=document.getElementById('cvs'),ctx=cvs.getContext('2d');
+let W,H,pts=[];
+const PC=['rgba(0,232,144,','rgba(90,90,255,','rgba(170,127,255,','rgba(255,171,51,','rgba(0,204,255,','rgba(255,61,110,'];
+function resize(){W=cvs.width=innerWidth;H=cvs.height=innerHeight;}
+resize();window.addEventListener('resize',()=>{resize();init();});
+function init(){pts=[];const N=Math.min(Math.floor(W*H/11000),140);for(let i=0;i<N;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.5,vy:(Math.random()-.5)*.5,r:Math.random()*2+.6,c:PC[Math.floor(Math.random()*PC.length)],o:Math.random()*.5+.2});}
+init();
+let pmx=W/2,pmy=H/2;
+document.addEventListener('mousemove',e=>{pmx=e.clientX;pmy=e.clientY;});
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  pts.forEach(p=>{
+    const dx=pmx-p.x,dy=pmy-p.y,d=Math.sqrt(dx*dx+dy*dy);
+    if(d<190){p.vx+=dx/d*.016;p.vy+=dy/d*.016;}
+    p.vx*=.994;p.vy*=.994;p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c+p.o+')';ctx.fill();
+  });
+  for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+    const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
+    if(d<115){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle=`rgba(90,90,255,${(1-d/115)*.1})`;ctx.lineWidth=.6;ctx.stroke();}
+  }
+  requestAnimationFrame(draw);
+}
+draw();
+
+/* ── TEXT SCRAMBLE ── */
+const SC='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz가나다라마바사아자차';
+function scramble(el,delay=0){
+  const txt=el.textContent;let f=0,T=30;
+  setTimeout(()=>{const t=setInterval(()=>{el.textContent=txt.split('').map((c,i)=>(i<f/T*txt.length||c===' ')?c:SC[Math.floor(Math.random()*SC.length)]).join('');f++;if(f>T){el.textContent=txt;clearInterval(t);}},28);},delay);
+}
+setTimeout(()=>document.querySelectorAll('.ht-i').forEach((el,i)=>scramble(el,i*180)),400);
+
+/* ── SCROLL REVEAL ── */
+const rO=new IntersectionObserver(e=>{e.forEach(en=>{if(en.isIntersecting){en.target.classList.add('in');rO.unobserve(en.target);}});},{threshold:.07,rootMargin:'0px 0px -20px 0px'});
+document.querySelectorAll('.r,.sr').forEach(el=>rO.observe(el));
+
+/* ── WORD REVEAL ── */
+const wO=new IntersectionObserver(e=>{e.forEach(en=>{if(en.isIntersecting){en.target.querySelectorAll('.wr').forEach((w,i)=>setTimeout(()=>w.classList.add('vis'),i*65));wO.unobserve(en.target);}});},{threshold:.25});
+document.querySelectorAll('.mq').forEach(el=>wO.observe(el));
+
+/* ── STAT RINGS ── */
+function animStat(ne,re,target,plus,delay=0){
+  const dur=1600;const start=performance.now()+delay;
+  function step(now){if(now<start){requestAnimationFrame(step);return;}
+    const p=Math.min((now-start)/dur,1),e=1-Math.pow(1-p,4),v=Math.floor(target*e);
+    ne.textContent=plus?(v>=1000?(v/1000).toFixed(1)+'k+':v+'+'):v;
+    re.style.strokeDashoffset=(100-e*100)+'';
+    if(p<1)requestAnimationFrame(step);
+    else{ne.textContent=plus?(target>=1000?(target/1000).toFixed(1)+'k+':target+'+'):target;re.style.strokeDashoffset='0';}
+  }
+  requestAnimationFrame(step);
+}
+const sO=new IntersectionObserver(e=>{e.forEach(en=>{if(en.isIntersecting){
+  animStat(document.getElementById('cn1'),document.getElementById('rf1'),3,false,0);
+  animStat(document.getElementById('cn2'),document.getElementById('rf2'),4200,true,150);
+  animStat(document.getElementById('cn3'),document.getElementById('rf3'),18000,true,300);
+  sO.unobserve(en.target);
+}});},{threshold:.4});
+sO.observe(document.getElementById('sg'));
+
+/* ── PARALLAX ── */
+window.addEventListener('scroll',()=>{
+  const s=window.scrollY;
+  const ht=document.querySelector('.hero-title');
+  if(ht)ht.style.transform=`translateY(${s*.08}px)`;
+  document.querySelectorAll('.sh').forEach((g,i)=>g.style.transform=`translateY(${s*(0.05+i*.012)}px)`);
+  document.querySelectorAll('.mo').forEach((m,i)=>m.style.transform=`translateY(${s*(0.04+i*.008)}px)`);
+});
+</script>
+</body>
+</html>

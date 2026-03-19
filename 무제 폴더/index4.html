@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dalforge — 말하면 에이전트가 배포된다</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:    #0c0c0f;
+  --bg2:   #111116;
+  --bg3:   #17171e;
+  --bg4:   #1d1d26;
+  --b:     #222230;
+  --b2:    #2a2a3a;
+  --green: #57ff8c;
+  --green2:#1f8040;
+  --green3:rgba(87,255,140,.07);
+  --blue:  #6b9fff;
+  --blue2: #1a3060;
+  --blue3: rgba(107,159,255,.08);
+  --white: #f0eee8;
+  --g1:    #8a8898;
+  --g2:    #555568;
+  --g3:    #2e2e40;
+  --amber: #ffb547;
+  --f:     'Manrope', sans-serif;
+  --m:     'JetBrains Mono', monospace;
+}
+html { scroll-behavior: smooth; }
+body { background:var(--bg); color:var(--white); font-family:var(--f); font-size:15px; line-height:1.65; overflow-x:hidden; }
+::selection { background:var(--green); color:#000; }
+::-webkit-scrollbar { width:3px; }
+::-webkit-scrollbar-track { background:var(--bg); }
+::-webkit-scrollbar-thumb { background:var(--b); }
+a { text-decoration:none; }
+
+/* ── NAV ── */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:200;
+  height:52px; display:flex; align-items:center; justify-content:space-between;
+  padding:0 32px; border-bottom:1px solid var(--b);
+  background:rgba(12,12,15,.9); backdrop-filter:blur(20px);
+}
+.nl { display:flex; align-items:center; gap:32px; }
+.logo { font-family:var(--m); font-size:14px; font-weight:500; color:var(--green); display:flex; align-items:center; gap:7px; }
+.logo-ring { width:20px; height:20px; border-radius:50%; border:1.5px solid var(--green2); display:flex; align-items:center; justify-content:center; animation:spin 8s linear infinite; }
+.logo-ring::before { content:''; width:5px; height:5px; border-radius:50%; background:var(--green); }
+.nav-link { font-size:13px; color:var(--g2); transition:color .15s; }
+.nav-link:hover { color:var(--white); }
+.nr { display:flex; align-items:center; gap:10px; }
+.gh-pill { display:flex; align-items:center; gap:6px; padding:5px 13px; border:1px solid var(--b2); border-radius:5px; font-size:12px; font-family:var(--m); color:var(--g2); transition:all .15s; }
+.gh-pill:hover { color:var(--white); border-color:var(--g2); }
+.cta-nav { padding:6px 18px; background:var(--green); color:#000; border-radius:5px; font-size:13px; font-weight:700; transition:opacity .15s; }
+.cta-nav:hover { opacity:.85; }
+
+/* ── HERO ── */
+#hero {
+  min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:100px 24px 80px; position:relative; overflow:hidden;
+}
+
+/* ambient glow */
+.glow-l { position:absolute; top:20%; left:10%; width:500px; height:500px; border-radius:50%; background:radial-gradient(circle, rgba(87,255,140,.04) 0%, transparent 70%); pointer-events:none; }
+.glow-r { position:absolute; top:30%; right:10%; width:400px; height:400px; border-radius:50%; background:radial-gradient(circle, rgba(107,159,255,.04) 0%, transparent 70%); pointer-events:none; }
+
+.hero-kicker {
+  font-family:var(--m); font-size:11px; letter-spacing:.2em; color:var(--green2);
+  text-transform:uppercase; margin-bottom:28px; text-align:center;
+  opacity:0; animation:rise .6s .2s ease forwards;
+}
+
+.hero-h {
+  font-size:clamp(36px,5.5vw,68px); font-weight:800; letter-spacing:-2.5px;
+  line-height:.97; text-align:center; margin-bottom:18px;
+  opacity:0; animation:rise .7s .35s ease forwards;
+}
+.hero-h .dim { color:var(--g3); }
+.hero-h .gr { color:var(--green); }
+
+.hero-sub {
+  font-size:clamp(14px,1.5vw,18px); color:var(--g1); font-weight:300;
+  text-align:center; max-width:500px; line-height:1.8; margin-bottom:56px;
+  opacity:0; animation:rise .7s .5s ease forwards;
+}
+.hero-sub strong { color:var(--white); font-weight:600; }
+
+/* ── CHAT WINDOW ── */
+.chat-window {
+  width:100%; max-width:680px; background:var(--bg2); border:1px solid var(--b);
+  border-radius:14px; overflow:hidden;
+  box-shadow:0 0 0 1px rgba(87,255,140,.06), 0 48px 96px rgba(0,0,0,.5);
+  opacity:0; animation:rise .8s .65s ease forwards;
+}
+
+.chat-bar {
+  background:var(--bg3); padding:12px 18px; border-bottom:1px solid var(--b);
+  display:flex; align-items:center; gap:12px;
+}
+.chat-dots { display:flex; gap:5px; }
+.cd { width:9px; height:9px; border-radius:50%; }
+.cd.r{background:#ff5f57;} .cd.y{background:#ffbd2e;} .cd.g{background:#28c840;}
+.chat-title { flex:1; text-align:center; font-family:var(--m); font-size:11px; color:var(--g2); }
+.chat-status { display:flex; align-items:center; gap:5px; font-family:var(--m); font-size:10px; color:var(--green2); }
+.cs-dot { width:5px; height:5px; border-radius:50%; background:var(--green); animation:blink 2s infinite; }
+
+.chat-body { padding:24px 20px; display:flex; flex-direction:column; gap:16px; min-height:340px; }
+
+/* message bubbles */
+.msg { display:flex; gap:10px; align-items:flex-start; }
+.msg.user { flex-direction:row-reverse; }
+
+.msg-av {
+  width:30px; height:30px; border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:700; margin-top:2px;
+}
+.av-user { background:var(--blue2); color:var(--blue); border:1px solid rgba(107,159,255,.2); font-family:var(--m); }
+.av-dal  { background:var(--green3); color:var(--green); border:1px solid rgba(87,255,140,.15); font-family:var(--m); font-size:10px; letter-spacing:-.5px; }
+
+.msg-bubble {
+  max-width:calc(100% - 50px); padding:10px 14px; border-radius:10px; font-size:13.5px; line-height:1.7;
+}
+.bubble-user {
+  background:var(--blue3); border:1px solid rgba(107,159,255,.12);
+  color:var(--white); border-radius:10px 2px 10px 10px; text-align:right;
+}
+.bubble-dal {
+  background:var(--green3); border:1px solid rgba(87,255,140,.1);
+  color:var(--g1); border-radius:2px 10px 10px 10px;
+}
+.bubble-dal .highlight { color:var(--green); font-weight:600; }
+.bubble-dal .code {
+  display:block; margin-top:8px; padding:10px 12px;
+  background:rgba(0,0,0,.3); border:1px solid var(--b2); border-radius:6px;
+  font-family:var(--m); font-size:11.5px; line-height:1.9; color:var(--g1);
+}
+.bubble-dal .code .k { color:var(--green); }
+.bubble-dal .code .v { color:var(--white); }
+.bubble-dal .code .s { color:var(--amber); }
+.bubble-dal .code .ok { color:var(--green); }
+.bubble-dal .code .dim { color:var(--g2); }
+
+.msg-time { font-family:var(--m); font-size:10px; color:var(--g3); margin-top:4px; padding:0 2px; align-self:flex-end; }
+
+.typing-indicator { display:flex; gap:4px; align-items:center; padding:4px 2px; }
+.ty-dot { width:5px; height:5px; border-radius:50%; background:var(--green2); animation:typing 1.2s infinite; }
+.ty-dot:nth-child(2){ animation-delay:.2s; }
+.ty-dot:nth-child(3){ animation-delay:.4s; }
+
+.chat-input {
+  padding:14px 16px; border-top:1px solid var(--b); display:flex; align-items:center; gap:10px;
+  background:var(--bg3);
+}
+.ci-box {
+  flex:1; background:var(--bg4); border:1px solid var(--b2); border-radius:8px;
+  padding:9px 14px; font-family:var(--m); font-size:12px; color:var(--g2);
+  display:flex; align-items:center; gap:4px;
+}
+.ci-cursor { display:inline-block; width:1px; height:13px; background:var(--green); animation:blink .8s step-end infinite; vertical-align:middle; margin-left:1px; }
+.ci-send { width:32px; height:32px; border-radius:7px; background:var(--green); display:flex; align-items:center; justify-content:center; cursor:default; }
+
+/* ── FLOW SECTION ── */
+#how {
+  padding:100px 32px; border-top:1px solid var(--b);
+}
+.how-inner { max-width:1100px; margin:0 auto; }
+.how-top { text-align:center; margin-bottom:72px; }
+.sec-eye { font-family:var(--m); font-size:10px; letter-spacing:.22em; color:var(--green2); text-transform:uppercase; margin-bottom:12px; }
+.sec-h { font-size:clamp(26px,3.5vw,42px); font-weight:800; letter-spacing:-1.5px; line-height:1.05; }
+
+.flow { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--b); border:1px solid var(--b); }
+.flow-step {
+  background:var(--bg); padding:40px 32px; position:relative; overflow:hidden;
+  transition:background .2s;
+}
+.flow-step:hover { background:var(--bg2); }
+.flow-step::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  transform:scaleX(0); transform-origin:left; transition:transform .35s;
+}
+.fs1::before { background:var(--blue); }
+.fs2::before { background:var(--amber); }
+.fs3::before { background:var(--green); }
+.flow-step:hover::before { transform:scaleX(1); }
+
+.fs-num { font-family:var(--m); font-size:10px; color:var(--g3); letter-spacing:.15em; margin-bottom:24px; }
+.fs-icon { font-size:28px; margin-bottom:16px; display:block; }
+.fs-title { font-size:20px; font-weight:800; letter-spacing:-.5px; margin-bottom:10px; color:var(--white); }
+.fs-desc { font-size:13px; color:var(--g1); line-height:1.8; font-weight:300; margin-bottom:20px; }
+.fs-example {
+  font-family:var(--m); font-size:11px; color:var(--g2); background:var(--bg2);
+  border:1px solid var(--b); padding:10px 12px; border-radius:4px; line-height:1.8;
+}
+.fs-example .g { color:var(--green); }
+.fs-example .b { color:var(--blue); }
+.fs-example .a { color:var(--amber); }
+
+/* ── WHAT IT DOES ── */
+#what { padding:100px 32px; border-top:1px solid var(--b); background:var(--bg2); }
+.what-inner { max-width:1100px; margin:0 auto; }
+.what-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:2px; background:var(--b); border:1px solid var(--b); margin-top:56px; }
+.wc {
+  background:var(--bg2); padding:32px 28px;
+  display:flex; gap:20px; transition:background .2s;
+}
+.wc:hover { background:var(--bg3); }
+.wc-icon { font-size:22px; flex-shrink:0; margin-top:2px; }
+.wc-body { }
+.wc-title { font-size:15px; font-weight:700; letter-spacing:-.3px; margin-bottom:7px; color:var(--white); }
+.wc-desc { font-size:13px; color:var(--g1); line-height:1.8; font-weight:300; }
+.wc-tag { display:inline-block; margin-top:10px; font-family:var(--m); font-size:10px; padding:2px 8px; border-radius:3px; }
+.tag-g { background:var(--green3); color:var(--green2); border:1px solid rgba(87,255,140,.12); }
+.tag-b { background:var(--blue3); color:#4a7fd4; border:1px solid rgba(107,159,255,.12); }
+.tag-a { background:rgba(255,181,71,.06); color:#c47a10; border:1px solid rgba(255,181,71,.12); }
+
+/* ── CONVERSATION EXAMPLES ── */
+#examples { padding:100px 32px; border-top:1px solid var(--b); }
+.ex-inner { max-width:900px; margin:0 auto; }
+.ex-header { text-align:center; margin-bottom:64px; }
+
+.ex-list { display:flex; flex-direction:column; gap:2px; }
+.ex-item {
+  border:1px solid var(--b); background:var(--bg2);
+  overflow:hidden; transition:border-color .2s;
+  cursor:pointer;
+}
+.ex-item:hover { border-color:var(--b2); }
+.ex-item.open { border-color:rgba(87,255,140,.15); }
+.ex-trigger {
+  padding:20px 24px; display:flex; align-items:center; gap:16px;
+}
+.ex-q {
+  flex:1; font-size:14px; color:var(--white); font-weight:500; letter-spacing:-.2px;
+}
+.ex-q .user-said { color:var(--blue); }
+.ex-chevron { font-family:var(--m); font-size:12px; color:var(--g3); transition:transform .25s; }
+.ex-item.open .ex-chevron { transform:rotate(180deg); color:var(--green); }
+.ex-body { max-height:0; overflow:hidden; transition:max-height .35s ease; }
+.ex-item.open .ex-body { max-height:400px; }
+.ex-content {
+  padding:0 24px 20px; display:grid; grid-template-columns:1fr 1fr; gap:16px;
+}
+.ex-left { }
+.ex-col-label { font-family:var(--m); font-size:10px; letter-spacing:.15em; color:var(--g3); text-transform:uppercase; margin-bottom:8px; }
+.ex-cue {
+  background:var(--bg); border:1px solid var(--b); padding:14px 16px;
+  font-family:var(--m); font-size:11.5px; line-height:1.9; border-radius:4px;
+}
+.ec-k { color:var(--green); } .ec-s { color:var(--amber); } .ec-c { color:var(--g3); font-style:italic; }
+.ex-cmds { display:flex; flex-direction:column; gap:6px; }
+.ex-cmd { font-family:var(--m); font-size:11.5px; color:var(--g2); padding:6px 10px; background:var(--bg); border:1px solid var(--b); border-radius:4px; }
+.ex-cmd .ck { color:var(--green); } .ex-cmd .cf { color:var(--blue); }
+
+/* ── QUICK START ── */
+#qs { padding:100px 32px; border-top:1px solid var(--b); background:var(--bg2); }
+.qs-inner { max-width:900px; margin:0 auto; }
+.qs-header { margin-bottom:56px; }
+.qs-steps { display:flex; flex-direction:column; gap:0; }
+.qs-step {
+  display:grid; grid-template-columns:40px 1fr; gap:20px;
+  padding:28px 0; border-bottom:1px solid var(--b);
+  opacity:0; transform:translateY(10px); transition:opacity .45s ease, transform .45s ease;
+}
+.qs-step:last-child { border-bottom:none; }
+.qs-step.in { opacity:1; transform:none; }
+.qs-num { font-family:var(--m); font-size:11px; color:var(--b2); padding-top:3px; transition:color .2s; }
+.qs-step:hover .qs-num { color:var(--green2); }
+.qs-t { font-size:15px; font-weight:700; letter-spacing:-.3px; margin-bottom:6px; }
+.qs-d { font-size:13px; color:var(--g1); font-weight:300; margin-bottom:12px; line-height:1.75; }
+.cblock { background:var(--bg); border:1px solid var(--b); border-radius:6px; overflow:hidden; }
+.cbar { padding:7px 14px; border-bottom:1px solid var(--b); display:flex; justify-content:space-between; align-items:center; }
+.clang { font-family:var(--m); font-size:10px; color:var(--g3); letter-spacing:.1em; }
+.cpbtn { font-family:var(--m); font-size:10px; color:var(--g3); background:none; border:1px solid transparent; border-radius:3px; padding:1px 8px; cursor:pointer; transition:all .15s; }
+.cpbtn:hover { border-color:var(--b2); color:var(--g2); }
+.ccode { padding:14px 16px; font-family:var(--m); font-size:12px; line-height:1.95; }
+.cp2{color:var(--g3);} .cc{color:var(--white);} .cf{color:var(--blue);}
+.cs{color:var(--amber);} .ck2{color:var(--green);} .cmnt{color:var(--b2);font-style:italic;}
+
+/* ── GITHUB ── */
+#gh { padding:100px 32px; border-top:1px solid var(--b); }
+.gh-inner { max-width:900px; margin:0 auto; text-align:center; }
+.gh-pill-top {
+  display:inline-flex; align-items:center; gap:8px; padding:5px 14px;
+  border:1px solid var(--b2); border-radius:100px;
+  font-family:var(--m); font-size:11px; color:var(--g2); margin-bottom:28px;
+}
+.gh-h { font-size:clamp(28px,4vw,52px); font-weight:800; letter-spacing:-2px; line-height:1.05; margin-bottom:20px; }
+.gh-p { font-size:15px; color:var(--g1); line-height:1.8; font-weight:300; max-width:480px; margin:0 auto 36px; }
+.gh-actions { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+.btn-white { display:flex; align-items:center; gap:8px; padding:11px 24px; background:var(--white); color:#000; border-radius:8px; font-size:14px; font-weight:700; transition:opacity .15s; }
+.btn-white:hover { opacity:.88; }
+.btn-outline { display:flex; align-items:center; gap:8px; padding:11px 22px; border:1px solid var(--b2); border-radius:8px; font-size:14px; color:var(--white); font-weight:400; transition:all .15s; }
+.btn-outline:hover { border-color:var(--g2); background:var(--bg2); }
+
+.gh-topics { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:40px; }
+.gh-t { font-family:var(--m); font-size:11px; padding:4px 12px; border-radius:100px; background:var(--green3); border:1px solid rgba(87,255,140,.12); color:var(--green2); }
+
+/* ── FOOTER ── */
+footer {
+  border-top:1px solid var(--b); padding:44px 32px 32px;
+  background:var(--bg2);
+}
+.fi {
+  max-width:1100px; margin:0 auto;
+  display:grid; grid-template-columns:1fr auto auto auto; gap:60px; align-items:start;
+}
+.fl { }
+.flogo { font-family:var(--m); font-size:14px; color:var(--green); margin-bottom:8px; font-weight:500; }
+.ftag { font-size:13px; color:var(--g2); line-height:1.7; max-width:220px; font-weight:300; }
+.fc-title { font-size:12px; font-weight:700; color:var(--g2); margin-bottom:14px; }
+.fc-links { display:flex; flex-direction:column; gap:10px; }
+.fc-links a { font-family:var(--m); font-size:12px; color:var(--g3); transition:color .15s; }
+.fc-links a:hover { color:var(--g1); }
+.fcopy {
+  max-width:1100px; margin:32px auto 0; padding-top:24px;
+  border-top:1px solid var(--b); display:flex; justify-content:space-between;
+  font-family:var(--m); font-size:10px; color:var(--g3);
+}
+
+/* ── ANIM ── */
+@keyframes rise { from{opacity:0;transform:translateY(14px);} to{opacity:1;transform:none;} }
+@keyframes blink { 50%{opacity:0;} }
+@keyframes spin { to{transform:rotate(360deg);} }
+@keyframes typing { 0%,60%,100%{transform:translateY(0);opacity:.4;} 30%{transform:translateY(-4px);opacity:1;} }
+
+.ri { opacity:0; transform:translateY(14px); transition:opacity .55s ease, transform .55s ease; }
+.ri.in { opacity:1; transform:none; }
+
+@media(max-width:860px){
+  .flow { grid-template-columns:1fr; }
+  .what-grid { grid-template-columns:1fr; }
+  .ex-content { grid-template-columns:1fr; }
+  .fi { grid-template-columns:1fr 1fr; gap:32px; }
+  nav { padding:0 16px; }
+  .nav-link { display:none; }
+  #hero { padding:80px 16px 60px; }
+  section { padding:72px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nl">
+    <div class="logo">
+      <div class="logo-ring"></div>
+      dalforge
+    </div>
+    <a href="#how" class="nav-link">How it works</a>
+    <a href="#examples" class="nav-link">Examples</a>
+    <a href="#qs" class="nav-link">Quick Start</a>
+    <a href="#gh" class="nav-link">GitHub</a>
+  </div>
+  <div class="nr">
+    <a href="https://github.com/dalsoop/dalforge" class="gh-pill">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+      dalsoop/dalforge
+    </a>
+    <a href="#qs" class="cta-nav">시작하기 →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="glow-l"></div>
+  <div class="glow-r"></div>
+
+  <div class="hero-kicker">dalforge · AI Agent Infrastructure</div>
+  <h1 class="hero-h">
+    선언하면<br>
+    <span class="gr">에이전트가 살아난다</span>
+  </h1>
+  <p class="hero-sub">
+    .dalfactory에 무엇을 원하는지 적어라.<br>
+    <strong>dalcenter가 배포하고, 에이전트가 일한다.</strong>
+  </p>
+
+  <div class="chat-window">
+    <div class="chat-bar">
+      <div class="chat-dots"><div class="cd r"></div><div class="cd y"></div><div class="cd g"></div></div>
+      <div class="chat-title">dalcenter chat</div>
+      <div class="chat-status"><div class="cs-dot"></div>connected</div>
+    </div>
+    <div class="chat-body" id="chat-body"></div>
+    <div class="chat-input">
+      <div class="ci-box">
+        <span id="ci-text"></span><span class="ci-cursor"></span>
+      </div>
+      <div class="ci-send">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"><path d="M22 2L11 13M22 2L15 22 11 13 2 9l20-7z"/></svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="how-inner">
+    <div class="how-top ri">
+      <div class="sec-eye">How it works</div>
+      <div class="sec-h">세 단계로 끝난다</div>
+    </div>
+    <div class="flow ri">
+      <div class="flow-step fs1">
+        <div class="fs-num">01 · DECLARE</div>
+        <span class="fs-icon">📋</span>
+        <div class="fs-title">선언</div>
+        <div class="fs-desc">레포 안에 .dalfactory/dal.cue를 만든다. 어떤 에이전트가, 어떤 컨테이너에서, 어떤 스킬로 살아갈지 CUE로 선언한다.</div>
+        <div class="fs-example">
+          <span class="b">name</span>: <span class="a">"pr-reviewer"</span><br>
+          <span class="b">agents</span>: { claude: { enable: true } }<br>
+          <span class="b">container</span>: { base: <span class="a">"ubuntu-24.04"</span> }
+        </div>
+      </div>
+      <div class="flow-step fs2">
+        <div class="fs-num">02 · SUMMON</div>
+        <span class="fs-icon">⚡</span>
+        <div class="fs-title">소환</div>
+        <div class="fs-desc">dalcenter join으로 인스턴스를 등록하고, provision으로 Proxmox LXC 컨테이너를 생성한다. 에이전트가 깨어난다.</div>
+        <div class="fs-example">
+          <span class="g">✓</span> DAL:CONTAINER:3a8c1f02<br>
+          <span class="g">✓</span> claude installed<br>
+          <span class="g">✓</span> provisioned (vmid=219)
+        </div>
+      </div>
+      <div class="flow-step fs3">
+        <div class="fs-num">03 · OPERATE</div>
+        <span class="fs-icon">🔄</span>
+        <div class="fs-title">운영</div>
+        <div class="fs-desc">watch 데몬이 60초마다 선언과 현실의 drift를 감지하고 수복한다. 에이전트는 선언한 모습으로 영원히 존재한다.</div>
+        <div class="fs-example">
+          watch started (pid=48291)<br>
+          <span class="g">✓</span> DAL:CONTAINER:3a8c1f02: ok<br>
+          reconcile: clean
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT IT DOES -->
+<section id="what">
+  <div class="what-inner" style="max-width:1100px;margin:0 auto;">
+    <div class="ri"><div class="sec-eye">Features</div><div class="sec-h">달포지가 하는 일</div></div>
+    <div class="what-grid ri">
+      <div class="wc">
+        <div class="wc-icon">🎯</div>
+        <div class="wc-body">
+          <div class="wc-title">영구 ID — 이름이 바뀌어도 살아있다</div>
+          <div class="wc-desc">모든 에이전트는 DAL:CONTAINER:uuid8 ID를 가진다. 재시작해도, 이름을 바꿔도 ID는 고정이다. 에이전트의 정체성이 영속한다.</div>
+          <span class="wc-tag tag-g">DAL:CONTAINER:a1b2c3d4</span>
+        </div>
+      </div>
+      <div class="wc">
+        <div class="wc-icon">📦</div>
+        <div class="wc-body">
+          <div class="wc-title">클라우드 패키지 허브</div>
+          <div class="wc-desc">npm처럼 dalcli 패키지를 이름 하나로 검색하고 설치한다. agent-coach, task-queue, lxc-stage-player 등 즉시 사용 가능.</div>
+          <span class="wc-tag tag-b">dalcenter catalog search</span>
+        </div>
+      </div>
+      <div class="wc">
+        <div class="wc-icon">🔐</div>
+        <div class="wc-body">
+          <div class="wc-title">SecretVault — 키가 자동 주입된다</div>
+          <div class="wc-desc">API 키는 AES-256-GCM으로 암호화되어 보관된다. 에이전트가 깨어날 때 자동으로 복호화하여 주입한다. 인간의 손을 거치지 않는다.</div>
+          <span class="wc-tag tag-a">AES-256-GCM · SQLite</span>
+        </div>
+      </div>
+      <div class="wc">
+        <div class="wc-icon">🖥️</div>
+        <div class="wc-body">
+          <div class="wc-title">Proxmox LXC 프로비저닝</div>
+          <div class="wc-desc">ubuntu-24.04 컨테이너를 자동 생성하고 에이전트를 설치한다. --dry-run으로 사전 검증, --vmid로 VMID 직접 지정.</div>
+          <span class="wc-tag tag-g">dalcenter provision</span>
+        </div>
+      </div>
+      <div class="wc">
+        <div class="wc-icon">⚖️</div>
+        <div class="wc-body">
+          <div class="wc-title">Reconcile — 선언이 현실이 된다</div>
+          <div class="wc-desc">dalcenter watch가 60초마다 .dalfactory 선언과 실제 상태를 비교한다. 불일치를 자동 수복한다. drift는 용납되지 않는다.</div>
+          <span class="wc-tag tag-b">dalcenter watch --interval 60</span>
+        </div>
+      </div>
+      <div class="wc">
+        <div class="wc-icon">📤</div>
+        <div class="wc-body">
+          <div class="wc-title">Skills / Hooks Export</div>
+          <div class="wc-desc">.dalfactory 선언에서 Claude 스킬과 훅을 .claude/로, Codex 스킬을 .codex/로 자동 export한다. 에이전트 설정이 코드로 관리된다.</div>
+          <span class="wc-tag tag-a">dalcenter export</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXAMPLES -->
+<section id="examples">
+  <div class="ex-inner">
+    <div class="ex-header ri">
+      <div class="sec-eye">Examples</div>
+      <div class="sec-h">이런 에이전트를 만들 수 있다</div>
+    </div>
+    <div class="ex-list ri" id="ex-list">
+
+      <div class="ex-item" onclick="toggleEx(this)">
+        <div class="ex-trigger">
+          <div class="ex-q"><span class="user-said">"PR 리뷰하는 Claude 에이전트 배포해줘"</span></div>
+          <div class="ex-chevron">∨</div>
+        </div>
+        <div class="ex-body">
+          <div class="ex-content">
+            <div class="ex-left">
+              <div class="ex-col-label">.dalfactory/dal.cue</div>
+              <div class="ex-cue">
+<span class="ec-k">name</span>: <span class="ec-s">"pr-reviewer"</span><br>
+<span class="ec-k">template</span>: <span class="ec-s">"claude-dev"</span><br>
+<span class="ec-k">agents</span>: { claude: { enable: <span class="ec-k">true</span> } }<br>
+<span class="ec-k">container</span>: { base: <span class="ec-s">"ubuntu-24.04"</span> }<br>
+<span class="ec-k">export</span>: { skills: [<span class="ec-s">"pr-review"</span>] }
+              </div>
+            </div>
+            <div>
+              <div class="ex-col-label">실행 순서</div>
+              <div class="ex-cmds">
+                <div class="ex-cmd"><span class="ck">$</span> dalcenter validate .</div>
+                <div class="ex-cmd"><span class="ck">$</span> dalcenter join .</div>
+                <div class="ex-cmd"><span class="ck">$</span> dalcenter provision pr-reviewer <span class="cf">--vmid 220</span></div>
+                <div class="ex-cmd"><span class="ck">$</span> dalcenter watch</div>
+                <div class="ex-cmd" style="color:var(--green)">✓ DAL:CONTAINER:3a8c1f02 · ok</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ex-item" onclick="toggleEx(this)">
+        <div class="ex-trigger">
+          <div class="ex-q"><span class="user-said">"claude랑 codex 둘 다 쓰는 풀스택 에이전트"</span></div>
+          <div class="ex-chevron">∨</div>
+        </div>
+        <div class="ex-body">
+          <div class="ex-content">
+            <div class="ex-left">
+              <div class="ex-col-label">.dalfactory/dal.cue</div>
+              <div class="ex-cue">
+<span class="ec-k">name</span>: <span class="ec-s">"full-stack-agent"</span><br>
+<span class="ec-k">agents</span>: {<br>
+&nbsp;&nbsp;claude: { enable: <span class="ec-k">true</span> }<br>
+&nbsp;&nbsp;codex:  { enable: <span class="ec-k">true</span> }<br>
+}<br>
+<span class="ec-k">export</span>: { skills: [<span class="ec-s">"agent-coach"</span>] }
+              </div>
+            </div>
+            <div>
+              <div class="ex-col-label">실행 순서</div>
+              <div class="ex-cmds">
+                <div class="ex-cmd"><span class="ck">$</span> dalcenter join .</div>
+                <div class="ex-cmd"><span class="ck">$</span> dalcenter provision full-stack-agent</div>
+                <div class="ex-cmd" style="color:var(--green)">✓ claude installed</div>
+                <div class="ex-cmd" style="color:var(--green)">✓ codex installed</div>
+                <div class="ex-cmd" style="color:var(--green)">✓ provisioned (vmid=221)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ex-item" onclick="toggleEx(this)">
+        <div class="ex-trigger">
+          <div class="ex-q"><span class="user-said">"agent-coach 패키지를 클라우드에서 바로 가져와서 실행해줘"</span></div>
+          <div class="ex-chevron">∨</div>
+        </div>
+        <div class="ex-body">
+          <div class="ex-content">
+            <div class="ex-left">
+              <div class="ex-col-label">로컬 파일 불필요</div>
+              <div class="ex-cue">
+<span class="ec-c"># 클라우드에서 직접 가져옴</span><br>
+<span class="ec-k">$</span> dalcenter join agent-coach<br><br>
+<span class="ec-c"># dalforge hub에서 staged</span><br>
+staged: dalcli-agent-coach → ~/.dalcenter/sources/
+              </div>
+            </div>
+            <div>
+              <div class="ex-col-label">실행 순서</div>
+              <div class="ex-cmds">
+                <div class="ex-cmd"><span class="ck">$</span> dalcenter catalog search agent</div>
+                <div class="ex-cmd"><span class="ck">$</span> dalcenter join agent-coach</div>
+                <div class="ex-cmd" style="color:var(--green)">✓ staged from dalforge cloud</div>
+                <div class="ex-cmd" style="color:var(--green)">✓ DAL:CLI:3a8c1f02 created</div>
+                <div class="ex-cmd"><span class="ck">$</span> dalcenter start agent-coach</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ex-item" onclick="toggleEx(this)">
+        <div class="ex-trigger">
+          <div class="ex-q"><span class="user-said">"API 키 안전하게 저장하고 에이전트에 주입해줘"</span></div>
+          <div class="ex-chevron">∨</div>
+        </div>
+        <div class="ex-body">
+          <div class="ex-content">
+            <div class="ex-left">
+              <div class="ex-col-label">SecretVault 설정</div>
+              <div class="ex-cue">
+<span class="ec-c"># dal.cue에 키 이름만 선언</span><br>
+<span class="ec-k">secret_keys</span>: [<br>
+&nbsp;&nbsp;<span class="ec-s">"anthropic_api_key"</span>,<br>
+&nbsp;&nbsp;<span class="ec-s">"openai_api_key"</span><br>
+]
+              </div>
+            </div>
+            <div>
+              <div class="ex-col-label">실행 순서</div>
+              <div class="ex-cmds">
+                <div class="ex-cmd"><span class="ck">$</span> dalcenter secret set anthropic_api_key</div>
+                <div class="ex-cmd" style="color:var(--green)">✓ AES-256-GCM 암호화 저장</div>
+                <div class="ex-cmd"><span class="ck">$</span> dalcenter provision my-agent</div>
+                <div class="ex-cmd" style="color:var(--green)">✓ API keys injected</div>
+                <div class="ex-cmd" style="color:var(--g2)">에이전트가 키를 받아 실행 시작</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- QUICK START -->
+<section id="qs">
+  <div class="qs-inner">
+    <div class="qs-header ri">
+      <div class="sec-eye">Quick Start</div>
+      <div class="sec-h">5분 안에 시작하기</div>
+    </div>
+    <div class="qs-steps">
+      <div class="qs-step">
+        <div class="qs-num">01</div>
+        <div>
+          <div class="qs-t">빌드</div>
+          <div class="qs-d">Go 1.25+ 환경에서 dalcenter를 빌드한다.</div>
+          <div class="cblock">
+            <div class="cbar"><span class="clang">SHELL</span><button class="cpbtn" onclick="cp(this)">copy</button></div>
+            <div class="ccode">
+<span class="cp2">$ </span><span class="cc">git clone https://github.com/dalsoop/dalforge && cd dalforge</span><br>
+<span class="cp2">$ </span><span class="cc">go build <span class="cf">-o</span> ~/go/bin/dalcenter ./cmd/dalcenter/</span><br>
+<span class="ck2">✓ ~/go/bin/dalcenter</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="qs-step">
+        <div class="qs-num">02</div>
+        <div>
+          <div class="qs-t">.dalfactory 선언</div>
+          <div class="qs-d">레포 루트에 선언 파일을 만든다. 이게 전부다.</div>
+          <div class="cblock">
+            <div class="cbar"><span class="clang">CUE — .dalfactory/dal.cue</span><button class="cpbtn" onclick="cp(this)">copy</button></div>
+            <div class="ccode">
+<span class="cc">name</span>: <span class="cs">"my-agent"</span>  <span class="cmnt">// 에이전트 이름</span><br>
+<span class="cc">template</span>: <span class="cs">"claude-dev"</span><br>
+<span class="cc">container</span>: { base: <span class="cs">"ubuntu-24.04"</span> }<br>
+<span class="cc">agents</span>: { claude: { enable: <span class="cf">true</span> } }
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="qs-step">
+        <div class="qs-num">03</div>
+        <div>
+          <div class="qs-t">등록 & 소환</div>
+          <div class="qs-d">dalcenter가 선언을 읽고, 에이전트에 영구 ID를 부여한다.</div>
+          <div class="cblock">
+            <div class="cbar"><span class="clang">SHELL</span><button class="cpbtn" onclick="cp(this)">copy</button></div>
+            <div class="ccode">
+<span class="cp2">$ </span><span class="cc">dalcenter validate . && dalcenter join .</span><br>
+<span class="ck2">instance created: DAL:CONTAINER:a1b2c3d4</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="qs-step">
+        <div class="qs-num">04</div>
+        <div>
+          <div class="qs-t">Proxmox에 배포</div>
+          <div class="qs-d">LXC 컨테이너를 생성하고 에이전트가 깨어난다.</div>
+          <div class="cblock">
+            <div class="cbar"><span class="clang">SHELL</span><button class="cpbtn" onclick="cp(this)">copy</button></div>
+            <div class="ccode">
+<span class="cp2">$ </span><span class="cc">dalcenter provision my-agent <span class="cf">--vmid</span> <span class="cs">219</span></span><br>
+<span class="ck2">✓ provisioned (vmid=219)</span><br>
+<span class="ck2">✓ claude installed · API keys injected</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="qs-step">
+        <div class="qs-num">05</div>
+        <div>
+          <div class="qs-t">영원히 살게 한다</div>
+          <div class="qs-d">watch가 drift를 감지하고 에이전트를 선언한 상태로 유지한다.</div>
+          <div class="cblock">
+            <div class="cbar"><span class="clang">SHELL</span><button class="cpbtn" onclick="cp(this)">copy</button></div>
+            <div class="ccode">
+<span class="cp2">$ </span><span class="cc">dalcenter watch <span class="cf">--interval</span> <span class="cs">60</span></span><br>
+<span class="ck2">watch started (interval=60s, pid=48291)</span><br>
+<span style="color:var(--g2)">  DAL:CONTAINER:a1b2c3d4: ok</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GITHUB -->
+<section id="gh">
+  <div class="gh-inner ri">
+    <div class="gh-pill-top">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+      dalsoop/dalforge · Open Source
+    </div>
+    <div class="gh-h">소스코드는<br>GitHub에 있다</div>
+    <p class="gh-p">이슈를 열고, PR을 보내고, 직접 기여하라. Go 1.25 + CUE + SQLite + Cobra로 만들어졌다.</p>
+    <div class="gh-actions">
+      <a href="https://github.com/dalsoop/dalforge" class="btn-white">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub에서 보기
+      </a>
+      <a href="https://github.com/dalsoop/dalforge/issues" class="btn-outline">이슈 열기 →</a>
+      <a href="https://github.com/dalsoop/dalforge/blob/main/README.md" class="btn-outline">README →</a>
+    </div>
+    <div class="gh-topics">
+      <span class="gh-t">ai-agents</span>
+      <span class="gh-t">proxmox-lxc</span>
+      <span class="gh-t">cue-lang</span>
+      <span class="gh-t">claude</span>
+      <span class="gh-t">codex</span>
+      <span class="gh-t">infrastructure</span>
+      <span class="gh-t">Go 1.25</span>
+      <span class="gh-t">MIT</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="fi">
+    <div class="fl">
+      <div class="flogo">dalforge</div>
+      <div class="ftag">AI 에이전트 컨테이너 인프라 플랫폼. 선언하면 에이전트가 살아난다.</div>
+    </div>
+    <div>
+      <div class="fc-title">Docs</div>
+      <div class="fc-links">
+        <a href="#qs">Quick Start</a>
+        <a href="#how">How it works</a>
+        <a href="#examples">Examples</a>
+        <a href="#">CLI Reference</a>
+      </div>
+    </div>
+    <div>
+      <div class="fc-title">GitHub</div>
+      <div class="fc-links">
+        <a href="https://github.com/dalsoop/dalforge">Repository</a>
+        <a href="https://github.com/dalsoop/dalforge/issues">Issues</a>
+        <a href="https://github.com/dalsoop/dalforge/blob/main/README.md">README</a>
+      </div>
+    </div>
+    <div>
+      <div class="fc-title">Stack</div>
+      <div class="fc-links">
+        <a href="#">Go 1.25</a>
+        <a href="#">CUE 0.16</a>
+        <a href="#">SQLite</a>
+        <a href="#">Proxmox LXC</a>
+      </div>
+    </div>
+  </div>
+  <div class="fcopy">
+    <span>dalforge · dalsoop/dalforge · MIT License</span>
+    <span>Manrope + JetBrains Mono</span>
+  </div>
+</footer>
+
+<script>
+/* ── CHAT ANIMATION ── */
+const chatBody = document.getElementById('chat-body');
+const ciText   = document.getElementById('ci-text');
+
+const script = [
+  { role:'user',  text:'PR 리뷰하는 claude 에이전트 배포해줘', delay:800 },
+  { role:'dal',   typing:true, delay:1200 },
+  { role:'dal',   text:'.dalfactory/dal.cue 생성 중...', code:
+    `<span class="k">name</span>: <span class="v">"pr-reviewer"</span>\n<span class="k">agents</span>: { claude: { enable: <span class="k">true</span> } }\n<span class="k">container</span>: { base: <span class="v">"ubuntu-24.04"</span> }`,
+    delay:600 },
+  { role:'dal',   typing:true, delay:1000 },
+  { role:'dal',   text:'달포지 등록 및 export 중...', code:
+    `<span class="ok">✓</span> DAL:CONTAINER:3a8c1f02 created\n<span class="ok">✓</span> skills exported → .claude/\n<span class="ok">✓</span> hooks applied`,
+    delay:500 },
+  { role:'dal',   typing:true, delay:1400 },
+  { role:'dal',   text:'Proxmox LXC 프로비저닝 중...', code:
+    `<span class="ok">✓</span> ubuntu-24.04 container created\n<span class="ok">✓</span> claude installed · API keys injected\n<span class="ok">✓</span> provisioned (vmid=219)`,
+    delay:400 },
+  { role:'dal',   typing:true, delay:800 },
+  { role:'dal',   text:'에이전트 준비됨. 이제 claude가 PR을 리뷰한다.', highlight:true, delay:0 },
+  { role:'user',  text:'완료된 인스턴스 상태 확인해줄래?', delay:1200 },
+  { role:'dal',   typing:true, delay:900 },
+  { role:'dal',   text:'현재 상태', code:
+    `<span class="dim">dal_id:      </span><span class="ok">DAL:CONTAINER:3a8c1f02</span>\n<span class="dim">status:      </span>active\n<span class="dim">health:      </span><span class="ok">ok(3s)</span>\n<span class="dim">skills:      </span>3\n<span class="dim">watch:       </span>running (60s interval)`,
+    delay:0 },
+];
+
+let inputMsg = '';
+const inputPhrases = ['PR 리뷰하는 claude 에이전트 배포해줘', '완료된 인스턴스 상태 확인해줄래?'];
+let inputIdx = 0;
+
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+function makeMsg(role, text, code, highlight) {
+  const wrap = document.createElement('div');
+  wrap.className = `msg ${role}`;
+
+  const av = document.createElement('div');
+  av.className = `msg-av ${role === 'user' ? 'av-user' : 'av-dal'}`;
+  av.textContent = role === 'user' ? 'U' : 'dal';
+
+  const bub = document.createElement('div');
+  bub.className = `msg-bubble ${role === 'user' ? 'bubble-user' : 'bubble-dal'}`;
+
+  if (role === 'user') {
+    bub.textContent = text;
+  } else {
+    if (highlight) {
+      bub.innerHTML = `<span class="highlight">${text}</span>`;
+    } else {
+      bub.textContent = text;
+    }
+    if (code) {
+      const c = document.createElement('code');
+      c.className = 'code';
+      c.innerHTML = code;
+      bub.appendChild(c);
+    }
+  }
+
+  const time = document.createElement('div');
+  time.className = 'msg-time';
+  const now = new Date();
+  time.textContent = now.getHours()+':'+(String(now.getMinutes()).padStart(2,'0'));
+
+  wrap.appendChild(av);
+  const col = document.createElement('div');
+  col.style.display='flex'; col.style.flexDirection='column';
+  col.appendChild(bub);
+  col.appendChild(time);
+  wrap.appendChild(col);
+
+  return wrap;
+}
+
+function makeTyping() {
+  const wrap = document.createElement('div');
+  wrap.className = 'msg dal';
+  const av = document.createElement('div');
+  av.className = 'msg-av av-dal';
+  av.textContent = 'dal';
+  const bub = document.createElement('div');
+  bub.className = 'msg-bubble bubble-dal';
+  bub.innerHTML = '<div class="typing-indicator"><div class="ty-dot"></div><div class="ty-dot"></div><div class="ty-dot"></div></div>';
+  wrap.appendChild(av);
+  wrap.appendChild(bub);
+  return wrap;
+}
+
+async function typeInput(phrase) {
+  ciText.textContent = '';
+  for (const ch of phrase) {
+    ciText.textContent += ch;
+    await sleep(45 + Math.random()*25);
+  }
+  await sleep(400);
+  ciText.textContent = '';
+}
+
+async function runChat() {
+  let inputQueue = [...inputPhrases];
+  let inputPhaseIdx = 0;
+
+  for (const step of script) {
+    await sleep(step.delay || 0);
+
+    if (step.role === 'user') {
+      await typeInput(inputQueue[inputPhaseIdx++] || '');
+      const msg = makeMsg('user', step.text);
+      chatBody.appendChild(msg);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    } else if (step.typing) {
+      const t = makeTyping();
+      chatBody.appendChild(t);
+      chatBody.scrollTop = chatBody.scrollHeight;
+      await sleep(step.delay || 800);
+      t.remove();
+    } else {
+      const msg = makeMsg('dal', step.text, step.code, step.highlight);
+      chatBody.appendChild(msg);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+  }
+}
+
+// Start on hero visible
+const heroEl = document.getElementById('hero');
+const hObs = new IntersectionObserver(([e]) => {
+  if (e.isIntersecting) { runChat(); hObs.disconnect(); }
+}, { threshold: 0.4 });
+hObs.observe(heroEl);
+
+/* ── ACCORDION ── */
+function toggleEx(el) {
+  const wasOpen = el.classList.contains('open');
+  document.querySelectorAll('.ex-item').forEach(i => i.classList.remove('open'));
+  if (!wasOpen) el.classList.add('open');
+}
+
+/* ── SCROLL REVEAL ── */
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting){ e.target.classList.add('in'); obs.unobserve(e.target); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.ri').forEach(el => obs.observe(el));
+
+const qsObs = new IntersectionObserver(([e]) => {
+  if (e.isIntersecting) {
+    document.querySelectorAll('.qs-step').forEach((s,i) => setTimeout(() => s.classList.add('in'), i*90));
+    qsObs.disconnect();
+  }
+}, { threshold: 0.1 });
+const qsEl = document.querySelector('.qs-steps');
+if (qsEl) qsObs.observe(qsEl);
+
+/* ── COPY ── */
+function cp(btn) {
+  const txt = btn.closest('.cblock').querySelector('.ccode').innerText.replace(/^\$ /gm,'').trim();
+  navigator.clipboard.writeText(txt).then(() => {
+    btn.textContent = '✓'; setTimeout(() => btn.textContent = 'copy', 1400);
+  });
+}
+</script>
+</body>
+</html>

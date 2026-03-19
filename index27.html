@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prelik</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&family=Anybody:ital,wght@0,400;0,500;0,700;0,900;1,400;1,700&family=Overpass+Mono:wght@400;500;600;700&display=swap');
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--fg:#0a0a0a;--fg2:#363636;--fg3:#777;--fg4:#aaa;--fg5:#d0d0d0;--fg6:#e8e8e8;--bg:#fafafa;--ink:#0a0a0a;--orange:#ee5a24;--orange-soft:rgba(238,90,36,0.05);--sans:'Noto Sans KR',sans-serif;--head:'Anybody',sans-serif;--mono:'Overpass Mono',monospace}
+
+html{scroll-behavior:smooth;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;-webkit-font-smoothing:antialiased}
+body{overflow-x:hidden}
+::selection{background:var(--orange);color:white}
+a{color:inherit;text-decoration:none}
+.w{max-width:1200px;margin:0 auto;padding:0 clamp(1.5rem,4vw,3.5rem)}
+
+/* ═══ NAV ═══ */
+nav{position:fixed;top:0;left:0;right:0;z-index:300;background:rgba(250,250,250,0.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid transparent;transition:border-color .3s}
+nav.s{border-bottom-color:var(--fg6)}
+.ni{max-width:1200px;margin:0 auto;padding:0 clamp(1.5rem,4vw,3.5rem);display:flex;align-items:center;justify-content:space-between;height:58px}
+.logo{font-family:var(--head);font-weight:900;font-size:1.1rem;text-transform:uppercase;letter-spacing:.04em}
+.logo .dot{color:var(--orange)}
+.nk{display:flex;gap:1.5rem;align-items:center}
+.nk a{font-size:.82rem;font-weight:500;color:var(--fg3);transition:color .15s}
+.nk a:hover{color:var(--fg)}
+.nk .nc{color:var(--orange);font-weight:700}
+
+/* ═══ HERO — full width stacked ═══ */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:8rem 0 4rem;position:relative;overflow:hidden}
+
+/* morphing blob */
+.hero-blob{
+  position:absolute;top:50%;right:-5%;
+  width:500px;height:500px;
+  transform:translateY(-50%);
+  background:var(--orange);opacity:.04;
+  border-radius:40% 60% 55% 45% / 55% 40% 60% 45%;
+  animation:morph 12s ease-in-out infinite;
+  pointer-events:none;
+}
+
+.hero-inner{position:relative;z-index:1}
+
+.hero-tag{
+  font-family:var(--mono);font-size:.62rem;font-weight:600;
+  letter-spacing:.15em;text-transform:uppercase;
+  color:var(--orange);margin-bottom:2rem;
+  display:flex;align-items:center;gap:.6rem;
+  overflow:hidden;
+}
+.hero-tag .ht-line{width:24px;height:1.5px;background:var(--orange)}
+.hero-tag span{animation:slideR .5s cubic-bezier(.22,1,.36,1) .2s both}
+
+.hero-title{
+  font-family:var(--head);
+  font-size:clamp(3rem,7vw,6rem);
+  font-weight:900;line-height:.95;
+  text-transform:uppercase;letter-spacing:-.03em;
+  margin-bottom:2.5rem;
+}
+.hero-title .tl{overflow:hidden;display:block}
+.hero-title .ti{
+  display:block;transform:translateY(110%);
+  animation:slideU .7s cubic-bezier(.22,1,.36,1) forwards;
+}
+.hero-title .tl:nth-child(2) .ti{animation-delay:.1s}
+.hero-title .tl:nth-child(3) .ti{animation-delay:.2s}
+.hero-title .ti .or{color:var(--orange)}
+
+.hero-bottom{
+  display:grid;grid-template-columns:1fr auto;gap:4rem;
+  align-items:end;padding-top:2rem;border-top:1px solid var(--fg6);
+  animation:fadeIn .6s ease .5s both;
+}
+.hero-desc{font-size:.95rem;color:var(--fg2);line-height:1.9;max-width:460px}
+.hero-actions{display:flex;gap:.6rem;flex-wrap:wrap}
+.btn{font-family:var(--sans);font-size:.88rem;font-weight:700;padding:.8rem 2rem;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;transition:all .25s}
+.btn-or{background:var(--orange);color:white}
+.btn-or:hover{box-shadow:0 6px 24px rgba(238,90,36,.2);transform:translateY(-2px)}
+.btn-outline{background:transparent;border:1.5px solid var(--fg5);color:var(--fg2)}
+.btn-outline:hover{border-color:var(--fg4)}
+
+/* ═══ TICKER ═══ */
+.ticker{padding:1.2rem 0;background:var(--ink);overflow:hidden}
+.ticker-track{display:flex;gap:3rem;animation:scroll 18s linear infinite;width:max-content}
+.ticker-item{font-family:var(--head);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.15);white-space:nowrap;display:flex;align-items:center;gap:.6rem}
+.ticker-item .td{width:4px;height:4px;background:var(--orange);border-radius:50%}
+
+/* ═══ ABOUT ═══ */
+.about{padding:8rem 0}
+.about-layout{display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:start}
+.about-left{position:sticky;top:90px}
+.about-heading{
+  font-family:var(--head);font-size:clamp(1.8rem,3.5vw,2.8rem);
+  font-weight:900;text-transform:uppercase;
+  line-height:1.2;letter-spacing:-.02em;margin-bottom:1.5rem;
+}
+.about-heading .or{color:var(--orange)}
+.about-pron{font-family:var(--mono);font-size:.68rem;color:var(--fg4);line-height:2;padding-top:1rem;border-top:1px solid var(--fg6)}
+.about-right p{font-size:.95rem;color:var(--fg2);line-height:2.1;margin-bottom:1.5rem}
+
+/* ═══ BUSINESS — grid with number overlay ═══ */
+.biz{padding:6rem 0}
+.biz-label{font-family:var(--mono);font-size:.6rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--fg4);margin-bottom:2.5rem}
+
+.biz-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0}
+
+.biz-cell{
+  padding:3rem;border:1px solid var(--fg6);margin:-1px 0 0 -1px;
+  position:relative;overflow:hidden;
+  cursor:pointer;transition:background .3s;
+}
+.biz-cell:hover{background:var(--orange-soft)}
+
+/* giant number bg */
+.biz-cell .bc-bg{
+  position:absolute;top:-10px;right:-5px;
+  font-family:var(--head);font-size:7rem;font-weight:900;
+  color:rgba(0,0,0,.02);line-height:1;pointer-events:none;
+  transition:color .3s;
+}
+.biz-cell:hover .bc-bg{color:rgba(238,90,36,.04)}
+
+.biz-cell .bc-name{
+  font-family:var(--head);font-size:1.15rem;font-weight:700;
+  text-transform:uppercase;margin-bottom:.15rem;
+  display:flex;align-items:center;gap:.5rem;
+  position:relative;
+}
+.bc-tag{
+  font-family:var(--mono);font-size:.48rem;font-weight:500;
+  color:var(--fg4);padding:.1rem .4rem;border:1px solid var(--fg6);
+  text-transform:uppercase;letter-spacing:.03em;
+}
+.biz-cell .bc-desc{font-size:.85rem;color:var(--fg3);line-height:1.65;position:relative;margin-top:.4rem}
+.biz-cell .bc-arrow{
+  position:absolute;bottom:2rem;right:2.5rem;
+  font-size:.85rem;color:var(--fg5);
+  transition:all .3s;
+}
+.biz-cell:hover .bc-arrow{color:var(--orange);transform:translateX(4px)}
+
+/* ═══ MANIFESTO — horizontal scroll text ═══ */
+.manifesto{padding:6rem 0;background:var(--ink);color:white;overflow:hidden}
+
+.mf-scroll{
+  display:flex;gap:0;
+  animation:mfScroll 40s linear infinite;
+  width:max-content;
+  padding:3rem 0;
+}
+.mf-phrase{
+  font-family:var(--head);font-size:clamp(2rem,5vw,4rem);
+  font-weight:900;text-transform:uppercase;
+  white-space:nowrap;padding:0 2rem;
+  color:rgba(255,255,255,.06);
+  transition:color .3s;letter-spacing:-.02em;
+}
+.mf-phrase .or{color:var(--orange);opacity:.3}
+.mf-sep{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--orange);opacity:.2;
+  align-self:center;flex-shrink:0;
+}
+
+.mf-items{padding:4rem clamp(1.5rem,4vw,3.5rem) 0;max-width:1200px;margin:0 auto}
+.mf-items-inner{max-width:640px}
+
+.mf-row{
+  padding:1.5rem 0;border-top:1px solid rgba(255,255,255,.06);
+  display:grid;grid-template-columns:40px 1fr;gap:1rem;align-items:baseline;
+  opacity:0;transform:translateY(10px);
+  transition:opacity .5s,transform .5s;
+}
+.mf-row.vis{opacity:1;transform:translateY(0)}
+.mf-n{font-family:var(--mono);font-size:.58rem;color:rgba(255,255,255,.12)}
+.mf-t{font-size:.92rem;color:rgba(255,255,255,.4);line-height:1.75}
+.mf-t strong{color:rgba(255,255,255,.85)}
+.mf-t .or{color:var(--orange)}
+
+/* ═══ STATS ═══ */
+.stats{padding:5rem 0;border-bottom:1px solid var(--fg6)}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+.stat-cell{
+  padding:2rem;text-align:center;
+  border-right:1px solid var(--fg6);
+  position:relative;
+}
+.stat-cell:last-child{border-right:none}
+.stat-cell::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--orange);transform:scaleX(0);transition:transform .3s cubic-bezier(.22,1,.36,1)}
+.stat-cell:hover::after{transform:scaleX(1)}
+.sc-val{font-family:var(--head);font-size:2.5rem;font-weight:900;line-height:1;letter-spacing:-.02em}
+.sc-label{font-size:.68rem;color:var(--fg4);margin-top:.3rem}
+
+/* ═══ TECH ═══ */
+.tech{padding:6rem 0}
+.tech-layout{display:grid;grid-template-columns:1fr 1fr;gap:5rem}
+.tech-left h2{font-family:var(--head);font-size:1.6rem;font-weight:900;text-transform:uppercase;line-height:1.3;margin-bottom:1.2rem;letter-spacing:-.01em}
+.tech-left h2 .or{color:var(--orange)}
+.tech-left p{font-size:.92rem;color:var(--fg3);line-height:1.9}
+.tech-tags{display:flex;flex-wrap:wrap;gap:.4rem;align-content:start}
+.tt{
+  font-family:var(--mono);font-size:.7rem;font-weight:500;
+  padding:.45rem .9rem;border:1px solid var(--fg6);
+  color:var(--fg3);transition:all .2s;cursor:default;
+  position:relative;overflow:hidden;
+}
+.tt::before{content:'';position:absolute;inset:0;background:var(--ink);transform:translateX(-101%);transition:transform .3s cubic-bezier(.22,1,.36,1);z-index:0}
+.tt:hover::before{transform:translateX(0)}
+.tt span{position:relative;z-index:1;transition:color .3s}
+.tt:hover span{color:white}
+
+/* ═══ NEWS ═══ */
+.news{padding:6rem 0;border-top:1px solid var(--fg6)}
+.news-item{
+  display:grid;grid-template-columns:90px 1fr;gap:2rem;
+  padding:1.5rem 0;border-bottom:1px solid var(--fg6);
+  cursor:pointer;transition:all .2s;position:relative;
+}
+.news-item::before{
+  content:'';position:absolute;left:0;top:50%;
+  width:0;height:2px;background:var(--orange);
+  transition:width .3s cubic-bezier(.22,1,.36,1);
+  transform:translateY(-50%);
+}
+.news-item:hover{padding-left:2rem}
+.news-item:hover::before{width:1rem}
+.nx-date{font-family:var(--mono);font-size:.68rem;color:var(--fg4)}
+.nx-title{font-size:.92rem;font-weight:600}
+
+/* ═══ CONTACT ═══ */
+.contact{padding:10rem 0;position:relative;overflow:hidden}
+
+.contact-bg{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  pointer-events:none;
+}
+.contact-bg-text{
+  font-family:var(--head);font-size:clamp(8rem,22vw,16rem);
+  font-weight:900;text-transform:uppercase;
+  color:rgba(0,0,0,.015);white-space:nowrap;letter-spacing:-.05em;
+  animation:contactDrift 10s ease-in-out infinite alternate;
+}
+
+.contact-inner{position:relative;z-index:1;text-align:center}
+.contact h2{
+  font-family:var(--head);font-size:clamp(2rem,4.5vw,3.5rem);
+  font-weight:900;text-transform:uppercase;line-height:1.1;
+  margin-bottom:1rem;letter-spacing:-.02em;
+}
+.contact h2 .or{color:var(--orange)}
+.contact>p{font-size:1rem;color:var(--fg3);max-width:380px;margin:0 auto 2.5rem;line-height:1.8}
+.contact-links{display:flex;justify-content:center;gap:2rem;font-size:.88rem}
+.cl{font-weight:700;position:relative;padding-bottom:.3rem}
+.cl::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:2px;background:var(--orange);transform:scaleX(0);transform-origin:right;transition:transform .3s cubic-bezier(.22,1,.36,1)}
+.cl:hover::after{transform:scaleX(1);transform-origin:left}
+
+/* ═══ FOOTER ═══ */
+footer{border-top:1px solid var(--fg6);padding:2rem 0}
+.ft{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+.ft-logo{font-family:var(--head);font-weight:900;font-size:.88rem;text-transform:uppercase;letter-spacing:.04em}
+.ft-logo .or{color:var(--orange)}
+.ft-links{display:flex;gap:1.5rem;font-size:.78rem;color:var(--fg3)}
+.ft-links a{transition:color .15s}
+.ft-links a:hover{color:var(--fg)}
+.ft-copy{font-size:.68rem;color:var(--fg4)}
+
+/* ═══ KEYFRAMES ═══ */
+@keyframes slideU{from{transform:translateY(110%)}to{transform:translateY(0)}}
+@keyframes slideR{from{transform:translateX(-20px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes morph{0%{border-radius:40% 60% 55% 45%/55% 40% 60% 45%}25%{border-radius:55% 45% 40% 60%/40% 55% 45% 60%}50%{border-radius:45% 55% 60% 40%/60% 45% 55% 40%}75%{border-radius:60% 40% 45% 55%/45% 60% 40% 55%}100%{border-radius:40% 60% 55% 45%/55% 40% 60% 45%}}
+@keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes mfScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes contactDrift{0%{transform:translateX(-3%)}100%{transform:translateX(3%)}}
+
+.rv{opacity:0;transform:translateY(16px);transition:opacity .6s,transform .6s}
+.rv.vis{opacity:1;transform:translateY(0)}
+
+@media(max-width:900px){
+  .about-layout{grid-template-columns:1fr}.about-left{position:static}
+  .biz-grid{grid-template-columns:1fr}
+  .tech-layout{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .stat-cell{border-bottom:1px solid var(--fg6)}
+  .hero-bottom{grid-template-columns:1fr;gap:2rem}
+  .nk a:nth-child(-n+2){display:none}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav"><div class="ni">
+  <a href="#" class="logo">PRELIK<span class="dot">.</span></a>
+  <div class="nk"><a href="#about">소개</a><a href="#biz">사업</a><a href="#tech">기술</a><a href="#contact" class="nc">문의 →</a></div>
+</div></nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="hero-blob"></div>
+  <div class="w">
+    <div class="hero-inner">
+      <div class="hero-tag"><span class="ht-line"></span><span>Pre × Relik — AI Services</span></div>
+      <div class="hero-title">
+        <span class="tl"><span class="ti">레거시가</span></span>
+        <span class="tl"><span class="ti">되기 <span class="or">전에</span></span></span>
+        <span class="tl"><span class="ti">만듭니다.</span></span>
+      </div>
+      <div class="hero-bottom">
+        <div class="hero-desc">AI 기반 서비스를 설계하고, 직접 코드를 쓰고, 자체 인프라에서 운영하는 기술 기업. 핵심은 오픈소스로, 운영은 셀프호스팅으로.</div>
+        <div class="hero-actions">
+          <a href="#biz" class="btn btn-or">사업영역 →</a>
+          <a href="https://github.com/prelik" class="btn btn-outline">GitHub</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TICKER ═══ -->
+<div class="ticker"><div class="ticker-track" id="tickerTrack"></div></div>
+
+<!-- ═══ ABOUT ═══ -->
+<section id="about" class="about">
+  <div class="w">
+    <div class="about-layout rv">
+      <div class="about-left">
+        <div class="about-heading">MAKING THINGS<br>BEFORE THEY<br>BECOME <span class="or">LEGACY.</span></div>
+        <div class="about-pron">Pre·lik /prɛlɪk/<br>Pre (이전의) × Relik (유물)<br>레거시가 되기 전에 만든다.</div>
+      </div>
+      <div class="about-right">
+        <p>Prelik은 AI 기반 서비스를 설계하고, 직접 코드를 쓰고, 자체 인프라에서 운영하는 기술 기업입니다.</p>
+        <p>비밀 관리, 자율 에이전트, 워크플로 자동화, 관측 플랫폼 — 팀이 매일 쓰는 도구를 만듭니다. 핵심 제품은 오픈소스로 공개하고, 클라우드에 의존하지 않습니다.</p>
+        <p>고객의 데이터는 고객의 인프라 위에 있어야 합니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ BUSINESS ═══ -->
+<section id="biz" class="biz">
+  <div class="w">
+    <div class="biz-label rv">사업영역 — 8 PRODUCTS</div>
+    <div class="biz-grid rv" id="bizGrid"></div>
+  </div>
+</section>
+
+<!-- ═══ MANIFESTO ═══ -->
+<section class="manifesto">
+  <div class="mf-scroll" id="mfScroll"></div>
+  <div class="mf-items">
+    <div class="mf-items-inner">
+      <div class="mf-row" data-s="0"><span class="mf-n">01</span><div class="mf-t"><strong>필요해지기 전에 만든다.</strong> 남들이 문제를 인식할 때, 우리는 이미 해결책을.</div></div>
+      <div class="mf-row" data-s="1"><span class="mf-n">02</span><div class="mf-t"><strong>직접 운영한다.</strong> 우리가 만든 것은 우리가 씁니다.</div></div>
+      <div class="mf-row" data-s="2"><span class="mf-n">03</span><div class="mf-t">핵심 기술을 <strong class="or">공개한다.</strong></div></div>
+      <div class="mf-row" data-s="3"><span class="mf-n">04</span><div class="mf-t"><strong>평문은 존재하지 않는다.</strong></div></div>
+      <div class="mf-row" data-s="4"><span class="mf-n">05</span><div class="mf-t">고객의 데이터는 <strong>고객의 서버에.</strong></div></div>
+      <div class="mf-row" data-s="5"><span class="mf-n">06</span><div class="mf-t"><strong>Go와 SQLite.</strong> 복잡함 대신 <span class="or">확실함.</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ STATS ═══ -->
+<section class="stats">
+  <div class="w">
+    <div class="stats-grid rv">
+      <div class="stat-cell"><div class="sc-val"><span class="cv" data-t="8">0</span></div><div class="sc-label">자체 제품</div></div>
+      <div class="stat-cell"><div class="sc-val"><span class="cv" data-t="30">0</span>+</div><div class="sc-label">운영 서비스</div></div>
+      <div class="stat-cell"><div class="sc-val"><span class="cv" data-t="222">0</span>+</div><div class="sc-label">보안 패턴</div></div>
+      <div class="stat-cell"><div class="sc-val">24/7</div><div class="sc-label">셀프호스팅</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TECH ═══ -->
+<section id="tech" class="tech">
+  <div class="w">
+    <div class="tech-layout rv">
+      <div class="tech-left">
+        <h2>직접 만들고<br><span class="or">직접</span> 운영합니다.</h2>
+        <p>Go, Python, TypeScript 풀스택. 자체 인프라에서 30개 이상의 서비스를 24시간 운영합니다.</p>
+      </div>
+      <div class="tech-tags" id="ttEl"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ NEWS ═══ -->
+<section class="news">
+  <div class="w">
+    <div class="biz-label rv" style="margin-bottom:1.5rem">소식</div>
+    <div class="rv">
+      <div class="news-item"><span class="nx-date">2026.03.17</span><span class="nx-title">VeilKey 오픈소스 공개 — GitHub AGPL-3.0</span></div>
+      <div class="news-item"><span class="nx-date">2026.03.15</span><span class="nx-title">SparkAgent 퍼블릭 베타 시작</span></div>
+      <div class="news-item"><span class="nx-date">2026.03.10</span><span class="nx-title">Prelik 공식 런칭</span></div>
+      <div class="news-item"><span class="nx-date">2026.03.05</span><span class="nx-title">CoreStack v2 릴리스</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CONTACT ═══ -->
+<section id="contact" class="contact">
+  <div class="contact-bg"><div class="contact-bg-text">PRELIK</div></div>
+  <div class="contact-inner">
+    <div class="w rv">
+      <h2>이야기를<br><span class="or">시작하세요.</span></h2>
+      <p>AI 서비스, 보안, 인프라 — 어떤 단계든 편하게.</p>
+      <div class="contact-links">
+        <a href="mailto:hello@prelik.com" class="cl">hello@prelik.com</a>
+        <a href="https://github.com/prelik" class="cl">GitHub</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer><div class="w"><div class="ft">
+  <span class="ft-logo">PRELIK<span class="or">.</span></span>
+  <div class="ft-links"><a href="#about">소개</a><a href="#biz">사업</a><a href="https://github.com/prelik">GitHub</a><a href="#contact">문의</a></div>
+  <span class="ft-copy">© 2026 PRE × RELIK</span>
+</div></div></footer>
+
+<script>
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('s',scrollY>40));
+
+// ═══ TICKER ═══
+const tks=['VeilKey','SparkAgent','FlowForge','LensView','CastDeploy','ShieldAI','WaveDB','CoreStack','AI Services','Open Source','Self-Hosted','Pre × Relik'];
+const tt=document.getElementById('tickerTrack');
+[...tks,...tks,...tks].forEach(t=>{tt.insertAdjacentHTML('beforeend',`<span class="ticker-item"><span class="td"></span>${t}</span>`)});
+
+// ═══ BUSINESS ═══
+const biz=[
+  {name:'VeilKey',tag:'OPEN SOURCE',desc:'비밀 생명주기 관리. AES-256-GCM 암호화, VK: 참조 대체.'},
+  {name:'SparkAgent',tag:'BETA',desc:'자율 AI 에이전트. 다단계 추론, 도구 사용, 영속 메모리.'},
+  {name:'FlowForge',tag:'BETA',desc:'워크플로 자동화. AI 기반 단계 생성, 100+ API 커넥터.'},
+  {name:'LensView',tag:'GA',desc:'AI 관측. 토큰, 지연시간, 비용, 품질 추적.'},
+  {name:'CastDeploy',tag:'GA',desc:'원클릭 배포. Git push → 프로덕션.'},
+  {name:'ShieldAI',tag:'SOON',desc:'AI 보안 모니터링. 이상 탐지, 자동 대응.'},
+  {name:'WaveDB',tag:'ALPHA',desc:'벡터 + 관계형 DB. SQLite 호환.'},
+  {name:'CoreStack',tag:'ENTERPRISE',desc:'인프라 플랫폼. 30+ 서비스를 코드로.'},
+];
+const bg=document.getElementById('bizGrid');
+biz.forEach((b,i)=>{
+  bg.insertAdjacentHTML('beforeend',`<div class="biz-cell"><span class="bc-bg">0${i+1}</span><div class="bc-name">${b.name} <span class="bc-tag">${b.tag}</span></div><div class="bc-desc">${b.desc}</div><span class="bc-arrow">→</span></div>`);
+});
+
+// ═══ MANIFESTO SCROLL ═══
+const phrases=['먼저 만든다','직접 운영한다','공개한다','평문은 없다','셀프호스팅','Pre × Relik'];
+const ms=document.getElementById('mfScroll');
+[...phrases,...phrases,...phrases,...phrases].forEach(p=>{
+  ms.insertAdjacentHTML('beforeend',`<span class="mf-phrase">${p}</span><span class="mf-sep"></span>`);
+});
+
+// ═══ TECH TAGS ═══
+const tags=['Go','Python','TypeScript','Laravel','React','Vue','Proxmox','Docker','Temporal','Claude API','Ollama','PostgreSQL','SQLite','Grafana','GitLab CI','GitHub Actions','Playwright','Elasticsearch','Kestra','Mattermost'];
+const te=document.getElementById('ttEl');
+tags.forEach(t=>{te.insertAdjacentHTML('beforeend',`<span class="tt"><span>${t}</span></span>`)});
+
+// ═══ COUNTER ═══
+let cD=false;
+const cO=new IntersectionObserver(es=>{es.forEach(e=>{
+  if(!e.isIntersecting||cD)return;cD=true;
+  document.querySelectorAll('.cv').forEach(el=>{
+    const t=+el.dataset.t,d=1200,s=performance.now();
+    function tick(n){const p=Math.min((n-s)/d,1);el.textContent=Math.round(t*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(tick)}
+    requestAnimationFrame(tick);
+  });
+})},{threshold:.3});
+document.querySelectorAll('.stats-grid').forEach(el=>cO.observe(el));
+
+// ═══ MANIFESTO STAGGER ═══
+const mO=new IntersectionObserver(es=>{es.forEach(e=>{
+  if(!e.isIntersecting)return;
+  const d=+(e.target.dataset.s||0)*120;
+  setTimeout(()=>e.target.classList.add('vis'),d);
+  mO.unobserve(e.target);
+})},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.mf-row').forEach(el=>mO.observe(el));
+
+// ═══ REVEAL ═══
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target)}})},{threshold:.05,rootMargin:'0px 0px -20px 0px'});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+</script>
+
+</body>
+</html>

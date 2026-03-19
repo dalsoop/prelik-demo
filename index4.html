@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VeilKey — The Last Secret Manager You'll Need</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700&family=Fira+Code:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap');
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --fg:#ede9e0;
+  --fg2:#a09889;
+  --fg3:#5c554a;
+  --fg4:#2a2621;
+  --bg:#06060a;
+  --bg2:#0c0c10;
+  --bg3:#131318;
+  --electric:#3df0ff;
+  --electric-dim:#1aa8b8;
+  --electric-bg:rgba(61,240,255,0.04);
+  --electric-line:rgba(61,240,255,0.1);
+  --peach:#ff7e6b;
+  --gold:#ffd666;
+  --lavender:#b18cff;
+  --display:'Cormorant Garamond',Georgia,serif;
+  --sans:'Outfit',system-ui,sans-serif;
+  --code:'Fira Code','SF Mono',monospace;
+}
+
+html{scroll-behavior:smooth;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;-webkit-font-smoothing:antialiased}
+body{overflow-x:hidden}
+::selection{background:var(--electric);color:var(--bg)}
+a{color:inherit;text-decoration:none}
+
+.w{max-width:1200px;margin:0 auto;padding:0 clamp(1.5rem,5vw,4rem)}
+
+/* ═══ PARTICLES CANVAS ═══ */
+#particles{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.4}
+
+/* ═══ NAV ═══ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:300;
+  background:rgba(6,6,10,0.7);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.nav-in{
+  max-width:1200px;margin:0 auto;padding:0 clamp(1.5rem,5vw,4rem);
+  display:flex;align-items:center;justify-content:space-between;height:60px;
+}
+.n-logo{
+  font-family:var(--code);font-weight:600;font-size:0.8rem;
+  letter-spacing:0.14em;color:var(--electric);
+  display:flex;align-items:center;gap:0.6rem;
+}
+.n-logo-icon{
+  width:22px;height:22px;position:relative;
+}
+.n-logo-icon::before{
+  content:'';position:absolute;inset:2px;
+  border:2px solid var(--electric);border-radius:50%;
+}
+.n-logo-icon::after{
+  content:'';position:absolute;
+  left:50%;top:50%;width:4px;height:4px;
+  background:var(--electric);border-radius:50%;
+  transform:translate(-50%,-50%);
+  box-shadow:0 0 8px var(--electric);
+}
+.n-r{display:flex;align-items:center;gap:2.2rem}
+.n-r a{font-size:0.72rem;letter-spacing:0.06em;color:var(--fg3);transition:color 0.2s}
+.n-r a:hover{color:var(--fg)}
+.n-r .n-cta{
+  padding:0.4rem 1.1rem;border:1px solid var(--electric-line);
+  color:var(--electric);border-radius:100px;font-size:0.72rem;
+  transition:all 0.2s;
+}
+.n-r .n-cta:hover{background:var(--electric);color:var(--bg)}
+
+/* ═══ HERO ═══ */
+.hero{
+  min-height:100vh;display:flex;align-items:center;
+  position:relative;z-index:1;
+  padding:60px 0 0;
+}
+
+.hero-layout{
+  display:grid;grid-template-columns:1fr;
+  text-align:center;
+}
+
+.hero-above{
+  font-family:var(--code);font-size:0.62rem;
+  letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--electric-dim);margin-bottom:2rem;
+  animation:fadeUp 0.8s ease both;
+}
+
+.hero h1{
+  font-family:var(--display);
+  font-size:clamp(3.2rem,8vw,7rem);
+  font-weight:300;line-height:1;
+  margin-bottom:2rem;
+  animation:fadeUp 0.8s ease 0.1s both;
+}
+.hero h1 em{font-style:italic;font-weight:400;color:var(--electric)}
+
+/* Animated key line */
+.hero-keyline{
+  margin:0 auto 2.5rem;
+  max-width:600px;
+  height:56px;
+  position:relative;
+  animation:fadeUp 0.8s ease 0.2s both;
+}
+
+.keyline-track{
+  position:absolute;inset:0;
+  background:var(--bg2);
+  border:1px solid var(--fg4);
+  border-radius:8px;
+  overflow:hidden;
+  display:flex;align-items:center;
+  padding:0 1.5rem;
+  font-family:var(--code);font-size:0.85rem;
+}
+
+.keyline-prefix{color:var(--fg3);margin-right:0.3rem;flex-shrink:0}
+.keyline-value{
+  flex:1;overflow:hidden;white-space:nowrap;
+  position:relative;
+  height:1.3em;
+}
+.keyline-secret,
+.keyline-ref{
+  position:absolute;left:0;top:0;
+  transition:all 0.6s cubic-bezier(0.4,0,0.2,1);
+  white-space:nowrap;
+}
+.keyline-secret{color:var(--peach)}
+.keyline-ref{color:var(--electric);opacity:0;transform:translateY(100%)}
+
+.keyline-track.encrypted .keyline-secret{opacity:0;transform:translateY(-100%)}
+.keyline-track.encrypted .keyline-ref{opacity:1;transform:translateY(0)}
+
+.keyline-indicator{
+  flex-shrink:0;margin-left:1rem;
+  width:8px;height:8px;border-radius:50%;
+  background:var(--peach);
+  transition:all 0.4s;
+}
+.keyline-track.encrypted .keyline-indicator{
+  background:var(--electric);
+  box-shadow:0 0 12px var(--electric);
+}
+
+.hero-sub{
+  font-size:1.1rem;color:var(--fg2);
+  max-width:500px;margin:0 auto 3rem;
+  line-height:1.8;font-weight:300;
+  animation:fadeUp 0.8s ease 0.3s both;
+}
+
+.hero-btns{
+  display:flex;justify-content:center;gap:0.8rem;flex-wrap:wrap;
+  animation:fadeUp 0.8s ease 0.4s both;
+}
+
+.btn{
+  font-family:var(--sans);font-size:0.85rem;font-weight:500;
+  padding:0.8rem 2rem;border:none;cursor:pointer;
+  display:inline-flex;align-items:center;gap:0.5rem;
+  transition:all 0.25s;border-radius:100px;
+}
+.btn-electric{background:var(--electric);color:var(--bg)}
+.btn-electric:hover{box-shadow:0 0 40px rgba(61,240,255,0.25);transform:translateY(-2px)}
+.btn-ghost{background:transparent;border:1px solid var(--fg4);color:var(--fg2)}
+.btn-ghost:hover{border-color:var(--fg3);color:var(--fg)}
+
+/* rotating secrets showcase */
+.hero-showcase{
+  margin-top:5rem;
+  animation:fadeUp 0.8s ease 0.5s both;
+}
+.showcase-label{
+  font-family:var(--code);font-size:0.6rem;
+  letter-spacing:0.15em;text-transform:uppercase;
+  color:var(--fg3);text-align:center;margin-bottom:1.5rem;
+}
+.showcase-track{
+  display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;
+}
+.showcase-chip{
+  font-family:var(--code);font-size:0.72rem;
+  padding:0.4rem 1rem;
+  border:1px solid var(--fg4);border-radius:4px;
+  color:var(--fg3);
+  transition:all 0.5s;
+  cursor:default;
+}
+.showcase-chip .val{transition:color 0.3s}
+.showcase-chip.sealed{border-color:var(--electric-line)}
+.showcase-chip.sealed .val{color:var(--electric)}
+
+/* ═══ THE LIVE DEMO ═══ */
+.demo-section{
+  padding:8rem 0;position:relative;z-index:1;
+}
+.demo-container{
+  max-width:860px;margin:0 auto;
+}
+.demo-header{text-align:center;margin-bottom:3.5rem}
+.demo-header .ey{
+  font-family:var(--code);font-size:0.62rem;
+  letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--electric-dim);margin-bottom:1rem;
+}
+.demo-header h2{
+  font-family:var(--display);font-size:clamp(2rem,4vw,3.2rem);
+  font-weight:300;line-height:1.15;
+}
+.demo-header h2 em{font-style:italic;color:var(--electric)}
+
+/* Split terminal */
+.demo-split{
+  display:grid;grid-template-columns:1fr 1fr;
+  border:1px solid var(--fg4);border-radius:10px;
+  overflow:hidden;
+  box-shadow:0 30px 100px rgba(0,0,0,0.5);
+}
+
+.demo-pane{background:var(--bg2);position:relative}
+.demo-pane+.demo-pane{border-left:1px solid var(--fg4)}
+
+.demo-pane-bar{
+  padding:0.6rem 1.2rem;
+  border-bottom:1px solid var(--fg4);
+  display:flex;align-items:center;gap:0.5rem;
+  background:rgba(255,255,255,0.015);
+}
+.demo-pane-bar .dots{display:flex;gap:4px}
+.demo-pane-bar .dots span{width:6px;height:6px;border-radius:50%;background:var(--fg4)}
+.demo-pane-bar .title{
+  margin-left:0.6rem;font-family:var(--code);
+  font-size:0.62rem;color:var(--fg3);letter-spacing:0.05em;
+}
+
+.demo-pane-body{
+  padding:1.5rem;font-family:var(--code);font-size:0.78rem;
+  line-height:2.1;min-height:280px;
+}
+
+/* File content lines */
+.file-line{
+  display:flex;align-items:baseline;
+  opacity:0;animation:lineSlide 0.3s ease forwards;
+}
+.file-line .ln{
+  width:24px;flex-shrink:0;
+  color:var(--fg4);text-align:right;margin-right:1rem;
+  font-size:0.7rem;
+  user-select:none;
+}
+.file-line .lc{flex:1}
+.cm{color:var(--fg3);font-style:italic}
+.ky{color:var(--fg2)}
+.dg{color:var(--peach)}
+.sf{color:var(--electric)}
+.lv{color:var(--lavender)}
+
+/* transition lines from danger to safe */
+.file-line .morphable{
+  transition:color 0.4s,text-shadow 0.4s;
+}
+.file-line .morphable.flash{
+  text-shadow:0 0 8px var(--electric);
+}
+
+/* ═══ VERTICAL FLOW ═══ */
+.flow-section{
+  padding:7rem 0;
+  position:relative;z-index:1;
+}
+
+.flow-track{
+  max-width:640px;margin:3.5rem auto 0;
+  position:relative;
+}
+/* vertical line */
+.flow-track::before{
+  content:'';position:absolute;
+  left:24px;top:0;bottom:0;width:1px;
+  background:linear-gradient(180deg,var(--electric-line),var(--fg4) 30%,var(--fg4) 70%,var(--electric-line));
+}
+
+.flow-item{
+  display:flex;gap:2rem;
+  padding:2rem 0;
+  position:relative;
+}
+.flow-dot{
+  width:48px;height:48px;flex-shrink:0;
+  border:1px solid var(--fg4);border-radius:50%;
+  display:grid;place-items:center;
+  font-family:var(--display);font-size:1.3rem;
+  font-style:italic;color:var(--electric);
+  background:var(--bg);
+  position:relative;z-index:1;
+  transition:all 0.3s;
+}
+.flow-item:hover .flow-dot{
+  border-color:var(--electric-line);
+  box-shadow:0 0 20px var(--electric-bg);
+}
+.flow-body h3{
+  font-size:0.95rem;font-weight:600;margin-bottom:0.3rem;
+}
+.flow-body p{
+  font-size:0.88rem;color:var(--fg2);font-weight:300;line-height:1.7;
+}
+.flow-body .flow-cmd{
+  margin-top:0.6rem;font-family:var(--code);font-size:0.72rem;
+  color:var(--electric-dim);background:var(--electric-bg);
+  padding:0.25rem 0.7rem;border-radius:3px;display:inline-block;
+}
+
+/* ═══ FEATURES HORIZONTAL SCROLL ═══ */
+.features-section{
+  padding:7rem 0;
+  background:var(--bg2);
+  border-top:1px solid var(--fg4);
+  border-bottom:1px solid var(--fg4);
+  position:relative;z-index:1;
+}
+
+.feat-scroll{
+  margin-top:3.5rem;
+  display:flex;gap:1.5rem;
+  overflow-x:auto;
+  padding-bottom:1rem;
+  scroll-snap-type:x mandatory;
+  -ms-overflow-style:none;scrollbar-width:none;
+}
+.feat-scroll::-webkit-scrollbar{display:none}
+
+.feat-card{
+  flex:0 0 300px;
+  scroll-snap-align:start;
+  background:var(--bg);
+  border:1px solid var(--fg4);
+  border-radius:8px;
+  padding:2rem;
+  transition:all 0.3s;
+  position:relative;
+  overflow:hidden;
+}
+.feat-card::before{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--electric),var(--lavender));
+  opacity:0;transition:opacity 0.3s;
+}
+.feat-card:hover{border-color:var(--electric-line);transform:translateY(-3px)}
+.feat-card:hover::before{opacity:1}
+
+.feat-card .feat-num{
+  font-family:var(--display);font-size:2.5rem;
+  font-style:italic;color:var(--fg4);
+  line-height:1;margin-bottom:1rem;
+}
+.feat-card h3{
+  font-size:0.92rem;font-weight:600;margin-bottom:0.5rem;
+}
+.feat-card p{
+  font-size:0.85rem;color:var(--fg2);font-weight:300;line-height:1.65;
+}
+
+/* ═══ SECURITY GRID ═══ */
+.security-section{padding:7rem 0;position:relative;z-index:1}
+
+.sec-grid{
+  margin-top:3.5rem;
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  gap:0;
+  border:1px solid var(--fg4);border-radius:8px;overflow:hidden;
+}
+.sec-cell{
+  padding:2rem;
+  border-right:1px solid var(--fg4);
+  border-bottom:1px solid var(--fg4);
+  transition:background 0.3s;
+}
+.sec-cell:nth-child(3n){border-right:none}
+.sec-cell:nth-child(n+4){border-bottom:none}
+.sec-cell:hover{background:var(--bg2)}
+
+.sec-cell .sec-icon{
+  font-size:1.4rem;margin-bottom:0.8rem;display:block;
+}
+.sec-cell h4{
+  font-family:var(--code);font-size:0.78rem;font-weight:600;
+  margin-bottom:0.4rem;letter-spacing:0.02em;
+}
+.sec-cell p{
+  font-size:0.82rem;color:var(--fg2);font-weight:300;line-height:1.6;
+}
+
+/* ═══ CTA ═══ */
+.cta{
+  padding:9rem 0;text-align:center;
+  position:relative;z-index:1;
+}
+.cta::before{
+  content:'';position:absolute;
+  width:800px;height:800px;left:50%;top:50%;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(circle,rgba(61,240,255,0.02) 0%,transparent 50%);
+  pointer-events:none;
+}
+.cta h2{
+  font-family:var(--display);
+  font-size:clamp(2.2rem,5vw,3.8rem);
+  font-weight:300;line-height:1.1;
+  margin-bottom:1.2rem;
+  position:relative;
+}
+.cta h2 em{font-style:italic;color:var(--electric)}
+.cta p{
+  color:var(--fg2);max-width:420px;margin:0 auto 2.5rem;
+  font-size:1rem;line-height:1.8;font-weight:300;
+  position:relative;
+}
+.cta-actions{
+  display:flex;justify-content:center;gap:0.8rem;flex-wrap:wrap;
+  position:relative;
+}
+
+.cta-footer{
+  margin-top:4rem;
+  display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;
+  position:relative;
+}
+.cta-footer span{
+  font-family:var(--code);font-size:0.65rem;
+  letter-spacing:0.1em;text-transform:uppercase;color:var(--fg3);
+}
+
+/* ═══ FOOTER ═══ */
+footer{
+  border-top:1px solid var(--fg4);padding:2rem 0;
+  position:relative;z-index:1;
+}
+.foot-in{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:0.72rem;color:var(--fg3);
+}
+.foot-in a{color:var(--fg2);transition:color 0.2s}
+.foot-in a:hover{color:var(--electric)}
+
+/* ═══ ANIM ═══ */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(24px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes lineSlide{
+  from{opacity:0;transform:translateX(-8px)}
+  to{opacity:1;transform:translateX(0)}
+}
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-6px)}
+}
+
+.rv{opacity:0;transform:translateY(24px);transition:opacity 0.7s,transform 0.7s}
+.rv.vis{opacity:1;transform:translateY(0)}
+
+@media(max-width:900px){
+  .demo-split{grid-template-columns:1fr}
+  .demo-pane+.demo-pane{border-left:none;border-top:1px solid var(--fg4)}
+  .sec-grid{grid-template-columns:1fr}
+  .sec-cell{border-right:none!important;border-bottom:1px solid var(--fg4)!important}
+  .sec-cell:last-child{border-bottom:none!important}
+  .n-r a:not(.n-cta){display:none}
+  .showcase-track{justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;padding-bottom:0.5rem}
+}
+</style>
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+
+<nav>
+  <div class="nav-in">
+    <a href="#" class="n-logo"><div class="n-logo-icon"></div>VEILKEY</a>
+    <div class="n-r">
+      <a href="#demo">Demo</a>
+      <a href="#flow">Workflow</a>
+      <a href="#security">Security</a>
+      <a href="https://github.com/veilkey/veilkey-selfhosted" class="n-cta">GitHub ↗</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="w">
+    <div class="hero-layout">
+      <div class="hero-above">Secret Lifecycle Manager · Open Source · AGPL-3.0</div>
+      <h1>Plaintext<br>goes <em>extinct.</em></h1>
+
+      <!-- Animated key line -->
+      <div class="hero-keyline">
+        <div class="keyline-track" id="keylineTrack">
+          <span class="keyline-prefix">API_KEY=</span>
+          <div class="keyline-value">
+            <span class="keyline-secret" id="keylineSecret">sk-proj-4f8a2b1c9d3e7f6a</span>
+            <span class="keyline-ref" id="keylineRef">VK:LOCAL:4f8a2b1c</span>
+          </div>
+          <div class="keyline-indicator"></div>
+        </div>
+      </div>
+
+      <p class="hero-sub">
+        VeilKey encrypts every secret the moment it enters your system.
+        Config files, CI logs, AI agents — they see only encrypted references.
+      </p>
+
+      <div class="hero-btns">
+        <a href="https://github.com/veilkey/veilkey-selfhosted" class="btn btn-electric">Get Started →</a>
+        <a href="#demo" class="btn btn-ghost">Watch the demo</a>
+      </div>
+
+      <!-- Chip showcase -->
+      <div class="hero-showcase">
+        <div class="showcase-label">Every secret. Every format. Sealed.</div>
+        <div class="showcase-track" id="showcaseTrack">
+          <div class="showcase-chip" data-from="ghp_1a2b3c4d5e6f" data-to="VK:LOCAL:1a2b"><span class="val">ghp_1a2b3c4d5e6f</span></div>
+          <div class="showcase-chip" data-from="AKIA3E7X9B2F" data-to="VK:LOCAL:3e7x"><span class="val">AKIA3E7X9B2F</span></div>
+          <div class="showcase-chip" data-from="sk_live_51HG8a" data-to="VK:LOCAL:51hg"><span class="val">sk_live_51HG8a</span></div>
+          <div class="showcase-chip" data-from="xoxb-12345-abcde" data-to="VK:LOCAL:b123"><span class="val">xoxb-12345-abcde</span></div>
+          <div class="showcase-chip" data-from="-----BEGIN RSA" data-to="VK:LOCAL:rsa0"><span class="val">-----BEGIN RSA</span></div>
+          <div class="showcase-chip" data-from="mongodb://root:pw" data-to="VK:LOCAL:mg01"><span class="val">mongodb://root:pw</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ LIVE DEMO ═══ -->
+<section id="demo" class="demo-section">
+  <div class="w">
+    <div class="demo-container rv">
+      <div class="demo-header">
+        <div class="ey">Live Demo</div>
+        <h2>See secrets <em>vanish</em> in real time</h2>
+      </div>
+
+      <div class="demo-split" id="demoSplit">
+        <div class="demo-pane">
+          <div class="demo-pane-bar">
+            <div class="dots"><span></span><span></span><span></span></div>
+            <div class="title">.env — before</div>
+          </div>
+          <div class="demo-pane-body" id="demoBefore"></div>
+        </div>
+        <div class="demo-pane">
+          <div class="demo-pane-bar">
+            <div class="dots"><span></span><span></span><span></span></div>
+            <div class="title">.env — after veilkey filter</div>
+          </div>
+          <div class="demo-pane-body" id="demoAfter"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FLOW ═══ -->
+<section id="flow" class="flow-section">
+  <div class="w">
+    <div style="text-align:center" class="rv">
+      <div style="font-family:var(--code);font-size:0.62rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--electric-dim);margin-bottom:1rem">Workflow</div>
+      <h2 style="font-family:var(--display);font-size:clamp(2rem,4vw,3rem);font-weight:300;line-height:1.15">Four steps. Zero <em style="font-style:italic;color:var(--electric)">plaintext.</em></h2>
+    </div>
+    <div class="flow-track rv">
+      <div class="flow-item">
+        <div class="flow-dot">1</div>
+        <div class="flow-body">
+          <h3>Scan</h3>
+          <p>Detect secrets across files with 222+ patterns. AWS keys, tokens, private keys, database URLs. Fully offline.</p>
+          <span class="flow-cmd">vk scan .env config/</span>
+        </div>
+      </div>
+      <div class="flow-item">
+        <div class="flow-dot">2</div>
+        <div class="flow-body">
+          <h3>Filter</h3>
+          <p>Replace each detected secret with an AES-256-GCM encrypted reference. Plaintext destroyed immediately.</p>
+          <span class="flow-cmd">vk filter .env</span>
+        </div>
+      </div>
+      <div class="flow-item">
+        <div class="flow-dot">3</div>
+        <div class="flow-body">
+          <h3>Wrap</h3>
+          <p>Run commands with automatic output masking. If a secret leaks to stdout, it's replaced before it reaches the terminal.</p>
+          <span class="flow-cmd">vk wrap ./deploy.sh</span>
+        </div>
+      </div>
+      <div class="flow-item">
+        <div class="flow-dot">4</div>
+        <div class="flow-body">
+          <h3>Exec</h3>
+          <p>Resolve VK: tokens at runtime. Decrypted values injected into process memory — never written to disk.</p>
+          <span class="flow-cmd">vk exec ./my-app</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FEATURES ═══ -->
+<section class="features-section">
+  <div class="w">
+    <div style="text-align:center" class="rv">
+      <div style="font-family:var(--code);font-size:0.62rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--electric-dim);margin-bottom:1rem">Capabilities</div>
+      <h2 style="font-family:var(--display);font-size:clamp(2rem,4vw,3rem);font-weight:300">Designed for the <em style="font-style:italic;color:var(--electric)">AI era.</em></h2>
+    </div>
+    <div class="feat-scroll rv">
+      <div class="feat-card"><div class="feat-num">01</div><h3>AI-safe by default</h3><p>AI agents see VK: references, not real keys. They code, deploy, and test — with zero secret exposure.</p></div>
+      <div class="feat-card"><div class="feat-num">02</div><h3>Zero plaintext at rest</h3><p>Encrypted the moment it enters. Configs, git history, CI logs — only references survive.</p></div>
+      <div class="feat-card"><div class="feat-num">03</div><h3>Seamless rotation</h3><p>KeyCenter schedules, nodes re-encrypt independently. No restarts, no downtime.</p></div>
+      <div class="feat-card"><div class="feat-num">04</div><h3>Node isolation</h3><p>Every node has its own DEK. Breach one — the rest stay sealed.</p></div>
+      <div class="feat-card"><div class="feat-num">05</div><h3>Egress enforcement</h3><p>Optional proxy intercepts outbound HTTP and blocks plaintext leaks.</p></div>
+      <div class="feat-card"><div class="feat-num">06</div><h3>Self-hosted</h3><p>SQLite backend, no cloud deps. macOS or Linux. AGPL-3.0.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SECURITY ═══ -->
+<section id="security" class="security-section">
+  <div class="w">
+    <div style="text-align:center" class="rv">
+      <div style="font-family:var(--code);font-size:0.62rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--electric-dim);margin-bottom:1rem">Security Model</div>
+      <h2 style="font-family:var(--display);font-size:clamp(2rem,4vw,3rem);font-weight:300">Three layers of <em style="font-style:italic;color:var(--electric)">defense.</em></h2>
+    </div>
+    <div class="sec-grid rv">
+      <div class="sec-cell">
+        <span class="sec-icon">◇</span>
+        <h4>KEK</h4>
+        <p>Key Encryption Key. Derived from password via scrypt. Never stored — derived on unlock.</p>
+      </div>
+      <div class="sec-cell">
+        <span class="sec-icon">◆</span>
+        <h4>DEK</h4>
+        <p>Data Encryption Key. 256-bit random, encrypted at rest with KEK. Rotatable per-node.</p>
+      </div>
+      <div class="sec-cell">
+        <span class="sec-icon">●</span>
+        <h4>Ciphertext</h4>
+        <p>Each secret encrypted with AES-256-GCM. Referenced as VK:{SCOPE}:{REF}. Unique nonce per entry.</p>
+      </div>
+      <div class="sec-cell">
+        <span class="sec-icon">⊘</span>
+        <h4>No env vars</h4>
+        <p>Passwords read from files only. No exposure via ps, /proc, or crash dumps.</p>
+      </div>
+      <div class="sec-cell">
+        <span class="sec-icon">⊕</span>
+        <h4>Lateral isolation</h4>
+        <p>Each node has its own DEK. Compromise one — the rest stay sealed.</p>
+      </div>
+      <div class="sec-cell">
+        <span class="sec-icon">⊙</span>
+        <h4>Egress guard</h4>
+        <p>Proxy intercepts HTTP. Shell hooks block direct curl, wget, and credential access.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ═══ -->
+<section class="cta">
+  <div class="w rv">
+    <h2>Stop hoping secrets<br>won't <em>leak.</em></h2>
+    <p>Make it impossible. Encrypt at creation, reference everywhere, rotate without downtime.</p>
+    <div class="cta-actions">
+      <a href="https://github.com/veilkey/veilkey-selfhosted" class="btn btn-electric">View on GitHub →</a>
+      <a href="https://github.com/veilkey/veilkey-selfhosted/blob/main/docs/installation.md" class="btn btn-ghost">Install Guide</a>
+    </div>
+    <div class="cta-footer">
+      <span>AGPL-3.0</span><span>Go + SQLite</span><span>AES-256-GCM</span><span>macOS + Linux</span>
+    </div>
+  </div>
+</section>
+
+<footer><div class="w"><div class="foot-in">
+  <span>VeilKey</span>
+  <a href="https://github.com/veilkey/veilkey-selfhosted">github.com/veilkey</a>
+</div></div></footer>
+
+<script>
+// ═══ PARTICLES ═══
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [];
+
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+for (let i = 0; i < 50; i++) {
+  particles.push({
+    x: Math.random() * W,
+    y: Math.random() * H,
+    r: Math.random() * 1.2 + 0.3,
+    dx: (Math.random() - 0.5) * 0.3,
+    dy: (Math.random() - 0.5) * 0.3,
+    o: Math.random() * 0.3 + 0.1
+  });
+}
+
+function drawParticles() {
+  ctx.clearRect(0, 0, W, H);
+  particles.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(61,240,255,${p.o})`;
+    ctx.fill();
+    p.x += p.dx; p.y += p.dy;
+    if (p.x < 0 || p.x > W) p.dx *= -1;
+    if (p.y < 0 || p.y > H) p.dy *= -1;
+  });
+  // Lines between nearby
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const d = Math.sqrt(dx*dx + dy*dy);
+      if (d < 120) {
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.strokeStyle = `rgba(61,240,255,${0.04 * (1 - d/120)})`;
+        ctx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
+
+// ═══ HERO KEYLINE ANIMATION ═══
+const keylineSecrets = [
+  { secret: 'sk-proj-4f8a2b1c9d3e7f6a', ref: 'VK:LOCAL:4f8a2b1c' },
+  { secret: 'ghp_a1b2c3d4e5f6g7h8i9', ref: 'VK:LOCAL:a1b2c3d4' },
+  { secret: 'AKIAIOSFODNN7EXAMPLE', ref: 'VK:LOCAL:iosf7exm' },
+  { secret: 'xoxb-123456-abcdefgh', ref: 'VK:LOCAL:xoxb1234' },
+  { secret: 'sk_live_51HG8abc123def', ref: 'VK:LOCAL:51hg8abc' },
+];
+let klIdx = 0;
+
+function cycleKeyline() {
+  const track = document.getElementById('keylineTrack');
+  const secretEl = document.getElementById('keylineSecret');
+  const refEl = document.getElementById('keylineRef');
+
+  // show secret
+  track.classList.remove('encrypted');
+  const item = keylineSecrets[klIdx];
+  secretEl.textContent = item.secret;
+  refEl.textContent = item.ref;
+
+  // encrypt after delay
+  setTimeout(() => track.classList.add('encrypted'), 1800);
+
+  // next
+  klIdx = (klIdx + 1) % keylineSecrets.length;
+  setTimeout(cycleKeyline, 4000);
+}
+setTimeout(cycleKeyline, 1000);
+
+// ═══ SHOWCASE CHIPS ═══
+function cycleChips() {
+  const chips = document.querySelectorAll('.showcase-chip');
+  let i = 0;
+  function sealNext() {
+    if (i >= chips.length) {
+      // reset after pause
+      setTimeout(() => {
+        chips.forEach(c => {
+          c.classList.remove('sealed');
+          c.querySelector('.val').textContent = c.dataset.from;
+        });
+        i = 0;
+        setTimeout(sealNext, 1500);
+      }, 3000);
+      return;
+    }
+    const chip = chips[i];
+    chip.classList.add('sealed');
+    chip.querySelector('.val').textContent = chip.dataset.to;
+    i++;
+    setTimeout(sealNext, 300);
+  }
+  setTimeout(sealNext, 2500);
+}
+cycleChips();
+
+// ═══ DEMO SPLIT — BEFORE / AFTER ═══
+const envLines = [
+  { key: 'DATABASE_URL', danger: 'postgres://admin:s3cret@db:5432/prod', safe: 'VK:LOCAL:db01a2b3' },
+  { key: 'AWS_SECRET_KEY', danger: 'wJalrXUtnFEMI/K7MDENG/bPxRfi', safe: 'VK:LOCAL:aws4c5d6' },
+  { key: 'GITHUB_TOKEN', danger: 'ghp_abc123def456ghi789jkl012mn', safe: 'VK:LOCAL:gh7e8f9a' },
+  { key: 'STRIPE_SK', danger: 'sk_live_51HG8axYzKlMnOpQrSt', safe: 'VK:LOCAL:st0b1c2d' },
+  { key: 'JWT_SECRET', danger: 'my-super-secret-jwt-key-2024!', safe: 'VK:LOCAL:jw3e4f5a' },
+];
+
+let demoPlayed = false;
+const demoObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting && !demoPlayed) {
+      demoPlayed = true;
+      playDemo();
+    }
+  });
+}, { threshold: 0.3 });
+
+const demoEl = document.getElementById('demoSplit');
+if (demoEl) demoObs.observe(demoEl);
+
+async function playDemo() {
+  const before = document.getElementById('demoBefore');
+  const after = document.getElementById('demoAfter');
+  before.innerHTML = '';
+  after.innerHTML = '';
+
+  // Comment line
+  addFileLine(before, 1, '<span class="cm"># production secrets</span>');
+  addFileLine(after, 1, '<span class="cm"># production secrets (sealed)</span>');
+  await sleep(300);
+
+  for (let i = 0; i < envLines.length; i++) {
+    const ln = i + 2;
+    const e = envLines[i];
+
+    // Before side
+    addFileLine(before, ln, `<span class="ky">${e.key}=</span><span class="dg">${e.danger}</span>`, (i+1)*80);
+
+    // After side — start as danger then morph
+    const afterLine = addFileLine(after, ln, `<span class="ky">${e.key}=</span><span class="morphable dg" id="morph-${i}">${e.danger}</span>`, (i+1)*80);
+
+    await sleep(150);
+  }
+
+  // Now morph them one by one
+  await sleep(800);
+  for (let i = 0; i < envLines.length; i++) {
+    const el = document.getElementById('morph-' + i);
+    if (el) {
+      el.classList.add('flash');
+      el.classList.remove('dg');
+      el.classList.add('sf');
+      el.textContent = envLines[i].safe;
+      await sleep(250);
+      el.classList.remove('flash');
+    }
+  }
+}
+
+function addFileLine(container, num, html, delay) {
+  const div = document.createElement('div');
+  div.className = 'file-line';
+  div.style.animationDelay = (delay || 0) + 'ms';
+  div.innerHTML = `<span class="ln">${num}</span><span class="lc">${html}</span>`;
+  container.appendChild(div);
+  return div;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ═══ SCROLL REVEAL ═══
+const obs = new IntersectionObserver(es => {
+  es.forEach(e => { if(e.isIntersecting) e.target.classList.add('vis') });
+}, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+document.querySelectorAll('.rv').forEach(el => obs.observe(el));
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prelik — Build. Secure. Learn.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream:   #f7f6f3;
+  --white:   #ffffff;
+  --ink:     #0c0c10;
+  --ink2:    #48484e;
+  --ink3:    #9898a0;
+  --ink4:    #c8c8cc;
+  --border:  #e4e4e0;
+  --border2: #d0d0cc;
+
+  --dal:     #00a86b;
+  --dal-lt:  #e8f8f2;
+  --dal-mid: rgba(0,168,107,.12);
+
+  --vk:      #d97800;
+  --vk-lt:   #fff4e6;
+  --vk-mid:  rgba(217,120,0,.12);
+
+  --lrn:     #6b3fd4;
+  --lrn-lt:  #f0ebff;
+  --lrn-mid: rgba(107,63,212,.12);
+
+  --brand:   #0c0c10;
+  --r:       10px;
+  --r2:      18px;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: 62px;
+  display: flex; align-items: center;
+  padding: 0 40px;
+  background: rgba(247,246,243,.85);
+  backdrop-filter: blur(16px) saturate(180%);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 20px; font-weight: 700; letter-spacing: -0.03em;
+  margin-right: 48px; flex-shrink: 0;
+}
+.nav-mark {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--cream); font-size: 15px; font-weight: 800;
+}
+.nav-links { display: flex; align-items: center; gap: 2px; flex: 1; }
+.nav-link {
+  padding: 6px 14px; border-radius: 6px;
+  font-size: 14px; font-weight: 450; color: var(--ink2);
+  transition: color .15s, background .15s; cursor: pointer;
+}
+.nav-link:hover { color: var(--ink); background: rgba(0,0,0,.05); }
+.nav-sep { width: 1px; height: 20px; background: var(--border2); margin: 0 16px; }
+.nav-right { display: flex; align-items: center; gap: 10px; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 20px; border-radius: var(--r);
+  font-size: 14px; font-weight: 500; font-family: 'DM Sans', sans-serif;
+  cursor: pointer; border: none; transition: all .18s;
+  white-space: nowrap;
+}
+.btn-outline {
+  background: transparent; color: var(--ink2);
+  border: 1.5px solid var(--border2);
+}
+.btn-outline:hover { color: var(--ink); border-color: var(--ink3); }
+.btn-dark {
+  background: var(--ink); color: var(--white);
+}
+.btn-dark:hover { background: #1e1e26; transform: translateY(-1px); }
+.btn-lg { padding: 13px 28px; font-size: 15px; border-radius: var(--r2); }
+
+/* ── HERO ── */
+.hero {
+  padding: 140px 40px 100px;
+  max-width: 1280px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr; gap: 0;
+}
+.hero-top {
+  display: flex; flex-direction: column; align-items: flex-start;
+  max-width: 900px; margin-bottom: 72px;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 14px; border-radius: 20px;
+  background: var(--white); border: 1.5px solid var(--border2);
+  font-size: 12.5px; font-weight: 500; color: var(--ink2);
+  margin-bottom: 32px;
+}
+.hero-badge-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--dal); animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+.hero-title {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(52px, 7.5vw, 96px);
+  font-weight: 800; letter-spacing: -0.04em; line-height: 1.0;
+  margin-bottom: 28px;
+}
+.hero-title .line2 {
+  color: transparent;
+  -webkit-text-stroke: 2px var(--ink4);
+}
+
+.hero-sub {
+  font-size: 18px; color: var(--ink2); line-height: 1.75;
+  max-width: 520px; margin-bottom: 40px;
+  font-weight: 350;
+}
+.hero-actions { display: flex; gap: 12px; align-items: center; }
+.hero-note {
+  font-size: 12px; color: var(--ink3); margin-left: 4px;
+}
+
+/* ── PRODUCT ROW ── */
+.product-row {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding-top: 48px;
+  border-top: 1.5px solid var(--border);
+}
+.prow-card {
+  background: var(--white); border: 1.5px solid var(--border);
+  border-radius: var(--r2); padding: 32px;
+  position: relative; overflow: hidden;
+  transition: transform .25s, border-color .25s, box-shadow .25s;
+  cursor: pointer;
+}
+.prow-card:hover { transform: translateY(-5px); }
+.prow-card.dal:hover { border-color: rgba(0,168,107,.35); box-shadow: 0 16px 48px rgba(0,168,107,.1); }
+.prow-card.vk:hover  { border-color: rgba(217,120,0,.35); box-shadow: 0 16px 48px rgba(217,120,0,.1); }
+.prow-card.lrn:hover { border-color: rgba(107,63,212,.35); box-shadow: 0 16px 48px rgba(107,63,212,.1); }
+
+.prow-card::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  border-radius: var(--r2) var(--r2) 0 0;
+}
+.prow-card.dal::after { background: var(--dal); }
+.prow-card.vk::after  { background: var(--vk); }
+.prow-card.lrn::after { background: var(--lrn); }
+
+.prow-icon {
+  width: 48px; height: 48px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; margin-bottom: 18px;
+}
+.dal .prow-icon { background: var(--dal-lt); }
+.vk  .prow-icon { background: var(--vk-lt); }
+.lrn .prow-icon { background: var(--lrn-lt); }
+
+.prow-name {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 20px; font-weight: 700; letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+.prow-desc { font-size: 13.5px; color: var(--ink2); line-height: 1.6; margin-bottom: 20px; }
+.prow-link {
+  font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 5px;
+  transition: gap .15s;
+}
+.prow-card:hover .prow-link { gap: 9px; }
+.dal .prow-link  { color: var(--dal); }
+.vk  .prow-link  { color: var(--vk); }
+.lrn .prow-link  { color: var(--lrn); }
+
+/* ── SECTION ── */
+.section { padding: 120px 40px; }
+.section-inner { max-width: 1200px; margin: 0 auto; }
+
+.label-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 11.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--ink3); margin-bottom: 20px;
+}
+.label-tag::before { content: ''; width: 16px; height: 1.5px; background: var(--ink3); }
+
+.section-h {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(36px, 4.5vw, 58px); font-weight: 800;
+  letter-spacing: -0.04em; line-height: 1.05;
+  margin-bottom: 18px;
+}
+.section-p { font-size: 17px; color: var(--ink2); line-height: 1.75; max-width: 500px; font-weight: 350; }
+
+/* ── SPLIT SECTIONS ── */
+.split {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 80px; align-items: center;
+}
+.split.flip { direction: rtl; }
+.split.flip > * { direction: ltr; }
+
+.split-text .product-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 12px; border-radius: 20px; margin-bottom: 20px;
+  font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+}
+.ptag-dal { background: var(--dal-lt); color: var(--dal); }
+.ptag-vk  { background: var(--vk-lt);  color: var(--vk); }
+.ptag-lrn { background: var(--lrn-lt); color: var(--lrn); }
+
+.split-h {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(32px, 3.5vw, 46px); font-weight: 800;
+  letter-spacing: -0.04em; line-height: 1.1; margin-bottom: 16px;
+}
+.split-p { font-size: 16px; color: var(--ink2); line-height: 1.8; margin-bottom: 28px; font-weight: 350; }
+
+.feature-list { list-style: none; }
+.feature-list li {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 0; border-bottom: 1px solid var(--border);
+  font-size: 14px; color: var(--ink2);
+}
+.feature-list li:last-child { border-bottom: none; }
+.fi { width: 26px; height: 26px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+.fi-dal { background: var(--dal-lt); }
+.fi-vk  { background: var(--vk-lt); }
+.fi-lrn { background: var(--lrn-lt); }
+
+/* ── VISUAL PANELS ── */
+.visual-panel {
+  background: var(--white); border: 1.5px solid var(--border);
+  border-radius: var(--r2); overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,.07);
+}
+.panel-header {
+  padding: 14px 20px; background: var(--cream);
+  border-bottom: 1.5px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.panel-dots { display: flex; gap: 6px; }
+.panel-dots span { width: 11px; height: 11px; border-radius: 50%; }
+.panel-dots span:nth-child(1) { background: #ff5f57; }
+.panel-dots span:nth-child(2) { background: #febc2e; }
+.panel-dots span:nth-child(3) { background: #28c840; }
+.panel-title-bar {
+  flex: 1; text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--ink3);
+}
+.panel-body {
+  padding: 24px; font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px; line-height: 1.8; color: var(--ink2);
+  white-space: pre;
+}
+.code-dim    { color: var(--ink4); }
+.code-dal    { color: var(--dal); }
+.code-vk     { color: var(--vk); }
+.code-lrn    { color: var(--lrn); }
+.code-ink    { color: var(--ink); }
+.code-ink2   { color: var(--ink2); }
+
+/* ── DAL ANATOMY VISUAL ── */
+.anatomy-panel {
+  background: var(--ink); border-radius: var(--r2);
+  padding: 32px; color: var(--white);
+  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+}
+.anatomy-title {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: rgba(255,255,255,.4); margin-bottom: 24px;
+}
+.anatomy-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: rgba(255,255,255,.35);
+  margin-bottom: 20px; padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.anatomy-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 16px; border-radius: 10px;
+  margin-bottom: 8px; position: relative;
+  transition: background .15s;
+}
+.anatomy-row:hover { background: rgba(255,255,255,.05); }
+.anatomy-row:last-child { margin-bottom: 0; }
+.a-icon { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.a-dal  { background: rgba(0,168,107,.2); }
+.a-vk   { background: rgba(217,120,0,.2); }
+.a-lrn  { background: rgba(107,63,212,.2); }
+.a-ink  { background: rgba(255,255,255,.08); }
+.anatomy-row-name {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 14px; font-weight: 600; color: rgba(255,255,255,.9);
+  flex: 1;
+}
+.anatomy-row-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: rgba(255,255,255,.3);
+}
+.anatomy-arrow {
+  text-align: center; font-size: 11px; color: rgba(255,255,255,.2);
+  padding: 4px 0; font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── VEILKEY PANEL ── */
+.vk-visual {
+  background: var(--white); border: 1.5px solid var(--border);
+  border-radius: var(--r2); overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,.07);
+}
+.vk-header {
+  padding: 20px 24px; background: var(--vk-lt);
+  border-bottom: 1.5px solid rgba(217,120,0,.15);
+  display: flex; align-items: center; gap: 10px;
+}
+.vk-header-title {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 15px; font-weight: 700; color: var(--vk);
+  display: flex; align-items: center; gap: 8px;
+}
+.vk-body { padding: 20px; }
+.vk-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; border-radius: 9px;
+  background: var(--cream); border: 1.5px solid var(--border);
+  margin-bottom: 8px;
+}
+.vk-item:last-child { margin-bottom: 0; }
+.vk-key { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--ink2); }
+.vk-enc { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink4); letter-spacing: .05em; }
+.vk-status {
+  font-size: 10px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 5px;
+  background: var(--vk-lt); color: var(--vk);
+}
+.vk-log {
+  margin: 16px 0 0;
+  padding: 14px 16px;
+  background: var(--ink); border-radius: 9px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px; line-height: 1.8; color: rgba(255,255,255,.5);
+}
+.vk-log .ok { color: var(--dal); }
+.vk-log .cmd { color: rgba(255,255,255,.8); }
+
+/* ── COURSES ── */
+.courses-header {
+  display: grid; grid-template-columns: 1fr auto;
+  align-items: flex-end; gap: 32px; margin-bottom: 48px;
+}
+.courses-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.course-card {
+  background: var(--white); border: 1.5px solid var(--border);
+  border-radius: var(--r2); overflow: hidden;
+  transition: transform .25s, border-color .25s, box-shadow .25s;
+}
+.course-card:hover { transform: translateY(-5px); border-color: var(--border2); box-shadow: 0 16px 48px rgba(0,0,0,.1); }
+.course-thumb {
+  height: 176px; position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.course-thumb-emoji { font-size: 52px; z-index: 1; position: relative; }
+.c1 .course-thumb { background: linear-gradient(135deg, #e8f8f2 0%, #c5f0df 100%); }
+.c2 .course-thumb { background: linear-gradient(135deg, #fff4e6 0%, #fde5b8 100%); }
+.c3 .course-thumb { background: linear-gradient(135deg, #f0ebff 0%, #ddd0ff 100%); }
+.course-body { padding: 24px; }
+.course-cat {
+  font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.cat-infra { color: var(--dal); }
+.cat-sec   { color: var(--vk); }
+.cat-ai    { color: var(--lrn); }
+.course-title {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 18px; font-weight: 700; letter-spacing: -0.02em;
+  line-height: 1.3; margin-bottom: 10px;
+}
+.course-desc { font-size: 13px; color: var(--ink2); line-height: 1.6; margin-bottom: 18px; font-weight: 350; }
+.course-meta { display: flex; gap: 14px; font-size: 12px; color: var(--ink3); margin-bottom: 18px; }
+.course-meta span { display: flex; align-items: center; gap: 4px; }
+.course-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 16px; border-top: 1.5px solid var(--border);
+}
+.course-price {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 22px; font-weight: 800; letter-spacing: -0.02em;
+}
+.price-old { font-size: 13px; color: var(--ink4); text-decoration: line-through; margin-left: 6px; font-family: 'DM Sans', sans-serif; font-weight: 400; }
+
+/* ── PRICING ── */
+.pricing-section {
+  background: var(--ink);
+  padding: 120px 40px;
+  position: relative; overflow: hidden;
+}
+.pricing-section::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(107,63,212,.12), transparent);
+  pointer-events: none;
+}
+.pricing-inner { max-width: 1100px; margin: 0 auto; }
+.pricing-header { text-align: center; margin-bottom: 60px; }
+.pricing-label { color: rgba(255,255,255,.4); font-size: 11.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 16px; }
+.pricing-title {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(36px, 5vw, 58px); font-weight: 800;
+  letter-spacing: -0.04em; color: var(--white); margin-bottom: 14px;
+}
+.pricing-sub { font-size: 17px; color: rgba(255,255,255,.5); font-weight: 350; }
+.pricing-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.price-card {
+  background: rgba(255,255,255,.04); border: 1.5px solid rgba(255,255,255,.08);
+  border-radius: var(--r2); padding: 36px; position: relative;
+  transition: border-color .25s, background .25s;
+}
+.price-card:hover { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.14); }
+.price-card.featured {
+  background: rgba(255,255,255,.08);
+  border-color: rgba(255,255,255,.2);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.1), 0 20px 60px rgba(0,0,0,.3);
+}
+.featured-badge {
+  position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+  background: var(--white); color: var(--ink);
+  font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+  padding: 4px 16px; border-radius: 20px; white-space: nowrap;
+}
+.pc-name {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 16px; font-weight: 700; color: rgba(255,255,255,.7);
+  letter-spacing: -0.01em; margin-bottom: 4px;
+}
+.pc-price {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 48px; font-weight: 800; color: var(--white);
+  letter-spacing: -0.05em; line-height: 1; margin: 12px 0 4px;
+}
+.pc-price sup { font-size: 22px; vertical-align: top; margin-top: 10px; display: inline-block; }
+.pc-price sub { font-size: 15px; font-weight: 400; font-family: 'DM Sans', sans-serif; color: rgba(255,255,255,.4); }
+.pc-desc { font-size: 13px; color: rgba(255,255,255,.4); margin-bottom: 28px; padding-bottom: 28px; border-bottom: 1px solid rgba(255,255,255,.08); font-weight: 350; }
+.pc-list { list-style: none; margin-bottom: 32px; }
+.pc-list li {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 0; font-size: 14px; color: rgba(255,255,255,.6);
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.pc-list li:last-child { border-bottom: none; }
+.pc-check { color: var(--dal); font-size: 13px; }
+.pc-x     { color: rgba(255,255,255,.2); font-size: 11px; }
+.pc-btn {
+  width: 100%; padding: 13px; border-radius: var(--r);
+  font-size: 14px; font-weight: 600; font-family: 'DM Sans', sans-serif;
+  cursor: pointer; transition: all .18s; border: none;
+}
+.pc-btn-outline {
+  background: transparent; color: rgba(255,255,255,.6);
+  border: 1.5px solid rgba(255,255,255,.15);
+}
+.pc-btn-outline:hover { color: var(--white); border-color: rgba(255,255,255,.3); }
+.pc-btn-fill {
+  background: var(--white); color: var(--ink);
+}
+.pc-btn-fill:hover { background: var(--cream); transform: translateY(-1px); }
+
+/* ── CTA ── */
+.cta-section {
+  padding: 120px 40px; text-align: center;
+  border-top: 1.5px solid var(--border);
+}
+.cta-inner { max-width: 640px; margin: 0 auto; }
+.cta-title {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: clamp(40px, 6vw, 68px); font-weight: 800;
+  letter-spacing: -0.04em; line-height: 1.0; margin-bottom: 20px;
+}
+.cta-sub { font-size: 17px; color: var(--ink2); margin-bottom: 40px; line-height: 1.7; font-weight: 350; }
+.cta-code {
+  display: inline-block; text-align: left;
+  font-family: 'JetBrains Mono', monospace; font-size: 13px;
+  background: var(--ink); color: rgba(255,255,255,.5);
+  padding: 16px 24px; border-radius: var(--r2); line-height: 1.8;
+  margin-top: 32px;
+}
+.cta-code .cmd { color: rgba(255,255,255,.9); }
+.cta-code .ok  { color: var(--dal); }
+
+/* ── FOOTER ── */
+footer {
+  background: var(--cream);
+  padding: 72px 40px 40px;
+  border-top: 1.5px solid var(--border);
+}
+.footer-inner { max-width: 1200px; margin: 0 auto; }
+.footer-grid {
+  display: grid; grid-template-columns: 300px repeat(4, 1fr);
+  gap: 48px; margin-bottom: 60px;
+}
+.footer-brand-desc { font-size: 13px; color: var(--ink3); line-height: 1.7; margin: 12px 0 20px; }
+.footer-social { display: flex; gap: 8px; }
+.soc-btn {
+  width: 34px; height: 34px; border-radius: 8px;
+  background: var(--white); border: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: var(--ink3); cursor: pointer;
+  transition: all .15s;
+}
+.soc-btn:hover { color: var(--ink); border-color: var(--border2); }
+.fc-title {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--ink); margin-bottom: 16px;
+}
+.fc-links { list-style: none; }
+.fc-links li { margin-bottom: 9px; }
+.fc-links a { font-size: 13.5px; color: var(--ink3); transition: color .12s; font-weight: 350; }
+.fc-links a:hover { color: var(--ink2); }
+.footer-bottom {
+  padding-top: 28px; border-top: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 12.5px; color: var(--ink4);
+}
+.footer-pills { display: flex; gap: 8px; }
+.fpill {
+  padding: 4px 11px; border-radius: 20px; font-size: 11px; font-weight: 600;
+  border: 1.5px solid var(--border);
+}
+
+/* ── SCROLL REVEAL ── */
+.reveal {
+  opacity: 0; transform: translateY(22px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+.reveal.in { opacity: 1; transform: none; }
+.d1 { transition-delay: .08s; }
+.d2 { transition-delay: .16s; }
+.d3 { transition-delay: .24s; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-mark">P</div>
+    Prelik
+  </a>
+  <div class="nav-links">
+    <a class="nav-link">Products</a>
+    <a class="nav-link">Learning</a>
+    <a class="nav-link">Pricing</a>
+    <a class="nav-link">Docs</a>
+    <a class="nav-link">Blog</a>
+    <a class="nav-link">Company</a>
+  </div>
+  <div class="nav-sep"></div>
+  <div class="nav-right">
+    <button class="btn btn-outline">Sign in</button>
+    <button class="btn btn-dark">무료 시작 →</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section style="padding-top:62px">
+  <div class="hero">
+    <div class="hero-top">
+      <div class="hero-badge"><div class="hero-badge-dot"></div> dalforge v0.9 — Public Beta</div>
+      <h1 class="hero-title">
+        Build.<br>
+        <span class="line2">Secure.</span><br>
+        Learn.
+      </h1>
+      <p class="hero-sub">
+        AI 에이전트 인프라 툴링, 엔터프라이즈 자격증명 관리,
+        전문 교육 — AI 네이티브 팀을 위한 세 가지 제품.
+      </p>
+      <div class="hero-actions">
+        <button class="btn btn-dark btn-lg">무료로 시작하기 →</button>
+        <button class="btn btn-outline btn-lg">제품 둘러보기</button>
+        <span class="hero-note">신용카드 불필요</span>
+      </div>
+    </div>
+
+    <!-- Product Row -->
+    <div class="product-row">
+      <div class="prow-card dal reveal">
+        <div class="prow-icon">⚙️</div>
+        <div class="prow-name">dalforge</div>
+        <div class="prow-desc">AI 에이전트를 컨테이너로 패키징. CLI, 스킬, 훅, 플레이어, 볼트를 하나의 DAL로.</div>
+        <div class="prow-link">자세히 보기 <span>→</span></div>
+      </div>
+      <div class="prow-card vk reveal d1">
+        <div class="prow-icon">🔐</div>
+        <div class="prow-name">VeilKey</div>
+        <div class="prow-desc">AES-256-GCM 암호화 시크릿 볼트. 프로비전 시 자동 주입. 평문 노출 없음.</div>
+        <div class="prow-link">자세히 보기 <span>→</span></div>
+      </div>
+      <div class="prow-card lrn reveal d2">
+        <div class="prow-icon">🎓</div>
+        <div class="prow-name">Prelik Academy</div>
+        <div class="prow-desc">AI 인프라 엔지니어링 전문 강의. 기초부터 프로덕션 배포까지 실습 중심 커리큘럼.</div>
+        <div class="prow-link">강의 보기 <span>→</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div style="background:var(--white);border-top:1.5px solid var(--border);border-bottom:1.5px solid var(--border);padding:44px 40px">
+  <div style="max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:0">
+    <div style="text-align:center;padding:0 32px;border-right:1.5px solid var(--border)" class="reveal">
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:42px;font-weight:800;letter-spacing:-0.04em" class="count-up" data-target="4200">0</div>
+      <div style="font-size:13px;color:var(--ink3);margin-top:4px">활성 개발자</div>
+    </div>
+    <div style="text-align:center;padding:0 32px;border-right:1.5px solid var(--border)" class="reveal d1">
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:42px;font-weight:800;letter-spacing:-0.04em" class="count-up" data-target="18000">0</div>
+      <div style="font-size:13px;color:var(--ink3);margin-top:4px">배포된 컨테이너</div>
+    </div>
+    <div style="text-align:center;padding:0 32px;border-right:1.5px solid var(--border)" class="reveal d2">
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:42px;font-weight:800;letter-spacing:-0.04em" class="count-up" data-target="9997" data-mode="percent">0</div>
+      <div style="font-size:13px;color:var(--ink3);margin-top:4px">VeilKey 가동률</div>
+    </div>
+    <div style="text-align:center;padding:0 32px" class="reveal d3">
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:42px;font-weight:800;letter-spacing:-0.04em" class="count-up" data-target="1200">0</div>
+      <div style="font-size:13px;color:var(--ink3);margin-top:4px">수강생</div>
+    </div>
+  </div>
+</div>
+
+<!-- DALFORGE SECTION -->
+<section class="section" style="border-bottom:1.5px solid var(--border)">
+  <div class="section-inner">
+    <div class="split">
+      <div class="split-text reveal">
+        <div class="product-tag ptag-dal">⚙️ dalforge</div>
+        <h2 class="split-h">하나의 dal이<br>모든 것을 담는다</h2>
+        <p class="split-p">
+          dalforge의 핵심은 <strong>dal</strong>이라는 단위입니다.
+          CLI, SKILL, HOOK, PLAYER, VAULT가 각각 고유한 DAL ID를 가지며
+          하나의 LXC 컨테이너에서 동작합니다.
+        </p>
+        <ul class="feature-list">
+          <li><div class="fi fi-dal">⚡</div><div><strong>DAL:CLI</strong> — dalcenter join 시 발급. 클라우드 허브 패키지 관리.</div></li>
+          <li><div class="fi fi-dal">🧩</div><div><strong>DAL:SKILL</strong> — .dalfactory/skills/ → ~/.claude/skills/ 심링크 export.</div></li>
+          <li><div class="fi fi-dal">🪝</div><div><strong>DAL:HOOK</strong> — 훅 스크립트 → settings.json 자동 머지.</div></li>
+          <li><div class="fi fi-dal">🤖</div><div><strong>DAL:PLAYER</strong> — claude_sdk / codex / gemini_cli LXC 내 실행.</div></li>
+        </ul>
+      </div>
+      <div class="reveal d1">
+        <div class="anatomy-panel">
+          <div class="anatomy-title">DAL Anatomy</div>
+          <div class="anatomy-id">DAL:CLI:a3f82c1d  ·  ubuntu-24.04</div>
+          <div class="anatomy-row">
+            <div class="a-icon a-ink">⚡</div>
+            <div class="anatomy-row-name">CLI</div>
+            <div class="anatomy-row-id">DAL:CLI:a3f82c1d</div>
+          </div>
+          <div class="anatomy-row">
+            <div class="a-icon a-dal">🧩</div>
+            <div class="anatomy-row-name">SKILL × 2</div>
+            <div class="anatomy-row-id">DAL:SKILL:b9e01f4a</div>
+          </div>
+          <div class="anatomy-row">
+            <div class="a-icon a-dal">🪝</div>
+            <div class="anatomy-row-name">HOOK × 1</div>
+            <div class="anatomy-row-id">DAL:HOOK:c3d94e12</div>
+          </div>
+          <div class="anatomy-row">
+            <div class="a-icon a-lrn">🤖</div>
+            <div class="anatomy-row-name">PLAYER</div>
+            <div class="anatomy-row-id">DAL:PLAYER:d7f28b3c</div>
+          </div>
+          <div class="anatomy-row">
+            <div class="a-icon a-vk">🔐</div>
+            <div class="anatomy-row-name">VAULT</div>
+            <div class="anatomy-row-id">AES-256-GCM</div>
+          </div>
+          <div class="anatomy-arrow" style="margin-top:16px">↓ dalcenter export</div>
+          <div style="margin-top:10px;padding:12px 16px;background:rgba(255,255,255,.04);border-radius:9px;border:1px solid rgba(255,255,255,.06)">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(255,255,255,.35);line-height:1.9">
+              ~/.claude/skills/ <span style="color:rgba(0,168,107,.6)">→ 2 symlinks</span><br>
+              ~/.claude/hooks/  <span style="color:rgba(0,168,107,.6)">→ 1 symlink</span><br>
+              settings.json     <span style="color:rgba(0,168,107,.6)">→ merged</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VEILKEY SECTION -->
+<section class="section" style="background:var(--white);border-bottom:1.5px solid var(--border)">
+  <div class="section-inner">
+    <div class="split flip">
+      <div class="split-text reveal">
+        <div class="product-tag ptag-vk">🔐 VeilKey</div>
+        <h2 class="split-h">시크릿은 절대<br>평문으로 남지 않는다</h2>
+        <p class="split-p">
+          VeilKey는 AES-256-GCM으로 암호화된 SQLite에 자격증명을 저장합니다.
+          dal 프로비전 시 자동으로 환경변수에 주입되어,
+          코드에 시크릿이 노출되지 않습니다.
+        </p>
+        <ul class="feature-list">
+          <li><div class="fi fi-vk">🔒</div><div><strong>AES-256-GCM 암호화</strong> — 저장 즉시 암호화. 런타임에만 복호화.</div></li>
+          <li><div class="fi fi-vk">💉</div><div><strong>자동 env 주입</strong> — provision 시 컨테이너에 자동 주입.</div></li>
+          <li><div class="fi fi-vk">🏰</div><div><strong>프로젝트별 격리</strong> — 각 dal은 독립 Vault. 교차 접근 불가.</div></li>
+          <li><div class="fi fi-vk">👥</div><div><strong>팀 권한 관리</strong> — 멤버별 시크릿 접근 권한 세밀 제어.</div></li>
+        </ul>
+      </div>
+      <div class="reveal d1">
+        <div class="vk-visual">
+          <div class="vk-header">
+            <div class="vk-header-title">🔐 VeilKey — Vault: backend-api</div>
+          </div>
+          <div class="vk-body">
+            <div class="vk-item">
+              <div>
+                <div class="vk-key">GITHUB_TOKEN</div>
+                <div class="vk-enc">ghp_●●●●●●●●●●●●●●●●●●●●</div>
+              </div>
+              <div class="vk-status">encrypted</div>
+            </div>
+            <div class="vk-item">
+              <div>
+                <div class="vk-key">DATABASE_URL</div>
+                <div class="vk-enc">postgres://●●●●●@●●●●:5432/●●</div>
+              </div>
+              <div class="vk-status">encrypted</div>
+            </div>
+            <div class="vk-item">
+              <div>
+                <div class="vk-key">OPENAI_API_KEY</div>
+                <div class="vk-enc">sk-proj-●●●●●●●●●●●●●●●●●●●●</div>
+              </div>
+              <div class="vk-status">encrypted</div>
+            </div>
+            <div class="vk-item">
+              <div>
+                <div class="vk-key">AWS_SECRET_KEY</div>
+                <div class="vk-enc">●●●●●●●●●●●●●●●●●●●●●●●●●●●●</div>
+              </div>
+              <div class="vk-status">encrypted</div>
+            </div>
+            <div class="vk-log">
+<span class="cmd">$ dalcenter provision</span>
+<span class="ok">✔</span> Decrypting vault... done
+<span class="ok">✔</span> GITHUB_TOKEN → injected
+<span class="ok">✔</span> DATABASE_URL → injected
+<span class="ok">✔</span> LXC provisioned: 100103
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COURSES -->
+<section class="section" style="border-bottom:1.5px solid var(--border)">
+  <div class="section-inner">
+    <div class="courses-header">
+      <div>
+        <div class="label-tag reveal">Prelik Academy</div>
+        <h2 class="section-h reveal">배우고, 만들고,<br>배포하라</h2>
+      </div>
+      <div class="reveal">
+        <button class="btn btn-outline btn-lg">전체 강의 보기 →</button>
+      </div>
+    </div>
+    <div class="courses-grid">
+      <div class="course-card c1 reveal">
+        <div class="course-thumb"><div class="course-thumb-emoji">⚙️</div></div>
+        <div class="course-body">
+          <div class="course-cat cat-infra">Infrastructure</div>
+          <div class="course-title">dalforge 완전 정복: AI 컨테이너 인프라</div>
+          <div class="course-desc">dal 아키텍처부터 export 파이프라인, drift 감지까지. CUE 선언형 템플릿 실습.</div>
+          <div class="course-meta">
+            <span>📹 28시간</span>
+            <span>🎯 심화</span>
+            <span>👥 340명</span>
+          </div>
+          <div class="course-footer">
+            <div class="course-price">₩89,000 <span class="price-old">₩149,000</span></div>
+            <button class="btn btn-dark" style="font-size:13px;padding:8px 16px">수강 신청</button>
+          </div>
+        </div>
+      </div>
+      <div class="course-card c2 reveal d1">
+        <div class="course-thumb"><div class="course-thumb-emoji">🔐</div></div>
+        <div class="course-body">
+          <div class="course-cat cat-sec">Security</div>
+          <div class="course-title">VeilKey: 제로 노출 시크릿 아키텍처</div>
+          <div class="course-desc">암호화 이론부터 VeilKey 실전 활용, 팀 워크플로우 설계, 컴플라이언스까지.</div>
+          <div class="course-meta">
+            <span>📹 14시간</span>
+            <span>🎯 중급</span>
+            <span>👥 180명</span>
+          </div>
+          <div class="course-footer">
+            <div class="course-price">₩59,000 <span class="price-old">₩99,000</span></div>
+            <button class="btn btn-dark" style="font-size:13px;padding:8px 16px">수강 신청</button>
+          </div>
+        </div>
+      </div>
+      <div class="course-card c3 reveal d2">
+        <div class="course-thumb"><div class="course-thumb-emoji">🤖</div></div>
+        <div class="course-body">
+          <div class="course-cat cat-ai">AI Engineering</div>
+          <div class="course-title">AI 에이전트 설계 패턴: 프로덕션 전략</div>
+          <div class="course-desc">Claude SDK, Codex, Gemini CLI를 LXC에서 운영. 멀티 플레이어 오케스트레이션.</div>
+          <div class="course-meta">
+            <span>📹 20시간</span>
+            <span>🎯 고급</span>
+            <span>👥 520명</span>
+          </div>
+          <div class="course-footer">
+            <div class="course-price">₩79,000 <span class="price-old">₩129,000</span></div>
+            <button class="btn btn-dark" style="font-size:13px;padding:8px 16px">수강 신청</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section">
+  <div class="pricing-inner">
+    <div class="pricing-header reveal">
+      <div class="pricing-label">Pricing</div>
+      <h2 class="pricing-title">단순하고 투명한 요금제</h2>
+      <p class="pricing-sub">숨겨진 비용 없이. 필요한 만큼만 사용하세요.</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card reveal">
+        <div class="pc-name">Starter</div>
+        <div class="pc-price"><sup>₩</sup>0<sub>/월</sub></div>
+        <div class="pc-desc">개인 프로젝트, 학습, 소규모 실험에 적합합니다.</div>
+        <ul class="pc-list">
+          <li><span class="pc-check">✓</span> dalforge — dal 3개</li>
+          <li><span class="pc-check">✓</span> VeilKey — vault 1개, secret 10개</li>
+          <li><span class="pc-check">✓</span> Academy 무료 강의 접근</li>
+          <li><span class="pc-check">✓</span> Community 지원</li>
+          <li><span class="pc-x">✗</span> Proxmox 자동 프로비저닝</li>
+          <li><span class="pc-x">✗</span> 팀 협업</li>
+        </ul>
+        <button class="pc-btn pc-btn-outline">무료 시작</button>
+      </div>
+      <div class="price-card featured reveal d1">
+        <div class="featured-badge">Most Popular</div>
+        <div class="pc-name">Pro</div>
+        <div class="pc-price"><sup>₩</sup>29,000<sub>/월</sub></div>
+        <div class="pc-desc">전문 개발자와 소규모 팀을 위한 완전한 기능.</div>
+        <ul class="pc-list">
+          <li><span class="pc-check">✓</span> dalforge — dal 무제한</li>
+          <li><span class="pc-check">✓</span> VeilKey — vault 무제한</li>
+          <li><span class="pc-check">✓</span> Academy 전체 강의 접근</li>
+          <li><span class="pc-check">✓</span> Proxmox LXC 자동 프로비저닝</li>
+          <li><span class="pc-check">✓</span> 팀 멤버 5명</li>
+          <li><span class="pc-check">✓</span> 이메일 지원</li>
+        </ul>
+        <button class="pc-btn pc-btn-fill">Pro 시작하기</button>
+      </div>
+      <div class="price-card reveal d2">
+        <div class="pc-name">Enterprise</div>
+        <div class="pc-price" style="font-size:32px;padding:12px 0 4px">문의</div>
+        <div class="pc-desc">대규모 팀, 온프레미스 배포, 커스텀 계약.</div>
+        <ul class="pc-list">
+          <li><span class="pc-check">✓</span> Pro의 모든 기능</li>
+          <li><span class="pc-check">✓</span> 팀 멤버 무제한</li>
+          <li><span class="pc-check">✓</span> 온프레미스 배포</li>
+          <li><span class="pc-check">✓</span> SSO / LLDAP 연동</li>
+          <li><span class="pc-check">✓</span> SLA 보장 99.9%</li>
+          <li><span class="pc-check">✓</span> 전담 기술 지원</li>
+        </ul>
+        <button class="pc-btn pc-btn-outline">영업팀 문의</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <h2 class="cta-title reveal">지금 바로<br>시작하세요</h2>
+    <p class="cta-sub reveal">dalforge로 첫 번째 dal을 5분 안에 만들 수 있습니다.<br>신용카드 없이 무료로 시작하세요.</p>
+    <div class="reveal">
+      <button class="btn btn-dark btn-lg">무료로 시작하기 →</button>
+      <button class="btn btn-outline btn-lg" style="margin-left:12px">문서 보기</button>
+    </div>
+    <div class="cta-code reveal">
+<span class="cmd">$ brew install prelik/tap/dalcenter</span>
+<span class="cmd">$ dalcenter join</span>
+<span class="ok">✔</span> DAL:CLI:a3f82c1d issued
+<span class="ok">✔</span> Ready
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div>
+        <div class="nav-logo" style="margin-right:0">
+          <div class="nav-mark">P</div>
+          Prelik
+        </div>
+        <div class="footer-brand-desc">AI 네이티브 개발자를 위한 인프라 툴링, 보안 자격증명 관리, 전문 교육 플랫폼.</div>
+        <div class="footer-social">
+          <div class="soc-btn">𝕏</div>
+          <div class="soc-btn">in</div>
+          <div class="soc-btn">⌥</div>
+          <div class="soc-btn">▶</div>
+        </div>
+      </div>
+      <div>
+        <div class="fc-title">Products</div>
+        <ul class="fc-links">
+          <li><a href="#">dalforge</a></li>
+          <li><a href="#">VeilKey</a></li>
+          <li><a href="#">Prelik Academy</a></li>
+          <li><a href="#">Changelog</a></li>
+          <li><a href="#">Roadmap</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="fc-title">Developers</div>
+        <ul class="fc-links">
+          <li><a href="#">Documentation</a></li>
+          <li><a href="#">API Reference</a></li>
+          <li><a href="#">CLI Reference</a></li>
+          <li><a href="#">GitHub</a></li>
+          <li><a href="#">Community</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="fc-title">Company</div>
+        <ul class="fc-links">
+          <li><a href="#">About Prelik</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Press</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="fc-title">Legal</div>
+        <ul class="fc-links">
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Security</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2025 Prelik Inc. All rights reserved.</div>
+      <div class="footer-pills">
+        <div class="fpill" style="color:var(--dal);border-color:rgba(0,168,107,.25);background:var(--dal-lt)">⚙️ dalforge</div>
+        <div class="fpill" style="color:var(--vk);border-color:rgba(217,120,0,.25);background:var(--vk-lt)">🔐 VeilKey</div>
+        <div class="fpill" style="color:var(--lrn);border-color:rgba(107,63,212,.25);background:var(--lrn-lt)">🎓 Academy</div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Reveal on scroll
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('in'); revealObs.unobserve(e.target); }
+  });
+}, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+// Counter animation
+function animateCount(el) {
+  const target = parseInt(el.dataset.target);
+  const mode = el.dataset.mode;
+  let current = 0;
+  const duration = 1400;
+  const start = performance.now();
+  const step = (now) => {
+    const progress = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    current = Math.floor(target * ease);
+    if (mode === 'percent') {
+      el.textContent = (current / 100).toFixed(2) + '%';
+    } else {
+      el.textContent = current.toLocaleString() + '+';
+    }
+    if (progress < 1) requestAnimationFrame(step);
+    else {
+      if (mode === 'percent') el.textContent = '99.97%';
+      else el.textContent = target.toLocaleString() + '+';
+    }
+  };
+  requestAnimationFrame(step);
+}
+const countObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.count-up').forEach((el, i) => {
+        setTimeout(() => animateCount(el), i * 100);
+      });
+      countObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.3 });
+const statsRow = document.querySelector('[style*="grid-template-columns:repeat(4,1fr)"]');
+if (statsRow) countObs.observe(statsRow.parentElement);
+</script>
+</body>
+</html>

@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prelik — AI 개발자를 위한 회사</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --paper:  #f5f3ee;
+  --white:  #ffffff;
+  --ink:    #111009;
+  --ink2:   #4a4840;
+  --ink3:   #9a9890;
+  --ink4:   #cccac2;
+  --border: #e2e0d8;
+
+  --dal:    #00a876;
+  --vk:     #c87800;
+  --lrn:    #5b3fc4;
+  --brand:  #111009;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 48px;
+  background: rgba(245,243,238,.88);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+.logo {
+  font-family: 'Outfit', sans-serif;
+  font-size: 20px; font-weight: 700; letter-spacing: -0.04em;
+  display: flex; align-items: center; gap: 10px;
+}
+.logo-mark {
+  width: 30px; height: 30px; background: var(--ink);
+  border-radius: 7px; display: flex; align-items: center;
+  justify-content: center; color: var(--paper);
+  font-size: 14px; font-weight: 700;
+}
+.nav-links { display: flex; align-items: center; gap: 6px; }
+.nl {
+  padding: 6px 14px; font-size: 14px; font-weight: 400;
+  color: var(--ink2); border-radius: 6px; cursor: pointer;
+  transition: color .15s, background .15s;
+}
+.nl:hover { color: var(--ink); background: rgba(0,0,0,.05); }
+.nav-cta {
+  padding: 8px 20px; background: var(--ink); color: var(--paper);
+  border-radius: 8px; font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: opacity .15s;
+}
+.nav-cta:hover { opacity: .85; }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 0 48px 80px;
+  border-bottom: 1px solid var(--border);
+  position: relative; overflow: hidden;
+}
+.hero-year {
+  position: absolute; top: 108px; right: 48px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--ink3); letter-spacing: .06em;
+  writing-mode: vertical-lr; transform: rotate(180deg);
+}
+.hero-scroll-hint {
+  position: absolute; bottom: 84px; right: 48px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  font-size: 11px; color: var(--ink4); letter-spacing: .06em; text-transform: uppercase;
+  animation: scrollBounce 2s ease-in-out infinite;
+}
+@keyframes scrollBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+.hero-scroll-line {
+  width: 1px; height: 40px; background: var(--border);
+}
+
+.hero-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px; color: var(--ink3); letter-spacing: .08em; text-transform: uppercase;
+  margin-bottom: 32px;
+  display: flex; align-items: center; gap: 10px;
+}
+.hero-eyebrow::before { content:''; width:24px; height:1px; background:var(--ink3); }
+
+.hero-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(64px, 9vw, 130px);
+  font-weight: 400; line-height: 1.0;
+  letter-spacing: -0.02em;
+  max-width: 1100px;
+  margin-bottom: 48px;
+}
+.hero-title em {
+  font-style: italic; color: var(--ink3);
+}
+
+.hero-bottom {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 40px; align-items: flex-end;
+  padding-top: 48px; border-top: 1px solid var(--border);
+}
+.hero-desc {
+  font-size: 17px; color: var(--ink2); line-height: 1.75; font-weight: 350;
+  max-width: 500px;
+}
+.hero-stats {
+  display: flex; gap: 48px; justify-content: flex-end;
+}
+.h-stat-num {
+  font-family: 'Instrument Serif', serif;
+  font-size: 42px; line-height: 1;
+  letter-spacing: -0.02em;
+}
+.h-stat-label { font-size: 12px; color: var(--ink3); margin-top: 4px; }
+
+/* ── SECTION BASE ── */
+.sec { padding: 120px 48px; border-bottom: 1px solid var(--border); }
+.sec-inner { max-width: 1200px; margin: 0 auto; }
+.sec-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--ink3); letter-spacing: .1em; text-transform: uppercase;
+  margin-bottom: 64px; display: flex; align-items: center; gap: 12px;
+}
+.sec-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* ── WHAT WE BUILD ── */
+.products-lead {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+  align-items: flex-start; margin-bottom: 80px;
+}
+.products-lead-h {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(40px, 4.5vw, 58px);
+  font-weight: 400; letter-spacing: -0.02em; line-height: 1.1;
+}
+.products-lead-p {
+  font-size: 17px; color: var(--ink2); line-height: 1.8; font-weight: 350;
+  padding-top: 12px;
+}
+
+.products-list { display: flex; flex-direction: column; gap: 0; }
+.product-item {
+  display: grid; grid-template-columns: 80px 1fr auto;
+  align-items: center; gap: 32px;
+  padding: 36px 0; border-top: 1px solid var(--border);
+  cursor: pointer; transition: background .15s; border-radius: 4px;
+}
+.product-item:last-child { border-bottom: 1px solid var(--border); }
+.product-item:hover { background: rgba(0,0,0,.02); margin: 0 -16px; padding-left: 16px; padding-right: 16px; }
+.product-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; color: var(--ink4); letter-spacing: .04em;
+  align-self: flex-start; padding-top: 4px;
+}
+.product-info {}
+.product-tag-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.ptag {
+  font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 4px;
+}
+.ptag-d { background: rgba(0,168,118,.1); color: var(--dal); }
+.ptag-v { background: rgba(200,120,0,.1); color: var(--vk); }
+.ptag-l { background: rgba(91,63,196,.1); color: var(--lrn); }
+.product-name-big {
+  font-family: 'Instrument Serif', serif;
+  font-size: 28px; letter-spacing: -0.02em; margin-bottom: 8px;
+}
+.product-blurb { font-size: 14px; color: var(--ink2); line-height: 1.6; font-weight: 350; max-width: 600px; }
+.product-arrow {
+  font-size: 24px; color: var(--ink4); align-self: center;
+  transition: transform .2s, color .2s;
+}
+.product-item:hover .product-arrow { transform: translateX(4px); color: var(--ink2); }
+
+/* ── MISSION ── */
+.mission-sec { background: var(--ink); color: var(--paper); }
+.mission-inner { max-width: 1200px; margin: 0 auto; }
+.mission-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: rgba(245,243,238,.3); letter-spacing: .1em; text-transform: uppercase;
+  margin-bottom: 64px; display: flex; align-items: center; gap: 12px;
+}
+.mission-label::after { content:''; flex:1; height:1px; background:rgba(245,243,238,.1); }
+.mission-quote {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(36px, 4.5vw, 58px);
+  font-weight: 400; line-height: 1.2; letter-spacing: -0.02em;
+  color: rgba(245,243,238,.9);
+  max-width: 900px; margin-bottom: 80px;
+}
+.mission-quote em { font-style: italic; color: rgba(245,243,238,.45); }
+
+.values-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 0; border-top: 1px solid rgba(245,243,238,.08);
+}
+.value-item {
+  padding: 48px 40px 48px 0;
+  border-right: 1px solid rgba(245,243,238,.08);
+}
+.value-item:last-child { border-right: none; padding-right: 0; }
+.value-item:not(:first-child) { padding-left: 40px; }
+.value-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: rgba(245,243,238,.25); letter-spacing: .08em;
+  margin-bottom: 20px;
+}
+.value-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 24px; letter-spacing: -0.02em;
+  color: rgba(245,243,238,.9); margin-bottom: 14px;
+}
+.value-desc { font-size: 14px; color: rgba(245,243,238,.45); line-height: 1.7; font-weight: 350; }
+
+/* ── WHY ── */
+.why-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 0; border: 1px solid var(--border); border-radius: 16px; overflow: hidden;
+}
+.why-left { padding: 64px; border-right: 1px solid var(--border); }
+.why-right { padding: 64px; }
+.why-h {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(32px, 3.5vw, 46px); font-weight: 400;
+  letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 24px;
+}
+.why-p { font-size: 15px; color: var(--ink2); line-height: 1.8; font-weight: 350; margin-bottom: 24px; }
+.why-sig {
+  font-family: 'Instrument Serif', serif;
+  font-size: 18px; font-style: italic; color: var(--ink3);
+}
+.timeline { display: flex; flex-direction: column; gap: 0; }
+.tl-item {
+  display: flex; gap: 24px;
+  padding: 28px 0; border-bottom: 1px solid var(--border);
+}
+.tl-item:last-child { border-bottom: none; }
+.tl-year {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; color: var(--ink3); width: 56px; flex-shrink: 0; padding-top: 2px;
+}
+.tl-content {}
+.tl-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.tl-desc { font-size: 13px; color: var(--ink2); line-height: 1.6; font-weight: 350; }
+
+/* ── TEAM ── */
+.team-intro {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+  margin-bottom: 72px; align-items: center;
+}
+.team-h {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(36px, 4vw, 52px); font-weight: 400;
+  letter-spacing: -0.02em; line-height: 1.1;
+}
+.team-p { font-size: 16px; color: var(--ink2); line-height: 1.8; font-weight: 350; }
+.team-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;
+}
+.member-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 14px; padding: 28px; text-align: center;
+  transition: transform .2s, box-shadow .2s;
+}
+.member-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,.08); }
+.member-avatar {
+  width: 72px; height: 72px; border-radius: 50%;
+  margin: 0 auto 16px; font-size: 32px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--paper);
+}
+.member-name { font-size: 16px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 4px; }
+.member-role { font-size: 12.5px; color: var(--ink3); margin-bottom: 12px; }
+.member-tag {
+  display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 4px;
+}
+
+/* ── CONTACT ── */
+.contact-sec { background: var(--white); }
+.contact-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+}
+.contact-h {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(40px, 5vw, 64px); font-weight: 400;
+  letter-spacing: -0.02em; line-height: 1.0; margin-bottom: 20px;
+}
+.contact-h em { font-style: italic; color: var(--ink3); }
+.contact-sub { font-size: 16px; color: var(--ink2); line-height: 1.75; font-weight: 350; margin-bottom: 36px; }
+.contact-links { display: flex; flex-direction: column; gap: 12px; }
+.contact-link {
+  display: flex; align-items: center; gap: 16px;
+  padding: 18px 22px; border-radius: 12px;
+  background: var(--paper); border: 1px solid var(--border);
+  font-size: 15px; font-weight: 500;
+  transition: all .18s; cursor: pointer;
+}
+.contact-link:hover { border-color: var(--ink); background: var(--paper); transform: translateX(4px); }
+.cl-icon { font-size: 20px; flex-shrink: 0; }
+.cl-desc { font-size: 12px; color: var(--ink3); font-weight: 400; display: block; margin-top: 1px; }
+.cl-arrow { margin-left: auto; color: var(--ink3); transition: transform .18s; }
+.contact-link:hover .cl-arrow { transform: translateX(4px); color: var(--ink); }
+
+.contact-right { }
+.contact-card {
+  background: var(--ink); color: var(--paper);
+  border-radius: 20px; padding: 48px;
+  position: relative; overflow: hidden;
+}
+.contact-card::before {
+  content: ''; position: absolute; top: -60px; right: -60px;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: rgba(245,243,238,.03);
+}
+.cc-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: rgba(245,243,238,.35); letter-spacing: .08em; text-transform: uppercase;
+  margin-bottom: 24px;
+}
+.cc-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 28px; letter-spacing: -0.02em;
+  margin-bottom: 12px; color: rgba(245,243,238,.9);
+}
+.cc-desc { font-size: 14px; color: rgba(245,243,238,.45); line-height: 1.7; margin-bottom: 32px; font-weight: 350; }
+.cc-perks { display: flex; flex-direction: column; gap: 10px; margin-bottom: 36px; }
+.cc-perk {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 14px; color: rgba(245,243,238,.65);
+}
+.cc-perk::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--dal); flex-shrink: 0;
+}
+.cc-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 24px; background: var(--paper); color: var(--ink);
+  border-radius: 9px; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: opacity .15s;
+}
+.cc-btn:hover { opacity: .9; }
+
+/* ── FOOTER ── */
+footer {
+  padding: 64px 48px 40px;
+  border-top: 1px solid var(--border);
+}
+.footer-inner { max-width: 1200px; margin: 0 auto; }
+.footer-top {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 64px;
+}
+.footer-brand { max-width: 320px; }
+.footer-brand-desc { font-size: 13px; color: var(--ink3); line-height: 1.7; margin-top: 12px; }
+.footer-cols { display: flex; gap: 64px; }
+.fc-h { font-size: 13px; font-weight: 600; margin-bottom: 14px; }
+.fc-ul { list-style: none; }
+.fc-ul li { margin-bottom: 9px; }
+.fc-ul a { font-size: 13px; color: var(--ink3); transition: color .12s; }
+.fc-ul a:hover { color: var(--ink2); }
+.footer-bottom {
+  padding-top: 32px; border-top: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 12px; color: var(--ink4);
+}
+.footer-products { display: flex; gap: 6px; }
+.fp { padding: 4px 11px; border-radius: 5px; font-size: 11px; font-weight: 600; }
+.fp-d { background: rgba(0,168,118,.1); color: var(--dal); }
+.fp-v { background: rgba(200,120,0,.1); color: var(--vk); }
+.fp-l { background: rgba(91,63,196,.1); color: var(--lrn); }
+
+/* ── REVEAL ── */
+.r { opacity: 0; transform: translateY(20px); transition: opacity .65s ease, transform .65s ease; }
+.r.in { opacity: 1; transform: none; }
+.rd1 { transition-delay: .1s; }
+.rd2 { transition-delay: .2s; }
+.rd3 { transition-delay: .3s; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">
+    <div class="logo-mark">P</div>
+    Prelik
+  </div>
+  <div class="nav-links">
+    <a class="nl">Products</a>
+    <a class="nl">Company</a>
+    <a class="nl">Blog</a>
+    <a class="nl">Careers</a>
+    <a class="nl">Docs</a>
+  </div>
+  <div class="nav-cta">문의하기</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-year">PRELIK · EST. 2024</div>
+  <div class="hero-scroll-hint">
+    <div class="hero-scroll-line"></div>
+    Scroll
+  </div>
+
+  <div class="hero-eyebrow">AI 네이티브 소프트웨어 회사</div>
+  <h1 class="hero-title">
+    우리는 AI와 함께<br>
+    일하는 개발자를 위한<br>
+    <em>도구와 지식을 만듭니다.</em>
+  </h1>
+  <div class="hero-bottom">
+    <p class="hero-desc">
+      Prelik은 dalforge, VeilKey, 그리고 전문 교육 과정을 통해
+      AI 네이티브 팀이 더 빠르고 안전하게 구축할 수 있도록 돕습니다.
+      서울에 기반한 소프트웨어 회사입니다.
+    </p>
+    <div class="hero-stats">
+      <div>
+        <div class="h-stat-num">3</div>
+        <div class="h-stat-label">제품</div>
+      </div>
+      <div>
+        <div class="h-stat-num">4,200+</div>
+        <div class="h-stat-label">개발자</div>
+      </div>
+      <div>
+        <div class="h-stat-num">2024</div>
+        <div class="h-stat-label">설립</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT WE BUILD -->
+<section class="sec">
+  <div class="sec-inner">
+    <div class="sec-label r">01 — 우리가 만드는 것</div>
+    <div class="products-lead">
+      <h2 class="products-lead-h r">세 가지 제품으로<br>AI 개발의 모든 단계를 지원합니다.</h2>
+      <p class="products-lead-p r rd1">인프라 구축부터 자격증명 보안, 팀 역량 강화까지. Prelik의 제품은 독립적으로 강력하지만, 함께 사용할 때 진가를 발휘합니다.</p>
+    </div>
+    <div class="products-list">
+      <div class="product-item r">
+        <div class="product-num">01</div>
+        <div class="product-info">
+          <div class="product-tag-row"><span class="ptag ptag-d">Infrastructure</span></div>
+          <div class="product-name-big">dalforge</div>
+          <div class="product-blurb">AI 에이전트 컨테이너 인프라. CLI, 스킬, 훅, 플레이어, 시크릿 볼트를 하나의 DAL 단위로 패키징하고 Proxmox LXC에 자동 프로비저닝합니다.</div>
+        </div>
+        <div class="product-arrow">→</div>
+      </div>
+      <div class="product-item r rd1">
+        <div class="product-num">02</div>
+        <div class="product-info">
+          <div class="product-tag-row"><span class="ptag ptag-v">Security</span></div>
+          <div class="product-name-big">VeilKey</div>
+          <div class="product-blurb">AES-256-GCM 암호화 자격증명 관리 플랫폼. 시크릿은 평문으로 노출되지 않으며, 프로비전 시 환경변수로 자동 주입됩니다.</div>
+        </div>
+        <div class="product-arrow">→</div>
+      </div>
+      <div class="product-item r rd2">
+        <div class="product-num">03</div>
+        <div class="product-info">
+          <div class="product-tag-row"><span class="ptag ptag-l">Education</span></div>
+          <div class="product-name-big">Prelik Academy</div>
+          <div class="product-blurb">AI 인프라 엔지니어링 전문 교육 플랫폼. dalforge 실습, LXC 운영, AI 에이전트 설계 패턴 등 프로덕션 중심 커리큘럼을 제공합니다.</div>
+        </div>
+        <div class="product-arrow">→</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MISSION -->
+<section class="sec mission-sec" style="border-bottom:none">
+  <div class="mission-inner">
+    <div class="mission-label r">02 — 우리의 사명</div>
+    <blockquote class="mission-quote r">
+      AI는 개발 방식을 바꾸고 있습니다.<br>
+      우리는 그 변화 속에서 개발자가 <em>도구에 종속되지 않고,</em><br>
+      자신의 방식으로 구축할 수 있도록 돕습니다.
+    </blockquote>
+    <div class="values-grid">
+      <div class="value-item r">
+        <div class="value-num">01</div>
+        <div class="value-title">개발자 우선</div>
+        <div class="value-desc">모든 제품 결정은 개발자의 워크플로우에서 시작합니다. 화려한 기능보다 실제로 쓰이는 도구를 만듭니다.</div>
+      </div>
+      <div class="value-item r rd1">
+        <div class="value-num">02</div>
+        <div class="value-title">투명한 인프라</div>
+        <div class="value-desc">블랙박스 없이. 우리 도구가 무엇을 하는지 개발자가 정확히 알 수 있어야 합니다. CUE 선언형 설정이 그 철학입니다.</div>
+      </div>
+      <div class="value-item r rd2">
+        <div class="value-num">03</div>
+        <div class="value-title">보안은 선택이 아님</div>
+        <div class="value-desc">자격증명 관리, 시크릿 주입, 접근 제어는 부가 기능이 아닙니다. 기본값이어야 합니다.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY WE BUILT THIS -->
+<section class="sec" style="background:var(--white)">
+  <div class="sec-inner">
+    <div class="sec-label r">03 — 우리가 이것을 만든 이유</div>
+    <div class="why-grid">
+      <div class="why-left r">
+        <h3 class="why-h">AI 에이전트는 강력하지만,<br>관리하기 어렵습니다.</h3>
+        <p class="why-p">팀마다 다른 폴더 구조, 산재한 스크립트, 평문으로 남겨진 API 키. AI 도구는 발전했지만, 그것을 안전하고 일관되게 관리하는 방법은 여전히 각자의 몫이었습니다.</p>
+        <p class="why-p">dalforge는 그 문제를 해결하기 위해 만들었습니다. 스킬, 훅, 자격증명, 플레이어를 하나의 선언형 단위로 묶고, 버전 관리하고, 자동으로 배포합니다.</p>
+        <div class="why-sig">— Prelik 팀</div>
+      </div>
+      <div class="why-right r rd1">
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-year">2024 Q1</div>
+            <div class="tl-content">
+              <div class="tl-title">첫 번째 프로토타입</div>
+              <div class="tl-desc">Go + CUE 조합으로 dalforge 최초 프로토타입 개발. 내부 팀에서 검증.</div>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-year">2024 Q2</div>
+            <div class="tl-content">
+              <div class="tl-title">VeilKey 분리</div>
+              <div class="tl-desc">시크릿 관리 기능을 독립 제품으로 분리. AES-256-GCM 암호화 체계 도입.</div>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-year">2024 Q4</div>
+            <div class="tl-content">
+              <div class="tl-title">Prelik Academy 오픈</div>
+              <div class="tl-desc">dalforge와 LXC 운영 교육 과정 출시. 3개월 만에 수강생 1,000명 돌파.</div>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-year">2025</div>
+            <div class="tl-content">
+              <div class="tl-title">Public Beta</div>
+              <div class="tl-desc">dalforge v0.9 공개 베타. 4,200+ 개발자, 18,000+ 컨테이너 배포.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section class="sec">
+  <div class="sec-inner">
+    <div class="sec-label r">04 — 팀</div>
+    <div class="team-intro">
+      <h2 class="team-h r">작은 팀,<br>큰 제품.</h2>
+      <p class="team-p r rd1">Prelik은 서울에 기반한 소규모 팀입니다. 인프라 엔지니어링, 보안, 교육 분야의 전문가들이 모여 AI 개발자를 위한 도구를 만들고 있습니다.</p>
+    </div>
+    <div class="team-grid">
+      <div class="member-card r">
+        <div class="member-avatar">👨‍💻</div>
+        <div class="member-name">김정한</div>
+        <div class="member-role">CEO & Co-founder</div>
+        <span class="member-tag" style="background:rgba(0,168,118,.1);color:var(--dal)">Infrastructure</span>
+      </div>
+      <div class="member-card r rd1">
+        <div class="member-avatar">👩‍🔒</div>
+        <div class="member-name">이수연</div>
+        <div class="member-role">CTO & Co-founder</div>
+        <span class="member-tag" style="background:rgba(200,120,0,.1);color:var(--vk)">Security</span>
+      </div>
+      <div class="member-card r rd2">
+        <div class="member-avatar">👨‍🎓</div>
+        <div class="member-name">박도준</div>
+        <div class="member-role">Head of Education</div>
+        <span class="member-tag" style="background:rgba(91,63,196,.1);color:var(--lrn)">Academy</span>
+      </div>
+      <div class="member-card r rd3" style="display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--paper);border-style:dashed">
+        <div style="font-size:28px;margin-bottom:12px">+</div>
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px">함께하실 분</div>
+        <div style="font-size:12px;color:var(--ink3);margin-bottom:14px">채용 진행 중</div>
+        <a href="#" style="font-size:13px;color:var(--dal);font-weight:600">채용 보기 →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="sec contact-sec" style="border-bottom:none">
+  <div class="sec-inner">
+    <div class="sec-label r">05 — 연락하기</div>
+    <div class="contact-grid">
+      <div class="r">
+        <h2 class="contact-h">같이 이야기<br><em>나눠봐요.</em></h2>
+        <p class="contact-sub">제품 문의, 파트너십 제안, 강의 협업 등 어떤 주제로든 환영합니다.</p>
+        <div class="contact-links">
+          <a href="mailto:hello@prelik.io" class="contact-link">
+            <span class="cl-icon">✉️</span>
+            <div>
+              hello@prelik.io
+              <span class="cl-desc">일반 문의 · 파트너십</span>
+            </div>
+            <span class="cl-arrow">→</span>
+          </a>
+          <a href="#" class="contact-link">
+            <span class="cl-icon">💼</span>
+            <div>
+              채용 문의
+              <span class="cl-desc">careers@prelik.io</span>
+            </div>
+            <span class="cl-arrow">→</span>
+          </a>
+          <a href="#" class="contact-link">
+            <span class="cl-icon">📚</span>
+            <div>
+              강의 & 교육 협업
+              <span class="cl-desc">academy@prelik.io</span>
+            </div>
+            <span class="cl-arrow">→</span>
+          </a>
+        </div>
+      </div>
+      <div class="r rd1">
+        <div class="contact-card">
+          <div class="cc-label">We're hiring</div>
+          <div class="cc-title">팀에 합류하세요</div>
+          <div class="cc-desc">AI 인프라 엔지니어링에 관심 있는 분들과 함께 일하고 싶습니다. 경험보다 문제를 보는 시각이 중요합니다.</div>
+          <div class="cc-perks">
+            <div class="cc-perk">풀 리모트 근무 (서울 기반)</div>
+            <div class="cc-perk">자율적인 업무 환경</div>
+            <div class="cc-perk">Prelik Academy 무제한 수강</div>
+            <div class="cc-perk">인프라 장비 지원</div>
+          </div>
+          <a href="#" class="cc-btn">채용 공고 보기 →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="logo">
+          <div class="logo-mark">P</div>
+          Prelik
+        </div>
+        <div class="footer-brand-desc">AI 네이티브 개발자를 위한 인프라, 보안, 교육 플랫폼. 서울에 기반한 소프트웨어 회사.</div>
+      </div>
+      <div class="footer-cols">
+        <div>
+          <div class="fc-h">Products</div>
+          <ul class="fc-ul">
+            <li><a href="#">dalforge</a></li>
+            <li><a href="#">VeilKey</a></li>
+            <li><a href="#">Academy</a></li>
+            <li><a href="#">Docs</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="fc-h">Company</div>
+          <ul class="fc-ul">
+            <li><a href="#">About</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Press</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="fc-h">Connect</div>
+          <ul class="fc-ul">
+            <li><a href="#">GitHub</a></li>
+            <li><a href="#">Twitter / X</a></li>
+            <li><a href="#">LinkedIn</a></li>
+            <li><a href="#">YouTube</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="fc-h">Legal</div>
+          <ul class="fc-ul">
+            <li><a href="#">Terms</a></li>
+            <li><a href="#">Privacy</a></li>
+            <li><a href="#">Security</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2025 Prelik Inc. Seoul, Korea</div>
+      <div class="footer-products">
+        <span class="fp fp-d">dalforge</span>
+        <span class="fp fp-v">VeilKey</span>
+        <span class="fp fp-l">Academy</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); }});
+}, { threshold: 0.08, rootMargin: '0px 0px -24px 0px' });
+document.querySelectorAll('.r').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>

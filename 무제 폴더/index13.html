@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dalforge — 말하면, 달이 움직인다</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:    #09090d;
+  --bg2:   #0e0e14;
+  --bg3:   #14141c;
+  --bg4:   #1a1a24;
+  --b:     #1e1e2e;
+  --b2:    #28283c;
+  --b3:    #34344e;
+  --ink:   #eeeaf4;
+  --ink2:  #9490a8;
+  --ink3:  #5a5670;
+  --ink4:  #2e2a40;
+  --green: #3ddc84;
+  --green2:#0f5533;
+  --green3:rgba(61,220,132,.08);
+  --greend:#051a0f;
+  --blue:  #60a5fa;
+  --blue2: #1a3060;
+  --blue3: rgba(96,165,250,.08);
+  --blued: #05112a;
+  --amber: #fbbf24;
+  --purple:#a78bfa;
+  --red:   #f87171;
+  --f:  'Manrope', sans-serif;
+  --m:  'JetBrains Mono', monospace;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f); font-size: 14px; line-height: 1.65; overflow-x: hidden; }
+::selection { background: var(--green); color: #000; }
+a { text-decoration: none; color: inherit; }
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-thumb { background: var(--b3); }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+  height: 52px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px;
+  border-bottom: 1px solid var(--b);
+  background: rgba(9,9,13,.94); backdrop-filter: blur(20px);
+}
+.n-logo {
+  font-family: var(--m); font-size: 14px; font-weight: 500;
+  color: var(--green); display: flex; align-items: center; gap: 8px;
+}
+.n-ring {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 1.5px solid var(--green2);
+  display: flex; align-items: center; justify-content: center;
+  animation: spin 8s linear infinite;
+}
+.n-ring::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
+@keyframes spin { to { transform: rotate(360deg); } }
+.n-links { display: flex; align-items: center; gap: 28px; }
+.n-link { font-size: 13px; color: var(--ink3); transition: color .15s; }
+.n-link:hover { color: var(--ink); }
+.n-btn {
+  font-family: var(--m); font-size: 12px; font-weight: 500;
+  padding: 7px 18px; background: var(--green); color: #000;
+  border-radius: 6px; transition: opacity .15s;
+}
+.n-btn:hover { opacity: .85; }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh; padding: 100px 24px 80px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.hero-glow-l {
+  position: absolute; top: 15%; left: 5%; width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(61,220,132,.04) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-glow-r {
+  position: absolute; top: 25%; right: 5%; width: 500px; height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(96,165,250,.04) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-kicker {
+  font-family: var(--m); font-size: 10px; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--green2); margin-bottom: 24px; text-align: center;
+  opacity: 0; animation: rise .5s .1s ease forwards;
+}
+.hero-h {
+  font-size: clamp(32px, 5vw, 64px); font-weight: 800; letter-spacing: -.03em;
+  line-height: .96; text-align: center; margin-bottom: 16px;
+  opacity: 0; animation: rise .6s .2s ease forwards;
+}
+.hero-h .g { color: var(--green); }
+.hero-h .dim { color: var(--ink4); }
+.hero-sub {
+  font-size: clamp(13px, 1.5vw, 16px); font-weight: 300; color: var(--ink2);
+  text-align: center; max-width: 480px; line-height: 1.85; margin-bottom: 52px;
+  opacity: 0; animation: rise .6s .32s ease forwards;
+}
+.hero-sub strong { color: var(--ink); font-weight: 600; }
+
+/* ── CHAT WINDOW ── */
+.chat-win {
+  width: 100%; max-width: 700px;
+  background: var(--bg2); border: 1px solid var(--b2);
+  border-radius: 16px; overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(61,220,132,.05), 0 40px 80px rgba(0,0,0,.6);
+  opacity: 0; animation: rise .8s .46s ease forwards;
+}
+.chat-bar {
+  background: var(--bg3); padding: 12px 18px;
+  border-bottom: 1px solid var(--b);
+  display: flex; align-items: center; gap: 10px;
+}
+.cb-dots { display: flex; gap: 5px; }
+.cbd { width: 9px; height: 9px; border-radius: 50%; }
+.cbd.r { background: #ff5f57; } .cbd.y { background: #ffbd2e; } .cbd.g { background: #28c840; }
+.cb-title { flex: 1; text-align: center; font-family: var(--m); font-size: 10px; color: var(--ink3); }
+.cb-live {
+  display: flex; align-items: center; gap: 5px;
+  font-family: var(--m); font-size: 10px; color: var(--green2);
+}
+.cb-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); animation: pulse2 2s infinite; }
+@keyframes pulse2 { 0%,100%{opacity:1}50%{opacity:.3} }
+
+.chat-body {
+  padding: 20px 18px; min-height: 420px;
+  display: flex; flex-direction: column; gap: 14px;
+  overflow-y: auto;
+}
+.chat-body::-webkit-scrollbar { width: 2px; }
+.chat-body::-webkit-scrollbar-thumb { background: var(--b2); }
+
+.msg { display: flex; gap: 10px; align-items: flex-end; opacity: 0; transform: translateY(8px); transition: opacity .3s, transform .3s; }
+.msg.show { opacity: 1; transform: none; }
+.msg.user { flex-direction: row-reverse; }
+
+.av {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+}
+.av-u { background: var(--blued); color: var(--blue); border: 1px solid rgba(96,165,250,.2); font-family: var(--m); }
+.av-d { background: var(--greend); color: var(--green); border: 1px solid rgba(61,220,132,.2); font-family: var(--m); font-size: 9px; }
+
+.bubble {
+  max-width: calc(100% - 56px);
+  padding: 10px 14px; border-radius: 12px;
+  font-size: 13.5px; line-height: 1.7;
+}
+.bubble-u {
+  background: var(--blue3); border: 1px solid rgba(96,165,250,.12);
+  color: var(--ink); border-radius: 12px 2px 12px 12px; text-align: right;
+}
+.bubble-d {
+  background: var(--green3); border: 1px solid rgba(61,220,132,.1);
+  color: var(--ink2); border-radius: 2px 12px 12px 12px;
+}
+.bubble-d .hl   { color: var(--green); font-weight: 600; }
+.bubble-d .hl2  { color: var(--blue); }
+.bubble-d .hl3  { color: var(--amber); }
+.bubble-d .code {
+  display: block; margin-top: 8px; padding: 10px 12px;
+  background: rgba(0,0,0,.35); border: 1px solid var(--b2);
+  border-radius: 6px; font-family: var(--m); font-size: 11px; line-height: 1.9;
+  color: var(--ink3);
+}
+.code .k  { color: var(--green); }
+.code .v  { color: var(--ink); }
+.code .s  { color: var(--amber); }
+.code .ok { color: var(--green); }
+.code .di { color: var(--ink4); }
+.code .bl { color: var(--blue); }
+.code .pu { color: var(--purple); }
+.code .rb { color: var(--red); }
+.msg-time { font-family: var(--m); font-size: 9px; color: var(--ink4); }
+
+/* typing indicator */
+.typing { display: flex; gap: 10px; align-items: flex-end; opacity: 0; transition: opacity .25s; }
+.typing.show { opacity: 1; }
+.ty-bubble {
+  background: var(--greend); border: 1px solid rgba(61,220,132,.1);
+  border-radius: 2px 12px 12px 12px; padding: 12px 16px;
+  display: flex; gap: 4px; align-items: center;
+}
+.ty-d { width: 5px; height: 5px; border-radius: 50%; background: var(--green2); animation: ty 1.2s infinite; }
+.ty-d:nth-child(2) { animation-delay: .2s; }
+.ty-d:nth-child(3) { animation-delay: .4s; }
+@keyframes ty { 0%,100%{opacity:.3;transform:none}40%{opacity:1;transform:translateY(-3px)} }
+
+.chat-input-row {
+  padding: 12px 16px; border-top: 1px solid var(--b);
+  background: var(--bg3); display: flex; gap: 10px; align-items: center;
+}
+.ci-box {
+  flex: 1; background: var(--bg4); border: 1px solid var(--b2);
+  border-radius: 8px; padding: 8px 14px;
+  font-family: var(--m); font-size: 12px; color: var(--ink4);
+  display: flex; align-items: center;
+}
+.ci-cursor { display: inline-block; width: 1px; height: 12px; background: var(--green); animation: blink .8s step-end infinite; vertical-align: middle; margin-left: 1px; }
+.ci-btn {
+  width: 30px; height: 30px; border-radius: 7px; background: var(--green);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; cursor: default;
+}
+
+/* ── SECTION ── */
+.sec { padding: 88px 32px; border-top: 1px solid var(--b); }
+.sec-inner { max-width: 1060px; margin: 0 auto; }
+.sec-eye { font-family: var(--m); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--green2); margin-bottom: 10px; }
+.sec-h { font-size: clamp(24px, 3.5vw, 40px); font-weight: 800; letter-spacing: -.02em; line-height: 1.05; }
+.sec-sub { font-size: 14px; color: var(--ink2); margin-top: 10px; font-weight: 300; line-height: 1.8; }
+
+/* ── WHAT'S INSIDE A DAL ── */
+.dal-anatomy {
+  margin-top: 52px;
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  gap: 1px; background: var(--b); border: 1px solid var(--b);
+}
+.da-card {
+  background: var(--bg2); padding: 24px 18px;
+  transition: background .2s; cursor: default;
+}
+.da-card:hover { background: var(--bg3); }
+.da-card::before {
+  content: ''; display: block; height: 2px; margin-bottom: 16px;
+  transition: opacity .2s;
+}
+.da-card.cli::before    { background: var(--green); }
+.da-card.skill::before  { background: var(--blue); }
+.da-card.hook::before   { background: var(--purple); }
+.da-card.player::before { background: var(--green); }
+.da-card.vault::before  { background: var(--amber); }
+.da-cat {
+  font-family: var(--m); font-size: 9px; font-weight: 600; letter-spacing: .16em;
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.da-card.cli    .da-cat { color: var(--green); }
+.da-card.skill  .da-cat { color: var(--blue); }
+.da-card.hook   .da-cat { color: var(--purple); }
+.da-card.player .da-cat { color: var(--green); }
+.da-card.vault  .da-cat { color: var(--amber); }
+.da-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.da-desc  { font-size: 11px; color: var(--ink2); line-height: 1.75; }
+.da-id    { font-family: var(--m); font-size: 9px; color: var(--ink4); margin-top: 10px; }
+
+/* ── EXAMPLES ACCORDION ── */
+.ex-list { margin-top: 48px; display: flex; flex-direction: column; gap: 2px; }
+.ex-item { border: 1px solid var(--b); background: var(--bg2); overflow: hidden; cursor: pointer; transition: border-color .2s; }
+.ex-item:hover { border-color: var(--b3); }
+.ex-item.open { border-color: rgba(61,220,132,.18); }
+.ex-trigger { padding: 18px 22px; display: flex; align-items: center; gap: 14px; }
+.ex-scenario { font-size: 11px; font-family: var(--m); padding: 2px 8px; border-radius: 3px; background: var(--bg4); color: var(--ink3); flex-shrink: 0; }
+.ex-q { flex: 1; font-size: 14px; font-weight: 500; color: var(--ink); letter-spacing: -.01em; }
+.ex-q .u { color: var(--blue); }
+.ex-chev { font-family: var(--m); font-size: 11px; color: var(--ink4); transition: transform .25s; }
+.ex-item.open .ex-chev { transform: rotate(180deg); color: var(--green); }
+.ex-body { max-height: 0; overflow: hidden; transition: max-height .38s ease; }
+.ex-item.open .ex-body { max-height: 500px; }
+.ex-content { padding: 0 22px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.ex-col-label { font-family: var(--m); font-size: 9px; letter-spacing: .15em; text-transform: uppercase; color: var(--ink3); margin-bottom: 8px; }
+.ex-cue {
+  background: var(--bg); border: 1px solid var(--b);
+  padding: 14px 16px; font-family: var(--m); font-size: 11px; line-height: 1.85;
+}
+.ek { color: var(--green); } .es { color: var(--amber); } .ec { color: var(--ink4); font-style: italic; } .eb { color: var(--blue); } .ep { color: var(--purple); }
+.ex-cmds { display: flex; flex-direction: column; gap: 6px; }
+.ex-cmd {
+  font-family: var(--m); font-size: 11px; padding: 7px 12px;
+  background: var(--bg); border: 1px solid var(--b);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.ex-cmd-text { color: var(--green); }
+.ex-cmd-note { font-size: 9px; color: var(--ink4); }
+
+/* ── EXPORT FLOW ── */
+.export-flow {
+  margin-top: 48px; border: 1px solid var(--b);
+  background: var(--bg2); overflow: hidden;
+}
+.ef-header {
+  padding: 11px 20px; background: var(--bg3); border-bottom: 1px solid var(--b);
+  font-family: var(--m); font-size: 10px; letter-spacing: .1em; color: var(--ink3);
+  display: flex; align-items: center; gap: 10px;
+}
+.ef-header .g { color: var(--green); }
+.ef-body { padding: 24px; display: grid; grid-template-columns: 1fr 32px 1fr 32px 1fr; gap: 8px; align-items: center; }
+.ef-box { padding: 14px 16px; border: 1px solid var(--b); background: var(--bg); }
+.ef-label { font-family: var(--m); font-size: 8px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink4); margin-bottom: 5px; }
+.ef-val { font-family: var(--m); font-size: 11px; color: var(--ink2); line-height: 1.6; }
+.ef-val .g { color: var(--green); }
+.ef-val .b { color: var(--blue); }
+.ef-val .p { color: var(--purple); }
+.ef-arr { text-align: center; color: var(--ink4); font-family: var(--m); }
+
+/* ── QUICK START ── */
+.qs-steps { margin-top: 48px; display: flex; flex-direction: column; gap: 0; }
+.qs-step {
+  display: grid; grid-template-columns: 36px 1fr;
+  gap: 18px; padding: 26px 0; border-bottom: 1px solid var(--b);
+  transition: opacity .4s, transform .4s;
+}
+.qs-step:last-child { border-bottom: none; }
+.qs-n { font-family: var(--m); font-size: 11px; color: var(--b3); padding-top: 2px; transition: color .2s; }
+.qs-step:hover .qs-n { color: var(--green2); }
+.qs-title { font-size: 15px; font-weight: 700; letter-spacing: -.02em; margin-bottom: 5px; }
+.qs-desc { font-size: 13px; color: var(--ink2); font-weight: 300; margin-bottom: 12px; line-height: 1.75; }
+.cblock { background: var(--bg); border: 1px solid var(--b); overflow: hidden; }
+.cbar { padding: 7px 14px; border-bottom: 1px solid var(--b); display: flex; justify-content: space-between; align-items: center; }
+.clang { font-family: var(--m); font-size: 10px; color: var(--ink3); letter-spacing: .08em; }
+.cpbtn { font-family: var(--m); font-size: 10px; color: var(--ink3); background: none; border: 1px solid transparent; padding: 1px 8px; cursor: pointer; transition: all .15s; }
+.cpbtn:hover { border-color: var(--b2); color: var(--ink2); }
+.ccode { padding: 13px 16px; font-family: var(--m); font-size: 11.5px; line-height: 1.95; }
+.ck { color: var(--green); } .cv { color: var(--ink); } .cm { color: var(--ink4); font-style: italic; }
+.cs { color: var(--amber); } .cb2 { color: var(--blue); }
+
+/* ── CTA ── */
+.cta { padding: 100px 32px; border-top: 1px solid var(--b); text-align: center; }
+.cta-inner { max-width: 600px; margin: 0 auto; }
+.cta-pill {
+  display: inline-flex; align-items: center; gap: 8px; padding: 5px 14px;
+  border: 1px solid var(--b2); border-radius: 100px;
+  font-family: var(--m); font-size: 11px; color: var(--ink3); margin-bottom: 28px;
+}
+.cta-h { font-size: clamp(28px, 4vw, 52px); font-weight: 800; letter-spacing: -.03em; line-height: 1.0; margin-bottom: 18px; }
+.cta-h .g { color: var(--green); }
+.cta-p { font-size: 15px; color: var(--ink2); font-weight: 300; line-height: 1.8; max-width: 440px; margin: 0 auto 36px; }
+.cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn-g { display: flex; align-items: center; gap: 8px; padding: 12px 26px; background: var(--green); color: #000; font-size: 14px; font-weight: 700; border-radius: 8px; transition: opacity .15s; }
+.btn-g:hover { opacity: .85; }
+.btn-o { display: flex; align-items: center; gap: 8px; padding: 12px 22px; border: 1px solid var(--b2); font-size: 14px; color: var(--ink); border-radius: 8px; transition: all .15s; }
+.btn-o:hover { border-color: var(--b3); background: var(--bg2); }
+.cta-tags { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 36px; }
+.cta-tag { font-family: var(--m); font-size: 10px; padding: 4px 12px; border-radius: 100px; background: var(--green3); border: 1px solid rgba(61,220,132,.12); color: var(--green2); }
+
+/* ── FOOTER ── */
+footer { border-top: 1px solid var(--b); padding: 24px 32px; display: flex; align-items: center; justify-content: space-between; }
+.f-logo { font-family: var(--m); font-size: 13px; color: var(--green); display: flex; align-items: center; gap: 7px; }
+.f-links { display: flex; gap: 24px; }
+.f-link { font-size: 12px; color: var(--ink3); transition: color .15s; }
+.f-link:hover { color: var(--ink); }
+.f-copy { font-family: var(--m); font-size: 10px; color: var(--ink4); }
+
+/* ── ANIM ── */
+@keyframes rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+.reveal { opacity: 0; transform: translateY(16px); transition: opacity .5s, transform .5s; }
+.reveal.visible { opacity: 1; transform: none; }
+
+@media (max-width: 900px) {
+  .dal-anatomy { grid-template-columns: 1fr 1fr; }
+  .ex-content { grid-template-columns: 1fr; }
+  .ef-body { grid-template-columns: 1fr; }
+  .ef-arr { display: none; }
+  footer { flex-direction: column; gap: 16px; }
+}
+@media (max-width: 600px) {
+  .dal-anatomy { grid-template-columns: 1fr; }
+  nav .n-links .n-link { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="n-logo">
+    <div class="n-ring"></div>
+    dalforge
+  </div>
+  <div class="n-links">
+    <a class="n-link" href="#anatomy">달 구조</a>
+    <a class="n-link" href="#examples">예시</a>
+    <a class="n-link" href="#start">시작하기</a>
+  </div>
+  <a class="n-btn" href="https://github.com/dalsoop/dalforge" target="_blank">GitHub</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-glow-l"></div>
+  <div class="hero-glow-r"></div>
+  <div class="hero-kicker">AI Agent Container Infrastructure</div>
+  <h1 class="hero-h">말하면,<br><span class="g">달이 움직인다.</span></h1>
+  <p class="hero-sub">
+    "PR 리뷰 에이전트 배포해줘" 한 마디면<br>
+    <strong>스킬 등록, 훅 연결, 컨테이너 기동</strong>까지 달이 알아서 합니다.
+  </p>
+
+  <!-- CHAT WINDOW -->
+  <div class="chat-win">
+    <div class="chat-bar">
+      <div class="cb-dots"><div class="cbd r"></div><div class="cbd y"></div><div class="cbd g"></div></div>
+      <div class="cb-title">dalforge — acme/backend-api</div>
+      <div class="cb-live"><div class="cb-dot"></div>connected</div>
+    </div>
+    <div class="chat-body" id="chatBody">
+      <!-- messages injected by JS -->
+    </div>
+    <div class="chat-input-row">
+      <div class="ci-box">
+        <span id="inputText"></span><span class="ci-cursor"></span>
+      </div>
+      <div class="ci-btn">↑</div>
+    </div>
+  </div>
+</div>
+
+<!-- DAL ANATOMY -->
+<div class="sec" id="anatomy">
+  <div class="sec-inner reveal">
+    <div class="sec-eye">DAL = CLI + SKILL + HOOK + PLAYER + VAULT</div>
+    <h2 class="sec-h">달 하나엔 전부 들어있다</h2>
+    <p class="sec-sub">달(dal)은 레포에 귀속된 AI 에이전트 인스턴스입니다. 도구·스킬·훅·PLAYER·시크릿이 하나의 단위로 선언되고, 각각 고유 ID로 관리됩니다.</p>
+    <div class="dal-anatomy">
+      <div class="da-card cli">
+        <div class="da-cat">CLI</div>
+        <div class="da-title">명령줄 도구</div>
+        <div class="da-desc">달 인스턴스 자체. join 시 발급. cloud hub 패키지 설치.</div>
+        <div class="da-id">DAL:CLI:uuid8</div>
+      </div>
+      <div class="da-card skill">
+        <div class="da-cat">SKILL</div>
+        <div class="da-title">에이전트 스킬</div>
+        <div class="da-desc">export 시 ~/.claude/skills/ 또는 ~/.codex/skills/ 로 심링크.</div>
+        <div class="da-id">DAL:SKILL:uuid8</div>
+      </div>
+      <div class="da-card hook">
+        <div class="da-cat">HOOK</div>
+        <div class="da-title">이벤트 훅</div>
+        <div class="da-desc">pre-commit, post-push. settings.json 에 자동 병합 등록.</div>
+        <div class="da-id">DAL:HOOK:uuid8</div>
+      </div>
+      <div class="da-card player">
+        <div class="da-cat">PLAYER</div>
+        <div class="da-title">실행 AI 에이전트</div>
+        <div class="da-desc">LXC 컨테이너 안에서 동작하는 claude / codex / gemini.</div>
+        <div class="da-id">DAL:PLAYER:uuid8</div>
+      </div>
+      <div class="da-card vault">
+        <div class="da-cat">VAULT</div>
+        <div class="da-title">시크릿 금고</div>
+        <div class="da-desc">AES-256-GCM 암호화. 컨테이너 기동 시 환경변수 자동 주입.</div>
+        <div class="da-id">SecretVault · SQLite</div>
+      </div>
+    </div>
+
+    <!-- export flow -->
+    <div class="export-flow" style="margin-top:28px">
+      <div class="ef-header">
+        <span class="g">dalcenter export</span>
+        <span>— 스킬·훅을 AI 런타임 홈으로 심링크</span>
+      </div>
+      <div class="ef-body">
+        <div class="ef-box">
+          <div class="ef-label">Source</div>
+          <div class="ef-val">.dalfactory/<br><span class="g">skills/code-review/</span><br><span class="p">hooks/pre-commit.sh</span></div>
+        </div>
+        <div class="ef-arr">→</div>
+        <div class="ef-box">
+          <div class="ef-label">Type</div>
+          <div class="ef-val">symlink<br>+ settings.json merge</div>
+        </div>
+        <div class="ef-arr">→</div>
+        <div class="ef-box">
+          <div class="ef-label">Runtime target</div>
+          <div class="ef-val">
+            <span class="g">~/.claude/skills/code-review/</span><br>
+            <span class="p">~/.claude/hooks/pre-commit.sh</span><br>
+            <span class="b">~/.codex/skills/code-review/</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EXAMPLES -->
+<div class="sec" style="background:var(--bg2)" id="examples">
+  <div class="sec-inner reveal">
+    <div class="sec-eye">Conversation Examples</div>
+    <h2 class="sec-h">이런 말도 됩니다</h2>
+    <p class="sec-sub">자연어로 요청하면 달포지가 알아서 .dalfactory 를 파악하고 맞는 커맨드를 실행합니다.</p>
+    <div class="ex-list">
+
+      <div class="ex-item open">
+        <div class="ex-trigger">
+          <div class="ex-scenario">시나리오 01</div>
+          <div class="ex-q">"<span class="u">PR 리뷰 스킬 붙여줘</span>" → 스킬 등록 + 훅 연결</div>
+          <div class="ex-chev">▾</div>
+        </div>
+        <div class="ex-body">
+          <div class="ex-content">
+            <div>
+              <div class="ex-col-label">exports 선언 (dal.cue)</div>
+              <div class="ex-cue"><span class="ec"># templates/default.cue</span>
+<span class="ek">exports</span>: {
+  claude: {
+    <span class="ek">skills</span>: [<span class="es">"skills/code-review/skill.md"</span>]
+    <span class="ek">hooks</span>:  [<span class="es">"hooks/pre-commit.sh"</span>]
+  }
+}</div>
+            </div>
+            <div>
+              <div class="ex-col-label">실행되는 커맨드</div>
+              <div class="ex-cmds">
+                <div class="ex-cmd"><span class="ex-cmd-text">$ dalcenter export a3f82c1d</span><span class="ex-cmd-note">심링크 생성</span></div>
+                <div class="ex-cmd"><span class="ex-cmd-text">→ ~/.claude/skills/code-review/</span><span class="ex-cmd-note">skill symlink</span></div>
+                <div class="ex-cmd"><span class="ex-cmd-text">→ ~/.claude/hooks/pre-commit.sh</span><span class="ex-cmd-note">hook symlink</span></div>
+                <div class="ex-cmd"><span class="ex-cmd-text">→ settings.json merged</span><span class="ex-cmd-note">자동 등록</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ex-item">
+        <div class="ex-trigger">
+          <div class="ex-scenario">시나리오 02</div>
+          <div class="ex-q">"<span class="u">claude 에이전트 컨테이너 띄워줘</span>" → LXC 프로비저닝</div>
+          <div class="ex-chev">▾</div>
+        </div>
+        <div class="ex-body">
+          <div class="ex-content">
+            <div>
+              <div class="ex-col-label">container 선언 (dal.cue)</div>
+              <div class="ex-cue"><span class="ec"># container 스펙</span>
+<span class="ek">container</span>: {
+  <span class="ek">base</span>: <span class="es">"ubuntu-24.04"</span>
+  <span class="ek">agents</span>: {
+    claude: {
+      <span class="ek">type</span>: <span class="es">"claude_sdk"</span>
+    }
+  }
+}</div>
+            </div>
+            <div>
+              <div class="ex-col-label">실행되는 커맨드</div>
+              <div class="ex-cmds">
+                <div class="ex-cmd"><span class="ex-cmd-text">$ dalcenter provision a3f82c1d</span><span class="ex-cmd-note">LXC 생성</span></div>
+                <div class="ex-cmd"><span class="ex-cmd-text">→ ubuntu-24.04 LXC created</span><span class="ex-cmd-note">Proxmox</span></div>
+                <div class="ex-cmd"><span class="ex-cmd-text">→ claude_sdk installed</span><span class="ex-cmd-note">PLAYER 기동</span></div>
+                <div class="ex-cmd"><span class="ex-cmd-text">→ secrets injected (vault)</span><span class="ex-cmd-note">AES-256-GCM</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ex-item">
+        <div class="ex-trigger">
+          <div class="ex-scenario">시나리오 03</div>
+          <div class="ex-q">"<span class="u">GITHUB_TOKEN 시크릿 등록해줘</span>" → SecretVault 저장</div>
+          <div class="ex-chev">▾</div>
+        </div>
+        <div class="ex-body">
+          <div class="ex-content">
+            <div>
+              <div class="ex-col-label">secrets 선언 (dal.cue)</div>
+              <div class="ex-cue"><span class="ec"># 시크릿 선언</span>
+<span class="ek">secrets</span>: [
+  {
+    <span class="ek">name</span>:     <span class="es">"GITHUB_TOKEN"</span>
+    <span class="ek">required</span>: true
+  },
+  {
+    <span class="ek">name</span>:     <span class="es">"OPENAI_KEY"</span>
+  }
+]</div>
+            </div>
+            <div>
+              <div class="ex-col-label">실행되는 커맨드</div>
+              <div class="ex-cmds">
+                <div class="ex-cmd"><span class="ex-cmd-text">$ dalcenter secret set GITHUB_TOKEN</span><span class="ex-cmd-note">암호화 저장</span></div>
+                <div class="ex-cmd"><span class="ex-cmd-text">→ AES-256-GCM encrypted</span><span class="ex-cmd-note">SQLite vault</span></div>
+                <div class="ex-cmd"><span class="ex-cmd-text">→ provision 시 자동 주입</span><span class="ex-cmd-note">env var</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ex-item">
+        <div class="ex-trigger">
+          <div class="ex-scenario">시나리오 04</div>
+          <div class="ex-q">"<span class="u">에이전트들 상태 좀 보여줘</span>" → 전체 달 현황</div>
+          <div class="ex-chev">▾</div>
+        </div>
+        <div class="ex-body">
+          <div class="ex-content">
+            <div>
+              <div class="ex-col-label">watch 감시 (60s 자동)</div>
+              <div class="ex-cue"><span class="ec"># 60s 자동 감시</span>
+<span class="eb">$ dalcenter watch</span>
+
+  checking 3 dals...
+<span class="ek">  ✓ a3f82c1d  ok (2s)</span>
+<span class="ek">  ✓ c2d14e7f  ok (1s)</span>
+  ~ e8b92a3c  idle
+  next: 60s</div>
+            </div>
+            <div>
+              <div class="ex-col-label">실행되는 커맨드</div>
+              <div class="ex-cmds">
+                <div class="ex-cmd"><span class="ex-cmd-text">$ dalcenter list</span><span class="ex-cmd-note">전체 조회</span></div>
+                <div class="ex-cmd"><span class="ex-cmd-text">$ dalcenter status a3f82c1d</span><span class="ex-cmd-note">개별 상태</span></div>
+                <div class="ex-cmd"><span class="ex-cmd-text">$ dalcenter reconcile</span><span class="ex-cmd-note">drift 복구</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- QUICK START -->
+<div class="sec" id="start">
+  <div class="sec-inner reveal">
+    <div class="sec-eye">Quick Start</div>
+    <h2 class="sec-h">5분이면 첫 달을 띄울 수 있습니다</h2>
+    <div class="qs-steps">
+      <div class="qs-step">
+        <div class="qs-n">01</div>
+        <div>
+          <div class="qs-title">설치</div>
+          <div class="qs-desc">dalcenter CLI를 설치합니다.</div>
+          <div class="cblock">
+            <div class="cbar"><span class="clang">bash</span><button class="cpbtn" onclick="this.textContent='copied!';setTimeout(()=>this.textContent='copy',1500)">copy</button></div>
+            <div class="ccode"><span class="ck">go install</span> <span class="cv">dalforge-hub/dalcenter/cmd/dalcenter@latest</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="qs-step">
+        <div class="qs-n">02</div>
+        <div>
+          <div class="qs-title">레포에 선언</div>
+          <div class="qs-desc">.dalfactory/templates/default.cue 를 작성합니다.</div>
+          <div class="cblock">
+            <div class="cbar"><span class="clang">cue</span><button class="cpbtn" onclick="this.textContent='copied!';setTimeout(()=>this.textContent='copy',1500)">copy</button></div>
+            <div class="ccode"><span class="cm"># .dalfactory/templates/default.cue</span>
+<span class="ck">container</span>: {
+  <span class="ck">base</span>: <span class="cs">"ubuntu-24.04"</span>
+  <span class="ck">agents</span>: { claude: { <span class="ck">type</span>: <span class="cs">"claude_sdk"</span> } }
+}
+<span class="ck">exports</span>: {
+  claude: {
+    <span class="ck">skills</span>: [<span class="cs">"skills/code-review/skill.md"</span>]
+    <span class="ck">hooks</span>:  [<span class="cs">"hooks/pre-commit.sh"</span>]
+  }
+}</div>
+          </div>
+        </div>
+      </div>
+      <div class="qs-step">
+        <div class="qs-n">03</div>
+        <div>
+          <div class="qs-title">등록 + 내보내기</div>
+          <div class="qs-desc">달을 등록하고 스킬·훅을 AI 런타임으로 내보냅니다.</div>
+          <div class="cblock">
+            <div class="cbar"><span class="clang">bash</span><button class="cpbtn" onclick="this.textContent='copied!';setTimeout(()=>this.textContent='copy',1500)">copy</button></div>
+            <div class="ccode"><span class="ck">dalcenter</span> <span class="cb2">validate</span>   <span class="cm"># CUE 유효성 검사</span>
+<span class="ck">dalcenter</span> <span class="cb2">join</span>        <span class="cm"># DAL ID 발급</span>
+<span class="ck">dalcenter</span> <span class="cb2">export</span> &lt;id&gt; <span class="cm"># 스킬·훅 심링크</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="qs-step">
+        <div class="qs-n">04</div>
+        <div>
+          <div class="qs-title">프로비저닝 + 감시</div>
+          <div class="qs-desc">LXC 컨테이너를 기동하고 자동 감시 루프를 시작합니다.</div>
+          <div class="cblock">
+            <div class="cbar"><span class="clang">bash</span><button class="cpbtn" onclick="this.textContent='copied!';setTimeout(()=>this.textContent='copy',1500)">copy</button></div>
+            <div class="ccode"><span class="ck">dalcenter</span> <span class="cb2">provision</span> &lt;id&gt; <span class="cm"># LXC 기동</span>
+<span class="ck">dalcenter</span> <span class="cb2">watch</span>         <span class="cm"># 60s 자동 감시</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta">
+  <div class="cta-inner reveal">
+    <div class="cta-pill">🛸 AI agent infrastructure</div>
+    <h2 class="cta-h">레포마다 달.<br><span class="g">달마다 AI.</span></h2>
+    <p class="cta-p">CLI · 스킬 · 훅 · PLAYER · VAULT가 하나의 달 안에. 선언하면 달이 알아서 움직입니다.</p>
+    <div class="cta-btns">
+      <a class="btn-g" href="https://github.com/dalsoop/dalforge" target="_blank">⭐ GitHub에서 시작하기</a>
+      <a class="btn-o" href="#anatomy">달 구조 보기 →</a>
+    </div>
+    <div class="cta-tags">
+      <span class="cta-tag">Go 1.25</span>
+      <span class="cta-tag">CUE 0.16</span>
+      <span class="cta-tag">SQLite</span>
+      <span class="cta-tag">Proxmox LXC</span>
+      <span class="cta-tag">AES-256-GCM</span>
+      <span class="cta-tag">MIT</span>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="f-logo"><div class="n-ring" style="width:16px;height:16px"></div>dalforge</div>
+  <div class="f-links">
+    <a class="f-link" href="https://github.com/dalsoop/dalforge" target="_blank">GitHub</a>
+    <a class="f-link" href="#">Docs</a>
+    <a class="f-link" href="#">Catalog</a>
+    <a class="f-link" href="#">Changelog</a>
+  </div>
+  <div class="f-copy">Go 1.25 · CUE 0.16 · SQLite · MIT</div>
+</footer>
+
+<script>
+/* ── ANIMATED CHAT ── */
+const chatBody = document.getElementById('chatBody');
+const inputEl  = document.getElementById('inputText');
+
+const MSGS = [
+  { type:'user', text:'backend 레포에 AI 에이전트 셋업해줘. PR 리뷰 스킬이랑 pre-commit 훅도 넣어서.', delay:600 },
+  { type:'typing', delay:1400 },
+  { type:'dal', delay:2200, html:`<span class="hl">dal.cue</span> 확인 중...<span class="code"><span class="ok">✓ valid</span>  cli: 2  skills: 1 (claude)  hooks: 1 (claude)</span>` },
+  { type:'typing', delay:3000 },
+  { type:'dal', delay:3900, html:`등록하고 스킬·훅 내보낼게요.<span class="code"><span class="ok">✓</span> <span class="k">DAL:CLI:a3f82c1d</span> registered
+<span class="ok">✓</span> ~/.claude/skills/<span class="k">code-review</span>/ → symlink
+<span class="ok">✓</span> ~/.claude/hooks/<span class="k">pre-commit.sh</span> → symlink
+<span class="ok">✓</span> settings.json merged  (1 hook)</span>` },
+  { type:'user', text:'시크릿도 등록해줘. GITHUB_TOKEN이랑 OPENAI_KEY.', delay:5200 },
+  { type:'typing', delay:6000 },
+  { type:'dal', delay:6700, html:`두 개 다 AES-256-GCM으로 암호화해서 vault에 저장했어요.<span class="code"><span class="ok">✓</span> GITHUB_TOKEN  <span class="di">→ encrypted</span>
+<span class="ok">✓</span> OPENAI_KEY    <span class="di">→ encrypted</span>
+  컨테이너 기동 시 자동으로 env에 주입됩니다.</span>` },
+  { type:'typing', delay:7500 },
+  { type:'dal', delay:8400, html:`LXC 컨테이너 프로비저닝 중...<span class="code"><span class="di">→ ubuntu-24.04 LXC creating...</span>
+<span class="di">→ claude_sdk installing...</span>
+<span class="di">→ injecting 2 secrets...</span>
+<span class="ok">✓</span> <span class="bl">DAL:CONTAINER:b71e3a9c</span> online
+  player: <span class="k">claude</span>  status: <span class="ok">active</span></span>` },
+  { type:'user', text:'완료? 잘 돌아가?', delay:9800 },
+  { type:'typing', delay:10500 },
+  { type:'dal', delay:11200, html:`완료요! 🎉 <span class="hl">backend-api</span>는 이제 <span class="hl">claude</span>가 지키고 있어요.<br>60초마다 자동 상태 점검 중. 에이전트가 꺼지면 스스로 다시 켜집니다.` },
+];
+
+let msgIdx = 0;
+let typingEl = null;
+
+function buildMsg(m) {
+  if (m.type === 'typing') {
+    typingEl = document.createElement('div');
+    typingEl.className = 'typing';
+    typingEl.innerHTML = `<div class="av av-d">dal</div><div class="ty-bubble"><div class="ty-d"></div><div class="ty-d"></div><div class="ty-d"></div></div>`;
+    chatBody.appendChild(typingEl);
+    setTimeout(() => typingEl.classList.add('show'), 20);
+    chatBody.scrollTop = chatBody.scrollHeight;
+    return;
+  }
+
+  if (typingEl) {
+    typingEl.remove();
+    typingEl = null;
+  }
+
+  const div = document.createElement('div');
+  div.className = `msg ${m.type === 'user' ? 'user' : ''}`;
+  if (m.type === 'user') {
+    div.innerHTML = `
+      <div class="av av-u">나</div>
+      <div>
+        <div class="bubble bubble-u">${m.text}</div>
+        <div class="msg-time" style="text-align:right">방금</div>
+      </div>`;
+  } else {
+    div.innerHTML = `
+      <div class="av av-d">dal</div>
+      <div>
+        <div class="bubble bubble-d">${m.html}</div>
+        <div class="msg-time">방금</div>
+      </div>`;
+  }
+  chatBody.appendChild(div);
+  setTimeout(() => div.classList.add('show'), 20);
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+function nextMsg() {
+  if (msgIdx >= MSGS.length) return;
+  const m = MSGS[msgIdx++];
+  setTimeout(() => {
+    buildMsg(m);
+    nextMsg();
+  }, msgIdx === 1 ? m.delay : MSGS[msgIdx-2].delay ? 0 : m.delay);
+}
+
+// sequence by absolute delays
+MSGS.forEach((m, i) => {
+  setTimeout(() => buildMsg(m), m.delay);
+});
+
+// input placeholder animation
+const placeholders = [
+  'backend 레포에 AI 에이전트 셋업해줘.',
+  '시크릿 GITHUB_TOKEN 등록해줘.',
+  '지금 어떤 스킬들 연결돼 있어?',
+  'pre-commit 훅 추가해줘.',
+  '에이전트 상태 알려줘.',
+];
+let phIdx = 0;
+function cyclePlaceholder() {
+  let text = placeholders[phIdx % placeholders.length];
+  let i = 0;
+  inputEl.textContent = '';
+  const t = setInterval(() => {
+    if (i < text.length) { inputEl.textContent += text[i++]; }
+    else {
+      clearInterval(t);
+      setTimeout(() => {
+        let j = text.length;
+        const dt = setInterval(() => {
+          if (j > 0) { inputEl.textContent = text.slice(0, --j); }
+          else { clearInterval(dt); phIdx++; setTimeout(cyclePlaceholder, 400); }
+        }, 30);
+      }, 2200);
+    }
+  }, 48);
+}
+setTimeout(cyclePlaceholder, 13000);
+
+/* ACCORDION */
+document.querySelectorAll('.ex-item').forEach(item => {
+  item.querySelector('.ex-trigger').addEventListener('click', () => {
+    const wasOpen = item.classList.contains('open');
+    document.querySelectorAll('.ex-item').forEach(i => i.classList.remove('open'));
+    if (!wasOpen) item.classList.add('open');
+  });
+});
+
+/* SCROLL REVEAL */
+const obs = new IntersectionObserver(es => {
+  es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+}, { threshold: 0.07 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>

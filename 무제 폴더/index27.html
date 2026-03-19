@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prelik</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;0,6..96,900;1,6..96,400;1,6..96,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;1,8..60,300;1,8..60,400&family=Inconsolata:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:    #f6f4f0;
+  --w:     #faf9f6;
+  --text:  #1c1916;
+  --mid:   #7a736a;
+  --faint: #c8c1b8;
+  --hair:  #e2ddd6;
+  --tc:    #a0745a;   /* terracotta */
+  --tc-l:  #f0e8e2;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Source Serif 4', serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* ─── REVEAL ─── */
+.r {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity .9s cubic-bezier(.16,1,.3,1), transform .9s cubic-bezier(.16,1,.3,1);
+}
+.r.on { opacity: 1; transform: none; }
+.d1 { transition-delay: .1s; }
+.d2 { transition-delay: .2s; }
+.d3 { transition-delay: .3s; }
+.d4 { transition-delay: .4s; }
+.d5 { transition-delay: .5s; }
+
+/* ─── NAV ─── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 56px;
+  background: rgba(246,244,240,.94);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--hair);
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.logo-mark { width: 22px; height: 22px; }
+
+.logo-name {
+  font-family: 'Bodoni Moda', serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: .04em;
+  color: var(--text);
+}
+
+.nav-links {
+  display: flex;
+  gap: 40px;
+  list-style: none;
+}
+.nav-links a {
+  font-family: 'Inconsolata', monospace;
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--faint);
+  text-decoration: none;
+  transition: color .25s;
+}
+.nav-links a:hover { color: var(--text); }
+
+.nav-contact {
+  font-family: 'Inconsolata', monospace;
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--tc);
+  text-decoration: none;
+  padding-bottom: 1px;
+  border-bottom: 1px solid currentColor;
+  transition: opacity .2s;
+}
+.nav-contact:hover { opacity: .65; }
+
+/* ─── HERO ─── */
+.hero {
+  min-height: 100vh;
+  padding: 56px 0 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 40px 56px 28px;
+  border-bottom: 1px solid var(--hair);
+}
+
+.hero-top-l {
+  font-family: 'Inconsolata', monospace;
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.hero-top-r {
+  font-family: 'Inconsolata', monospace;
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: var(--faint);
+}
+.hero-top-r span { color: var(--tc); }
+
+.hero-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 72px 56px;
+}
+
+.hero-eyebrow {
+  font-family: 'Inconsolata', monospace;
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--tc);
+  margin-bottom: 32px;
+}
+
+.hero-title {
+  font-family: 'Bodoni Moda', serif;
+  font-optical-sizing: auto;
+  font-weight: 900;
+  font-size: clamp(64px, 10vw, 148px);
+  line-height: .88;
+  letter-spacing: -.03em;
+  color: var(--text);
+  max-width: 900px;
+  margin-bottom: 56px;
+}
+
+.hero-title em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--tc);
+}
+
+.hero-foot {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  border-top: 1px solid var(--hair);
+  padding-top: 36px;
+  gap: 40px;
+}
+
+.hero-foot-item:first-child {
+  grid-column: span 2;
+}
+
+.foot-label {
+  font-family: 'Inconsolata', monospace;
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: 10px;
+}
+
+.foot-text {
+  font-size: 15px;
+  color: var(--mid);
+  line-height: 1.7;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.foot-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.btn-tc {
+  font-family: 'Inconsolata', monospace;
+  font-size: 12px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--w);
+  background: var(--tc);
+  border: none;
+  padding: 12px 24px;
+  text-decoration: none;
+  text-align: center;
+  transition: background .2s, transform .15s;
+  display: block;
+}
+.btn-tc:hover { background: #8a6349; transform: translateY(-1px); }
+
+.btn-ghost {
+  font-family: 'Inconsolata', monospace;
+  font-size: 12px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--mid);
+  background: transparent;
+  border: 1px solid var(--hair);
+  padding: 12px 24px;
+  text-decoration: none;
+  text-align: center;
+  transition: border-color .2s, color .2s;
+  display: block;
+}
+.btn-ghost:hover { border-color: var(--faint); color: var(--text); }
+
+/* ─── PRODUCTS ─── */
+.products {
+  background: var(--w);
+  border-top: 1px solid var(--hair);
+  border-bottom: 1px solid var(--hair);
+}
+
+.prod-wrap {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 96px 56px;
+}
+
+.section-eyebrow {
+  font-family: 'Inconsolata', monospace;
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: 48px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.section-eyebrow::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--hair);
+}
+
+.prod-items { display: flex; flex-direction: column; }
+
+.prod-row {
+  display: grid;
+  grid-template-columns: 56px 200px 1fr auto;
+  gap: 0 48px;
+  align-items: baseline;
+  padding: 36px 0;
+  border-bottom: 1px solid var(--hair);
+  transition: background .2s;
+  cursor: default;
+}
+.prod-row:first-child { border-top: 1px solid var(--hair); }
+.prod-row:hover { background: rgba(160,116,90,.03); }
+
+.prod-row-n {
+  font-family: 'Inconsolata', monospace;
+  font-size: 11px;
+  color: var(--faint);
+  letter-spacing: .06em;
+  padding-top: 4px;
+}
+
+.prod-row-name {
+  font-family: 'Bodoni Moda', serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-size: 28px;
+  letter-spacing: -.02em;
+  color: var(--text);
+}
+
+.prod-row-desc {
+  font-size: 14px;
+  color: var(--mid);
+  line-height: 1.65;
+  font-weight: 300;
+  font-style: italic;
+}
+
+.prod-row-type {
+  font-family: 'Inconsolata', monospace;
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--tc);
+  white-space: nowrap;
+  padding: 3px 10px;
+  border: 1px solid var(--tc-l);
+  background: var(--tc-l);
+  border-radius: 2px;
+}
+
+/* ─── MISSION ─── */
+.mission {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 96px 56px;
+}
+
+.mission-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.8fr;
+  gap: 96px;
+  align-items: start;
+}
+
+.mission-left {}
+
+.mission-quote {
+  font-family: 'Bodoni Moda', serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(28px, 3.5vw, 48px);
+  line-height: 1.25;
+  letter-spacing: -.01em;
+  color: var(--text);
+}
+.mission-quote strong {
+  font-style: normal;
+  font-weight: 700;
+  color: var(--tc);
+}
+
+.mission-right {}
+
+.mission-body {
+  font-size: 16px;
+  color: var(--mid);
+  line-height: 1.85;
+  font-weight: 300;
+  margin-bottom: 48px;
+}
+
+.values {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.val {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 16px;
+  padding: 20px 0;
+  border-top: 1px solid var(--hair);
+  align-items: start;
+}
+
+.val-n {
+  font-family: 'Inconsolata', monospace;
+  font-size: 10px;
+  letter-spacing: .1em;
+  color: var(--faint);
+  padding-top: 2px;
+}
+
+.val-body {}
+.val-title {
+  font-family: 'Bodoni Moda', serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text);
+  margin-bottom: 5px;
+}
+
+.val-text {
+  font-size: 13px;
+  color: var(--mid);
+  line-height: 1.65;
+  font-weight: 300;
+  font-style: italic;
+}
+
+/* ─── NUMBERS ─── */
+.numbers {
+  background: var(--text);
+  border-top: 1px solid var(--text);
+  border-bottom: 1px solid var(--text);
+}
+
+.numbers-inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 56px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.num-cell {
+  padding: 56px 0;
+  border-right: 1px solid rgba(255,255,255,.08);
+  padding-right: 40px;
+  margin-right: 40px;
+}
+.num-cell:last-child { border-right: none; padding-right: 0; margin-right: 0; }
+
+.num-val {
+  font-family: 'Bodoni Moda', serif;
+  font-optical-sizing: auto;
+  font-weight: 900;
+  font-size: 60px;
+  line-height: 1;
+  letter-spacing: -.04em;
+  color: var(--w);
+  margin-bottom: 8px;
+}
+.num-val sup { font-size: .38em; color: var(--tc); vertical-align: super; }
+
+.num-label {
+  font-family: 'Inconsolata', monospace;
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.3);
+}
+
+/* ─── TEAM ─── */
+.team {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 96px 56px;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--hair);
+  border: 1px solid var(--hair);
+}
+
+.team-cell {
+  background: var(--bg);
+  padding: 40px;
+  transition: background .2s;
+}
+.team-cell:hover { background: var(--w); }
+
+.team-av {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inconsolata', monospace;
+  font-size: 13px;
+  letter-spacing: .04em;
+  background: var(--tc-l);
+  color: var(--tc);
+  border: 1px solid rgba(160,116,90,.2);
+  margin-bottom: 24px;
+}
+
+.team-name {
+  font-family: 'Bodoni Moda', serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: -.01em;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.team-role {
+  font-family: 'Inconsolata', monospace;
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--tc);
+  margin-bottom: 16px;
+}
+
+.team-bio {
+  font-size: 13px;
+  color: var(--mid);
+  line-height: 1.7;
+  font-weight: 300;
+  font-style: italic;
+}
+
+/* ─── CONTACT ─── */
+.contact {
+  background: var(--w);
+  border-top: 1px solid var(--hair);
+}
+
+.contact-inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 96px 56px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 96px;
+  align-items: start;
+}
+
+.contact-title {
+  font-family: 'Bodoni Moda', serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(40px, 5.5vw, 72px);
+  line-height: 1.05;
+  letter-spacing: -.02em;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+
+.contact-sub {
+  font-size: 15px;
+  color: var(--mid);
+  line-height: 1.7;
+  font-weight: 300;
+  font-style: italic;
+  max-width: 320px;
+}
+
+.clinks { display: flex; flex-direction: column; gap: 1px; }
+
+.clink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--hair);
+  text-decoration: none;
+  color: var(--text);
+  transition: padding-left .2s;
+}
+.clink:first-child { border-top: 1px solid var(--hair); }
+.clink:hover { padding-left: 8px; }
+
+.clink-l { display: flex; flex-direction: column; gap: 3px; }
+.clink-type { font-family: 'Inconsolata', monospace; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); }
+.clink-val  { font-size: 16px; color: var(--text); font-weight: 300; }
+
+.clink-arr { color: var(--faint); transition: transform .2s, color .2s; }
+.clink:hover .clink-arr { transform: translateX(4px); color: var(--tc); }
+
+.clink-hire .clink-type { color: var(--tc); }
+.clink-hire .clink-val {
+  font-family: 'Bodoni Moda', serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--tc);
+}
+
+/* ─── FOOTER ─── */
+footer {
+  border-top: 1px solid var(--hair);
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 28px 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer-logo {
+  font-family: 'Bodoni Moda', serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: .06em;
+  color: var(--faint);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-copy {
+  font-family: 'Inconsolata', monospace;
+  font-size: 10px;
+  color: var(--faint);
+  letter-spacing: .06em;
+}
+
+.footer-links { display: flex; gap: 28px; list-style: none; }
+.footer-links a {
+  font-family: 'Inconsolata', monospace;
+  font-size: 10px;
+  color: var(--faint);
+  text-decoration: none;
+  letter-spacing: .06em;
+  transition: color .2s;
+}
+.footer-links a:hover { color: var(--text); }
+
+@media (max-width: 960px) {
+  nav { padding: 0 24px; }
+  .nav-links { display: none; }
+  .hero-top, .hero-center { padding-left: 24px; padding-right: 24px; }
+  .hero-foot { grid-template-columns: 1fr; }
+  .hero-foot-item:first-child { grid-column: span 1; }
+  .prod-wrap, .mission, .team, .contact-inner { padding-left: 24px; padding-right: 24px; }
+  .prod-row { grid-template-columns: 1fr; gap: 8px; }
+  .prod-row-n { display: none; }
+  .mission-grid { grid-template-columns: 1fr; gap: 48px; }
+  .numbers-inner { grid-template-columns: repeat(2,1fr); padding: 0 24px; }
+  .num-cell { border-right: none; padding-right: 0; margin-right: 0; border-bottom: 1px solid rgba(255,255,255,.08); }
+  .team-grid { grid-template-columns: 1fr; }
+  .contact-inner { grid-template-columns: 1fr; gap: 48px; }
+  footer { flex-direction: column; gap: 16px; padding: 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <svg class="logo-mark" viewBox="0 0 22 22" fill="none">
+      <defs>
+        <linearGradient id="lg" x1="0" y1="0" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#a0745a"/>
+          <stop offset="1" stop-color="#7a5440"/>
+        </linearGradient>
+      </defs>
+      <circle cx="8"  cy="9"  r="5.5" stroke="url(#lg)" stroke-width="1.2" fill="none" opacity=".9"/>
+      <circle cx="14" cy="9"  r="5.5" stroke="url(#lg)" stroke-width="1.2" fill="none" opacity=".55"/>
+      <circle cx="11" cy="15" r="5.5" stroke="url(#lg)" stroke-width="1.2" fill="none" opacity=".3"/>
+      <circle cx="11" cy="11" r="2.2" fill="url(#lg)"/>
+    </svg>
+    <span class="logo-name">Prelik</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#products">Products</a></li>
+    <li><a href="#mission">Mission</a></li>
+    <li><a href="#team">Team</a></li>
+  </ul>
+  <a href="#contact" class="nav-contact">Contact</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-top r">
+    <span class="hero-top-l">AI Infrastructure Company</span>
+    <span class="hero-top-r">Seoul, KR &nbsp;·&nbsp; Est. <span>2023</span> &nbsp;·&nbsp; 3 Products</span>
+  </div>
+
+  <div class="hero-center">
+    <p class="hero-eyebrow r">인프라를 소유하는 회사</p>
+    <h1 class="hero-title r d1">
+      인프라를<br>
+      <em>소유하는</em><br>
+      자가 이긴다
+    </h1>
+    <div class="hero-foot">
+      <div class="hero-foot-item r d2">
+        <div class="foot-label">About</div>
+        <p class="foot-text">Prelik은 AI 에이전트 인프라, 보안 크리덴셜 관리, 엔지니어링 교육을 통해 기술의 주도권을 다시 개발자에게 돌려줍니다.</p>
+      </div>
+      <div class="hero-foot-item r d3">
+        <div class="foot-label">시작하기</div>
+        <div class="foot-actions">
+          <a href="#products" class="btn-tc">제품 보기</a>
+          <a href="#mission" class="btn-ghost">회사 소개</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<div class="products" id="products">
+  <div class="prod-wrap">
+    <p class="section-eyebrow r">Products &nbsp; 01 / 03</p>
+    <div class="prod-items">
+      <div class="prod-row r d1">
+        <span class="prod-row-n">01</span>
+        <span class="prod-row-name">dalforge</span>
+        <p class="prod-row-desc">LXC 기반 AI 에이전트 컨테이너 플랫폼. 격리된 실행 환경에서 에이전트를 안정적으로 배포하고 완전한 제어권을 가집니다.</p>
+        <span class="prod-row-type">Infrastructure</span>
+      </div>
+      <div class="prod-row r d2">
+        <span class="prod-row-n">02</span>
+        <span class="prod-row-name">VeilKey</span>
+        <p class="prod-row-desc">AES-256-GCM 기반 크리덴셜 보안 볼트. 민감한 정보를 암호화하여 안전하게 보관하고 팀 전체가 접근할 수 있도록 관리합니다.</p>
+        <span class="prod-row-type">Security</span>
+      </div>
+      <div class="prod-row r d3">
+        <span class="prod-row-n">03</span>
+        <span class="prod-row-name">Academy</span>
+        <p class="prod-row-desc">AI 인프라 엔지니어링 실전 강의. 현장에서 바로 쓸 수 있는 기술로 다음 세대 엔지니어를 양성합니다.</p>
+        <span class="prod-row-type">Education</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MISSION -->
+<div id="mission">
+  <div class="mission">
+    <p class="section-eyebrow r">Mission &nbsp; 02 / 03</p>
+    <div class="mission-grid">
+      <div class="mission-left">
+        <blockquote class="mission-quote r d1">
+          AI 시대의 진짜 경쟁력은<br>
+          <strong>인프라를 직접 소유하는 것</strong>에서<br>
+          시작됩니다.
+        </blockquote>
+      </div>
+      <div class="mission-right">
+        <p class="mission-body r d1">
+          클라우드에 의존하는 순간 우리는 핵심 인프라의 통제권을 잃습니다.
+          Prelik은 그 반대 방향을 선택했습니다 — 직접 소유하고, 직접 운영하며,
+          그 방법을 가르칩니다.
+        </p>
+        <div class="values r d2">
+          <div class="val">
+            <span class="val-n">01</span>
+            <div class="val-body">
+              <div class="val-title">Ownership — 소유권</div>
+              <p class="val-text">클라우드 종속에서 벗어나 자체 인프라를 구축하고 운영하는 역량을 제공합니다.</p>
+            </div>
+          </div>
+          <div class="val">
+            <span class="val-n">02</span>
+            <div class="val-body">
+              <div class="val-title">Security — 보안</div>
+              <p class="val-text">암호화와 격리를 기본 원칙으로 삼아 모든 제품에 일관되게 적용합니다.</p>
+            </div>
+          </div>
+          <div class="val">
+            <span class="val-n">03</span>
+            <div class="val-body">
+              <div class="val-title">Pragmatism — 실용</div>
+              <p class="val-text">이론보다 실전. 현장에서 즉시 사용 가능한 도구와 교육을 만듭니다.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NUMBERS -->
+<div class="numbers">
+  <div class="numbers-inner">
+    <div class="num-cell r">
+      <div class="num-val"><span id="n1">0</span><sup>+</sup></div>
+      <div class="num-label">Deployed Agents</div>
+    </div>
+    <div class="num-cell r d1">
+      <div class="num-val"><span id="n2">0</span><sup>%</sup></div>
+      <div class="num-label">Encryption Rate</div>
+    </div>
+    <div class="num-cell r d2">
+      <div class="num-val"><span id="n3">0</span><sup>+</sup></div>
+      <div class="num-label">Academy Students</div>
+    </div>
+    <div class="num-cell r d3">
+      <div class="num-val">3</div>
+      <div class="num-label">Products</div>
+    </div>
+  </div>
+</div>
+
+<!-- TEAM -->
+<div id="team">
+  <div class="team">
+    <p class="section-eyebrow r">Team &nbsp; 03 / 03</p>
+    <div class="team-grid">
+      <div class="team-cell r d1">
+        <div class="team-av">JH</div>
+        <div class="team-name">정한</div>
+        <div class="team-role">CEO · Founder</div>
+        <p class="team-bio">인프라 엔지니어링과 AI 에이전트 시스템 설계를 이끕니다. Proxmox 기반 자체 인프라 운영 경험을 바탕으로 Prelik을 창립했습니다.</p>
+      </div>
+      <div class="team-cell r d2">
+        <div class="team-av">SY</div>
+        <div class="team-name">서연</div>
+        <div class="team-role">CTO</div>
+        <p class="team-bio">보안 시스템과 암호화 인프라를 담당합니다. VeilKey의 핵심 아키텍처를 설계했으며 엔터프라이즈 보안 경험을 보유하고 있습니다.</p>
+      </div>
+      <div class="team-cell r d3">
+        <div class="team-av">DJ</div>
+        <div class="team-name">대진</div>
+        <div class="team-role">Head of Education</div>
+        <p class="team-bio">Prelik Academy 커리큘럼을 총괄합니다. AI 인프라 엔지니어링 실전 교육 프로그램을 개발하고 운영합니다.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT -->
+<div class="contact" id="contact">
+  <div class="contact-inner">
+    <div>
+      <h2 class="contact-title r">함께<br>만들어요</h2>
+      <p class="contact-sub r d1">파트너십, 도입 문의, 채용 등 무엇이든 편하게 연락 주세요.</p>
+    </div>
+    <div class="clinks r d1">
+      <a href="mailto:hello@prelik.io" class="clink">
+        <div class="clink-l">
+          <span class="clink-type">General</span>
+          <span class="clink-val">hello@prelik.io</span>
+        </div>
+        <svg class="clink-arr" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="mailto:press@prelik.io" class="clink">
+        <div class="clink-l">
+          <span class="clink-type">Press</span>
+          <span class="clink-val">press@prelik.io</span>
+        </div>
+        <svg class="clink-arr" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="mailto:careers@prelik.io" class="clink clink-hire">
+        <div class="clink-l">
+          <span class="clink-type">We're Hiring</span>
+          <span class="clink-val">careers@prelik.io</span>
+        </div>
+        <svg class="clink-arr" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <a href="#" class="footer-logo">
+    <svg width="16" height="16" viewBox="0 0 22 22" fill="none">
+      <defs>
+        <linearGradient id="lg2" x1="0" y1="0" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#a0745a"/><stop offset="1" stop-color="#7a5440"/>
+        </linearGradient>
+      </defs>
+      <circle cx="8"  cy="9"  r="5.5" stroke="url(#lg2)" stroke-width="1.2" fill="none" opacity=".9"/>
+      <circle cx="14" cy="9"  r="5.5" stroke="url(#lg2)" stroke-width="1.2" fill="none" opacity=".55"/>
+      <circle cx="11" cy="15" r="5.5" stroke="url(#lg2)" stroke-width="1.2" fill="none" opacity=".3"/>
+      <circle cx="11" cy="11" r="2.2" fill="url(#lg2)"/>
+    </svg>
+    Prelik
+  </a>
+  <span class="footer-copy">© 2025 Prelik Inc.</span>
+  <ul class="footer-links">
+    <li><a href="#">Privacy</a></li>
+    <li><a href="#">Terms</a></li>
+    <li><a href="#">dalforge</a></li>
+    <li><a href="#">VeilKey</a></li>
+    <li><a href="#">Academy</a></li>
+  </ul>
+</footer>
+
+<script>
+const obs = new IntersectionObserver(
+  es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('on'); }),
+  { threshold: .1 }
+);
+document.querySelectorAll('.r').forEach(el => obs.observe(el));
+
+function countUp(id, to, dur) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const t0 = performance.now();
+  const f = now => {
+    const p = Math.min((now - t0) / dur, 1);
+    el.textContent = Math.round((1 - Math.pow(1-p, 3)) * to);
+    if (p < 1) requestAnimationFrame(f); else el.textContent = to;
+  };
+  requestAnimationFrame(f);
+}
+
+let done = false;
+new IntersectionObserver(es => {
+  if (es[0].isIntersecting && !done) {
+    done = true;
+    countUp('n1', 240, 1400);
+    countUp('n2', 100, 1200);
+    countUp('n3', 180, 1600);
+  }
+}, { threshold: .4 }).observe(document.querySelector('.numbers'));
+</script>
+</body>
+</html>

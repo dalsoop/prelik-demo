@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prelik — 미래를 설계하는 기업</title>
+<style>
+  :root {
+    --accent: #E8391A;
+    --accent-dim: rgba(232, 57, 26, 0.08);
+    --white: #FFFFFF;
+    --ink: #0F0F0F;
+    --ink-light: #6B6B6B;
+    --ink-faint: #D4D4D4;
+    --serif: Georgia, 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --mono: 'Courier New', Courier, monospace;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; font-size: 16px; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--white);
+    color: var(--ink);
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* ── Custom Cursor ── */
+  .cursor {
+    position: fixed;
+    top: 0; left: 0;
+    width: 10px; height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s ease, width 0.3s ease, height 0.3s ease, background 0.3s ease;
+  }
+  .cursor.hover {
+    width: 40px; height: 40px;
+    background: transparent;
+    border: 1.5px solid var(--accent);
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 4rem;
+    mix-blend-mode: multiply;
+    transform: translateY(-100%);
+    animation: navDrop 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.4s forwards;
+  }
+
+  @keyframes navDrop {
+    to { transform: translateY(0); }
+  }
+
+  .logo {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .logo span { color: var(--accent); }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink);
+    text-decoration: none;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -3px; left: 0; right: 0;
+    height: 1px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+  .nav-links a:hover::after { transform: scaleX(1); }
+
+  /* ── HERO ── */
+  #hero {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 4rem 6rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg-line {
+    position: absolute;
+    top: 0; right: 18%;
+    width: 1px;
+    height: 100%;
+    background: var(--ink-faint);
+    transform: scaleY(0);
+    transform-origin: top;
+    animation: lineGrow 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.6s forwards;
+  }
+  .hero-bg-line:nth-child(2) { right: 36%; animation-delay: 0.75s; }
+
+  @keyframes lineGrow {
+    to { transform: scaleY(1); }
+  }
+
+  .hero-label {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.8rem;
+    opacity: 0;
+    animation: fadeUp 0.7s ease 0.9s forwards;
+  }
+
+  .hero-title {
+    font-family: var(--serif);
+    font-size: clamp(3.5rem, 9vw, 9rem);
+    font-weight: 400;
+    line-height: 0.92;
+    letter-spacing: -0.04em;
+    color: var(--ink);
+    overflow: hidden;
+  }
+  .hero-title .line {
+    display: block;
+    transform: translateY(110%);
+    animation: lineReveal 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .hero-title .line:nth-child(1) { animation-delay: 1s; }
+  .hero-title .line:nth-child(2) { animation-delay: 1.15s; }
+  .hero-title .line:nth-child(3) { animation-delay: 1.3s; color: var(--accent); font-style: italic; }
+
+  @keyframes lineReveal {
+    to { transform: translateY(0); }
+  }
+
+  .hero-sub {
+    margin-top: 3rem;
+    max-width: 38ch;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--ink-light);
+    opacity: 0;
+    animation: fadeUp 0.7s ease 1.6s forwards;
+  }
+
+  .hero-cta {
+    margin-top: 2.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    opacity: 0;
+    animation: fadeUp 0.7s ease 1.8s forwards;
+  }
+  .btn-primary {
+    display: inline-block;
+    padding: 1rem 2.4rem;
+    background: var(--accent);
+    color: var(--white);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    transition: color 0.3s ease;
+  }
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--ink);
+    transform: translateX(-100%);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .btn-primary:hover::before { transform: translateX(0); }
+  .btn-primary span { position: relative; z-index: 1; }
+
+  .hero-scroll {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+  }
+  .scroll-line {
+    width: 40px; height: 1px;
+    background: var(--ink-faint);
+    position: relative;
+    overflow: hidden;
+  }
+  .scroll-line::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: var(--accent);
+    animation: scrollAnim 1.5s ease 2s infinite;
+  }
+  @keyframes scrollAnim {
+    0% { left: -100%; }
+    50% { left: 0%; }
+    100% { left: 100%; }
+  }
+
+  .hero-number {
+    position: absolute;
+    right: 4rem;
+    top: 50%;
+    transform: translateY(-50%);
+    writing-mode: vertical-rl;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--ink-faint);
+    opacity: 0;
+    animation: fadeUp 0.7s ease 2s forwards;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SECTIONS COMMON ── */
+  section { padding: 8rem 4rem; }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+
+  /* ── ABOUT ── */
+  #about {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6rem;
+    align-items: center;
+  }
+
+  .about-left {}
+
+  .about-title {
+    font-family: var(--serif);
+    font-size: clamp(2.2rem, 4vw, 3.8rem);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    margin-bottom: 2rem;
+  }
+  .about-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .about-text {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--ink-light);
+    margin-bottom: 1.5rem;
+  }
+
+  .divider {
+    width: 40px;
+    height: 2px;
+    background: var(--accent);
+    margin: 2rem 0;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 3rem;
+  }
+  .stat-num {
+    font-family: var(--serif);
+    font-size: 3.5rem;
+    font-weight: 400;
+    letter-spacing: -0.04em;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .stat-num span.accent { color: var(--accent); }
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-top: 0.4rem;
+  }
+
+  .about-visual {
+    position: relative;
+    height: 500px;
+  }
+  .about-visual-box {
+    position: absolute;
+    inset: 0;
+    background: var(--ink);
+    overflow: hidden;
+  }
+  .about-visual-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 40px,
+      rgba(255,255,255,0.03) 40px,
+      rgba(255,255,255,0.03) 41px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 40px,
+      rgba(255,255,255,0.03) 40px,
+      rgba(255,255,255,0.03) 41px
+    );
+  }
+  .about-visual-text {
+    position: absolute;
+    bottom: 3rem;
+    left: 3rem;
+    right: 3rem;
+    font-family: var(--serif);
+    font-size: 1.8rem;
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1.3;
+    color: var(--white);
+    opacity: 0.9;
+  }
+  .about-visual-accent {
+    position: absolute;
+    top: 3rem;
+    right: 3rem;
+    width: 60px;
+    height: 60px;
+    border: 1.5px solid var(--accent);
+    animation: rotateSlow 8s linear infinite;
+  }
+  @keyframes rotateSlow {
+    to { transform: rotate(360deg); }
+  }
+  .about-visual-dot {
+    position: absolute;
+    top: 3rem;
+    right: 3rem;
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    top: calc(3rem + 27px);
+    right: calc(3rem + 27px);
+  }
+  .about-visual-corner {
+    position: absolute;
+    top: -1rem;
+    right: -1rem;
+    width: 80px; height: 80px;
+    border-top: 2px solid var(--accent);
+    border-right: 2px solid var(--accent);
+  }
+
+  /* ── SERVICES ── */
+  #services {
+    background: var(--ink);
+    color: var(--white);
+  }
+
+  .services-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 5rem;
+  }
+  .services-title {
+    font-family: var(--serif);
+    font-size: clamp(2.2rem, 4vw, 3.8rem);
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+  }
+  .services-title em { font-style: italic; color: var(--accent); }
+
+  .services-desc {
+    max-width: 30ch;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.5);
+    text-align: right;
+  }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+  }
+
+  .service-card {
+    padding: 3rem 2.5rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    border-right: 1px solid rgba(255,255,255,0.08);
+    position: relative;
+    overflow: hidden;
+    transition: background 0.4s ease;
+  }
+  .service-card:nth-child(3n) { border-right: none; }
+  .service-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .service-card:hover { background: rgba(232, 57, 26, 0.06); }
+  .service-card:hover::before { transform: scaleX(1); }
+
+  .service-num {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-bottom: 2rem;
+  }
+  .service-icon {
+    width: 40px; height: 40px;
+    margin-bottom: 2rem;
+    position: relative;
+  }
+  .service-icon svg { width: 100%; height: 100%; stroke: rgba(255,255,255,0.4); fill: none; stroke-width: 1.5; }
+  .service-name {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    font-weight: 400;
+    margin-bottom: 1rem;
+    color: var(--white);
+  }
+  .service-text {
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: rgba(255,255,255,0.45);
+  }
+  .service-arrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 2rem;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    transition: color 0.3s ease, gap 0.3s ease;
+  }
+  .service-card:hover .service-arrow { color: var(--accent); gap: 1rem; }
+
+  /* ── TEAM ── */
+  #team {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 6rem;
+    align-items: start;
+  }
+
+  .team-sidebar {}
+  .team-title {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 3.5vw, 3.2rem);
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 2rem;
+  }
+  .team-title em { font-style: italic; color: var(--accent); }
+  .team-intro {
+    font-size: 0.9rem;
+    line-height: 1.8;
+    color: var(--ink-light);
+  }
+
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+
+  .team-card {
+    position: relative;
+  }
+  .team-avatar {
+    width: 100%;
+    aspect-ratio: 3/4;
+    background: var(--ink);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 1.2rem;
+  }
+  .avatar-pattern {
+    position: absolute;
+    inset: 0;
+  }
+  .team-card:nth-child(1) .avatar-pattern { background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); }
+  .team-card:nth-child(2) .avatar-pattern { background: linear-gradient(135deg, #1f1a16 0%, #3a2a20 100%); }
+  .team-card:nth-child(3) .avatar-pattern { background: linear-gradient(135deg, #161a1f 0%, #202d3a 100%); }
+
+  .avatar-init {
+    position: absolute;
+    bottom: 1.5rem; left: 1.5rem;
+    font-family: var(--serif);
+    font-size: 4rem;
+    font-weight: 400;
+    line-height: 1;
+    color: rgba(255,255,255,0.07);
+  }
+  .avatar-accent-line {
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 40%;
+    height: 3px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .team-card:hover .avatar-accent-line { transform: scaleX(1); }
+
+  .team-name {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.3rem;
+  }
+  .team-role {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .team-bio {
+    margin-top: 0.8rem;
+    font-size: 0.82rem;
+    line-height: 1.65;
+    color: var(--ink-light);
+  }
+
+  /* ── CONTACT ── */
+  #contact {
+    background: var(--white);
+    border-top: 1px solid var(--ink-faint);
+  }
+
+  .contact-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8rem;
+    align-items: start;
+  }
+
+  .contact-left {}
+  .contact-title {
+    font-family: var(--serif);
+    font-size: clamp(2.5rem, 5vw, 5rem);
+    font-weight: 400;
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+    margin-bottom: 2.5rem;
+  }
+  .contact-title em { font-style: italic; color: var(--accent); }
+
+  .contact-info { margin-top: 3rem; }
+  .contact-item {
+    display: flex;
+    gap: 2rem;
+    padding: 1.5rem 0;
+    border-top: 1px solid var(--ink-faint);
+  }
+  .contact-item-label {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    min-width: 70px;
+    padding-top: 2px;
+  }
+  .contact-item-val {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+
+  .contact-form {}
+  .form-group {
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+  .form-group label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 0.6rem;
+  }
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 0.9rem 0;
+    border: none;
+    border-bottom: 1px solid var(--ink-faint);
+    background: transparent;
+    font-family: var(--sans);
+    font-size: 0.95rem;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.3s ease;
+    appearance: none;
+    cursor: none;
+  }
+  .form-group input:focus,
+  .form-group textarea:focus { border-color: var(--accent); }
+  .form-group textarea { resize: none; min-height: 120px; }
+
+  .form-group::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 0; height: 1px;
+    background: var(--accent);
+    transition: width 0.4s ease;
+  }
+  .form-group:focus-within::after { width: 100%; }
+
+  .btn-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.1rem 2.5rem;
+    background: var(--ink);
+    color: var(--white);
+    border: none;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: none;
+    position: relative;
+    overflow: hidden;
+    margin-top: 1rem;
+    transition: color 0.3s ease;
+  }
+  .btn-submit::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    transform: translateX(-101%);
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .btn-submit:hover::before { transform: translateX(0); }
+  .btn-submit span { position: relative; z-index: 1; }
+  .btn-submit .arrow { transition: transform 0.3s ease; }
+  .btn-submit:hover .arrow { transform: translateX(6px); }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 2.5rem 4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--ink-faint);
+  }
+  .footer-logo {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .footer-logo span { color: var(--accent); }
+  .footer-copy {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    color: var(--ink-light);
+  }
+  .footer-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+  .footer-links a {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .footer-links a:hover { color: var(--accent); }
+
+  /* ── MOBILE ── */
+  @media (max-width: 900px) {
+    body { cursor: auto; }
+    .cursor { display: none; }
+    nav { padding: 1.2rem 1.8rem; }
+    .nav-links { display: none; }
+    section { padding: 5rem 1.8rem; }
+    #hero { padding: 0 1.8rem 4rem; }
+    .hero-number { display: none; }
+    #about { grid-template-columns: 1fr; gap: 3rem; }
+    .about-visual { height: 300px; }
+    .services-header { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
+    .services-desc { text-align: left; }
+    .services-grid { grid-template-columns: 1fr; }
+    .service-card { border-right: none; }
+    #team { grid-template-columns: 1fr; gap: 3rem; }
+    .team-grid { grid-template-columns: 1fr 1fr; }
+    .contact-inner { grid-template-columns: 1fr; gap: 4rem; }
+    footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+    .footer-links { justify-content: center; }
+  }
+  @media (max-width: 560px) {
+    .team-grid { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Cursor -->
+<div class="cursor" id="cursor"></div>
+
+<!-- Nav -->
+<nav>
+  <a href="#hero" class="logo">Pre<span>lik</span></a>
+  <ul class="nav-links">
+    <li><a href="#about">소개</a></li>
+    <li><a href="#services">서비스</a></li>
+    <li><a href="#team">팀</a></li>
+    <li><a href="#contact">연락처</a></li>
+  </ul>
+</nav>
+
+<!-- Hero -->
+<section id="hero">
+  <div class="hero-bg-line"></div>
+  <div class="hero-bg-line"></div>
+
+  <p class="hero-label">서울 · 2019년 설립 · 기업 솔루션</p>
+
+  <h1 class="hero-title">
+    <span class="line">미래를</span>
+    <span class="line">설계하는</span>
+    <span class="line">기업</span>
+  </h1>
+
+  <p class="hero-sub">
+    Prelik은 기술과 창의성을 결합하여 기업의 성장을 이끄는 전략적 파트너입니다. 복잡한 문제를 명쾌한 솔루션으로 전환합니다.
+  </p>
+
+  <div class="hero-cta">
+    <a href="#about" class="btn-primary"><span>더 알아보기</span></a>
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      아래로
+    </div>
+  </div>
+
+  <div class="hero-number">Prelik Co. — Since 2019</div>
+</section>
+
+<!-- About -->
+<section id="about">
+  <div class="about-left">
+    <p class="section-label reveal">/ 회사 소개</p>
+    <h2 class="about-title reveal reveal-delay-1">
+      기술로<br><em>경계를</em><br>허물다
+    </h2>
+    <div class="divider reveal reveal-delay-2"></div>
+    <p class="about-text reveal reveal-delay-2">
+      Prelik은 디지털 전환 시대에 기업이 직면한 복잡한 과제를 해결하기 위해 설립되었습니다. 데이터 기반의 인사이트와 혁신적인 기술을 바탕으로, 클라이언트의 비즈니스 목표를 현실로 만들어드립니다.
+    </p>
+    <p class="about-text reveal reveal-delay-3">
+      2019년부터 지금까지, 우리는 50개 이상의 기업과 함께 성장해왔습니다. 단순한 서비스 제공을 넘어 진정한 파트너십을 구축하는 것이 Prelik의 철학입니다.
+    </p>
+    <div class="stats reveal reveal-delay-3">
+      <div>
+        <div class="stat-num"><span class="count-up" data-target="50">0</span><span class="accent">+</span></div>
+        <div class="stat-label">협력 기업</div>
+      </div>
+      <div>
+        <div class="stat-num"><span class="count-up" data-target="6">0</span><span class="accent">년</span></div>
+        <div class="stat-label">업력</div>
+      </div>
+      <div>
+        <div class="stat-num"><span class="count-up" data-target="98">0</span><span class="accent">%</span></div>
+        <div class="stat-label">고객 만족도</div>
+      </div>
+      <div>
+        <div class="stat-num"><span class="count-up" data-target="24">0</span><span class="accent">명</span></div>
+        <div class="stat-label">전문 인력</div>
+      </div>
+    </div>
+  </div>
+  <div class="about-visual reveal reveal-delay-2">
+    <div class="about-visual-box">
+      <div class="about-visual-text">
+        "최고의 기술은<br>사람을 위한<br>기술입니다."
+      </div>
+      <div class="about-visual-accent"></div>
+      <div class="about-visual-dot"></div>
+    </div>
+    <div class="about-visual-corner"></div>
+  </div>
+</section>
+
+<!-- Services -->
+<section id="services">
+  <div class="services-header">
+    <h2 class="services-title reveal">
+      우리가<br>제공하는<br><em>솔루션</em>
+    </h2>
+    <p class="services-desc reveal reveal-delay-2">
+      각 서비스는 클라이언트의 고유한 요구에 맞게 설계되며, 측정 가능한 성과를 목표로 합니다.
+    </p>
+  </div>
+  <div class="services-grid">
+    <div class="service-card reveal">
+      <div class="service-num">01</div>
+      <div class="service-icon">
+        <svg viewBox="0 0 40 40"><rect x="4" y="4" width="14" height="14" rx="1"/><rect x="22" y="4" width="14" height="14" rx="1"/><rect x="4" y="22" width="14" height="14" rx="1"/><rect x="22" y="22" width="14" height="14" rx="1"/></svg>
+      </div>
+      <h3 class="service-name">디지털 전환</h3>
+      <p class="service-text">기존 비즈니스 프로세스를 디지털 환경으로 전환하여 운영 효율성을 극대화합니다. 단계별 로드맵으로 안전하게 전환을 지원합니다.</p>
+      <div class="service-arrow">자세히 보기 →</div>
+    </div>
+    <div class="service-card reveal reveal-delay-1">
+      <div class="service-num">02</div>
+      <div class="service-icon">
+        <svg viewBox="0 0 40 40"><polyline points="4,28 12,16 20,22 28,10 36,14"/><circle cx="12" cy="16" r="2"/><circle cx="20" cy="22" r="2"/><circle cx="28" cy="10" r="2"/></svg>
+      </div>
+      <h3 class="service-name">데이터 분석</h3>
+      <p class="service-text">방대한 데이터 속에서 핵심 인사이트를 추출합니다. 의사결정을 지원하는 맞춤형 대시보드와 분석 보고서를 제공합니다.</p>
+      <div class="service-arrow">자세히 보기 →</div>
+    </div>
+    <div class="service-card reveal reveal-delay-2">
+      <div class="service-num">03</div>
+      <div class="service-icon">
+        <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="14"/><path d="M14 20 C14 14 20 10 20 10 C20 10 26 14 26 20 C26 26 20 30 20 30 C20 30 14 26 14 20Z"/><line x1="6" y1="20" x2="34" y2="20"/></svg>
+      </div>
+      <h3 class="service-name">글로벌 전략</h3>
+      <p class="service-text">해외 시장 진출을 위한 전략 수립부터 현지화까지, Prelik의 글로벌 네트워크로 더 넓은 세계로 나아갑니다.</p>
+      <div class="service-arrow">자세히 보기 →</div>
+    </div>
+    <div class="service-card reveal reveal-delay-1">
+      <div class="service-num">04</div>
+      <div class="service-icon">
+        <svg viewBox="0 0 40 40"><rect x="8" y="8" width="24" height="24" rx="2"/><line x1="8" y1="16" x2="32" y2="16"/><line x1="16" y1="8" x2="16" y2="32"/></svg>
+      </div>
+      <h3 class="service-name">맞춤 소프트웨어</h3>
+      <p class="service-text">비즈니스에 특화된 소프트웨어를 개발합니다. 확장 가능하고 유지보수가 용이한 아키텍처로 장기적인 가치를 창출합니다.</p>
+      <div class="service-arrow">자세히 보기 →</div>
+    </div>
+    <div class="service-card reveal reveal-delay-2">
+      <div class="service-num">05</div>
+      <div class="service-icon">
+        <svg viewBox="0 0 40 40"><path d="M20 6 L34 14 L34 26 L20 34 L6 26 L6 14 Z"/><circle cx="20" cy="20" r="6"/></svg>
+      </div>
+      <h3 class="service-name">브랜드 컨설팅</h3>
+      <p class="service-text">브랜드 정체성부터 마케팅 전략까지, 시장에서 돋보이는 브랜드를 만들어드립니다. 일관된 경험으로 고객의 신뢰를 구축합니다.</p>
+      <div class="service-arrow">자세히 보기 →</div>
+    </div>
+    <div class="service-card reveal reveal-delay-3">
+      <div class="service-num">06</div>
+      <div class="service-icon">
+        <svg viewBox="0 0 40 40"><path d="M20 8 C12 8 6 14 6 20 C6 26 12 32 20 32 C28 32 34 26 34 20"/><polyline points="28,8 34,8 34,14"/><line x1="34" y1="8" x2="22" y2="20"/></svg>
+      </div>
+      <h3 class="service-name">조직 혁신</h3>
+      <p class="service-text">변화하는 환경에 적응하는 조직을 만듭니다. 구성원의 역량을 개발하고 협업 문화를 구축하여 지속적인 성장을 지원합니다.</p>
+      <div class="service-arrow">자세히 보기 →</div>
+    </div>
+  </div>
+</section>
+
+<!-- Team -->
+<section id="team">
+  <div class="team-sidebar">
+    <p class="section-label reveal">/ 팀</p>
+    <h2 class="team-title reveal reveal-delay-1">
+      Prelik을<br>이끄는<br><em>사람들</em>
+    </h2>
+    <p class="team-intro reveal reveal-delay-2">
+      각 분야 최고의 전문가들이 하나의 목표를 향해 함께합니다. 다양한 배경과 경험이 만나 새로운 가능성을 만들어냅니다.
+    </p>
+  </div>
+  <div class="team-grid">
+    <div class="team-card reveal">
+      <div class="team-avatar">
+        <div class="avatar-pattern"></div>
+        <div class="avatar-init">KJ</div>
+        <div class="avatar-accent-line"></div>
+      </div>
+      <div class="team-name">김지원</div>
+      <div class="team-role">대표이사 · CEO</div>
+      <p class="team-bio">10년 이상의 전략 컨설팅 경험을 바탕으로 Prelik을 이끌고 있습니다. 기술과 비즈니스의 교차점에서 새로운 가치를 창출합니다.</p>
+    </div>
+    <div class="team-card reveal reveal-delay-1">
+      <div class="team-avatar">
+        <div class="avatar-pattern"></div>
+        <div class="avatar-init">LM</div>
+        <div class="avatar-accent-line"></div>
+      </div>
+      <div class="team-name">이민준</div>
+      <div class="team-role">기술이사 · CTO</div>
+      <p class="team-bio">실리콘밸리 출신 엔지니어로서 최첨단 기술 솔루션을 설계합니다. 확장 가능한 아키텍처와 개발 문화를 책임집니다.</p>
+    </div>
+    <div class="team-card reveal reveal-delay-2">
+      <div class="team-avatar">
+        <div class="avatar-pattern"></div>
+        <div class="avatar-init">PH</div>
+        <div class="avatar-accent-line"></div>
+      </div>
+      <div class="team-name">박혜린</div>
+      <div class="team-role">전략이사 · CSO</div>
+      <p class="team-bio">글로벌 시장에 대한 깊은 이해를 바탕으로 클라이언트의 성장 전략을 수립합니다. 데이터 중심의 의사결정을 중시합니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section id="contact">
+  <div class="contact-inner">
+    <div class="contact-left">
+      <p class="section-label reveal">/ 연락처</p>
+      <h2 class="contact-title reveal reveal-delay-1">
+        함께<br><em>시작</em><br>합시다
+      </h2>
+      <p class="about-text reveal reveal-delay-2">
+        새로운 프로젝트나 협업 기회에 대해 논의하고 싶으신가요? 언제든지 연락 주세요.
+      </p>
+      <div class="contact-info reveal reveal-delay-3">
+        <div class="contact-item">
+          <span class="contact-item-label">이메일</span>
+          <span class="contact-item-val">hello@prelik.co.kr</span>
+        </div>
+        <div class="contact-item">
+          <span class="contact-item-label">전화</span>
+          <span class="contact-item-val">02-1234-5678</span>
+        </div>
+        <div class="contact-item">
+          <span class="contact-item-label">주소</span>
+          <span class="contact-item-val">서울특별시 강남구<br>테헤란로 427, 8층</span>
+        </div>
+        <div class="contact-item">
+          <span class="contact-item-label">운영시간</span>
+          <span class="contact-item-val">월 – 금, 09:00 – 18:00</span>
+        </div>
+      </div>
+    </div>
+    <div class="contact-form reveal reveal-delay-2">
+      <form onsubmit="handleSubmit(event)">
+        <div class="form-group">
+          <label>성함</label>
+          <input type="text" placeholder="홍길동" required>
+        </div>
+        <div class="form-group">
+          <label>이메일</label>
+          <input type="email" placeholder="you@company.com" required>
+        </div>
+        <div class="form-group">
+          <label>회사명</label>
+          <input type="text" placeholder="회사 이름">
+        </div>
+        <div class="form-group">
+          <label>문의 내용</label>
+          <textarea placeholder="프로젝트 또는 협업에 대해 간략히 소개해 주세요." required></textarea>
+        </div>
+        <button type="submit" class="btn-submit">
+          <span>보내기</span>
+          <span class="arrow">→</span>
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <a href="#hero" class="footer-logo">Pre<span>lik</span></a>
+  <p class="footer-copy">© 2025 Prelik. All rights reserved.</p>
+  <ul class="footer-links">
+    <li><a href="#">개인정보처리방침</a></li>
+    <li><a href="#">이용약관</a></li>
+    <li><a href="#">채용</a></li>
+  </ul>
+</footer>
+
+<script>
+  /* Custom Cursor */
+  const cursor = document.getElementById('cursor');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top  = e.clientY + 'px';
+  });
+  document.querySelectorAll('a, button, input, textarea, .service-card, .team-card').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+  });
+
+  /* Intersection Observer — reveal */
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  /* Count-up animation */
+  const countObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        animateCount(e.target);
+        countObserver.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('.count-up').forEach(el => countObserver.observe(el));
+
+  function animateCount(el) {
+    const target = parseInt(el.dataset.target);
+    const dur    = 1800;
+    const start  = performance.now();
+    function step(now) {
+      const p = Math.min((now - start) / dur, 1);
+      const eased = 1 - Math.pow(1 - p, 4);
+      el.textContent = Math.floor(eased * target);
+      if (p < 1) requestAnimationFrame(step);
+      else el.textContent = target;
+    }
+    requestAnimationFrame(step);
+  }
+
+  /* Form submit */
+  function handleSubmit(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('.btn-submit');
+    btn.querySelector('span:first-child').textContent = '전송 완료 ✓';
+    btn.style.background = 'var(--accent)';
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.querySelector('span:first-child').textContent = '보내기';
+      btn.style.background = '';
+      btn.disabled = false;
+      e.target.reset();
+    }, 3000);
+  }
+
+  /* Nav background on scroll */
+  window.addEventListener('scroll', () => {
+    const nav = document.querySelector('nav');
+    if (window.scrollY > 80) {
+      nav.style.background = 'rgba(255,255,255,0.92)';
+      nav.style.backdropFilter = 'blur(12px)';
+      nav.style.mixBlendMode = 'normal';
+    } else {
+      nav.style.background = '';
+      nav.style.backdropFilter = '';
+      nav.style.mixBlendMode = 'multiply';
+    }
+  });
+</script>
+</body>
+</html>

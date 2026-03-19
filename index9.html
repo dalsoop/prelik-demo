@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VeilKey — The Vault Between You and Exposure</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=General+Sans:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Martian+Mono:wght@400;500;600&display=swap');
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --fg:#111;
+  --fg2:#444;
+  --fg3:#888;
+  --fg4:#bbb;
+  --fg5:#ddd;
+  --fg6:#eee;
+  --bg:#fff;
+  --off:#f6f6f4;
+  --paper:#faf9f7;
+  --black:#111;
+  --safe:#0f766e;
+  --safe-bg:rgba(15,118,110,0.05);
+  --safe-line:rgba(15,118,110,0.2);
+  --danger:#dc2626;
+  --danger-bg:rgba(220,38,38,0.05);
+  --accent:#111;
+  --display:'Lora',Georgia,serif;
+  --sans:'General Sans',system-ui,sans-serif;
+  --code:'Martian Mono',monospace;
+}
+
+html{scroll-behavior:smooth;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;-webkit-font-smoothing:antialiased}
+body{overflow-x:hidden}
+::selection{background:var(--black);color:white}
+a{color:inherit;text-decoration:none}
+
+.w{max-width:1060px;margin:0 auto;padding:0 clamp(1.5rem,4vw,3rem)}
+
+/* ═══ NAV ═══ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:300;
+  background:rgba(255,255,255,0.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid transparent;transition:border-color 0.3s;
+}
+nav.s{border-bottom-color:var(--fg6)}
+.ni{max-width:1060px;margin:0 auto;padding:0 clamp(1.5rem,4vw,3rem);display:flex;align-items:center;justify-content:space-between;height:54px}
+.logo{font-weight:700;font-size:0.88rem;letter-spacing:-0.01em;display:flex;align-items:center;gap:0.55rem}
+.logo-line{width:18px;height:2px;background:var(--black)}
+.nk{display:flex;align-items:center;gap:2rem}
+.nk a{font-size:0.8rem;color:var(--fg3);font-weight:500;transition:color 0.15s}
+.nk a:hover{color:var(--fg)}
+.nk .nc{font-size:0.8rem;font-weight:600;padding:0.4rem 1.1rem;background:var(--black);color:white;border-radius:6px;transition:all 0.2s}
+.nk .nc:hover{background:#333;transform:translateY(-1px)}
+
+/* ═══ HERO — NEWSPAPER STYLE ═══ */
+.hero{padding:9rem 0 3rem;border-bottom:2px solid var(--black)}
+
+.hero-date{
+  font-family:var(--code);font-size:0.58rem;letter-spacing:0.15em;
+  text-transform:uppercase;color:var(--fg3);margin-bottom:0.6rem;
+}
+
+.hero-headline{
+  font-family:var(--display);
+  font-size:clamp(3rem,7vw,5.5rem);
+  font-weight:400;line-height:1.02;
+  letter-spacing:-0.02em;
+  border-bottom:1px solid var(--fg5);
+  padding-bottom:2rem;margin-bottom:2rem;
+}
+.hero-headline em{font-style:italic}
+
+.hero-columns{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:2.5rem;
+}
+
+.hero-col-text{
+  font-size:1.05rem;color:var(--fg2);line-height:1.85;
+  font-weight:400;
+}
+.hero-col-text .drop-cap{
+  font-family:var(--display);font-size:3.5rem;
+  float:left;line-height:0.8;margin-right:0.15rem;
+  margin-top:0.1rem;font-weight:500;
+}
+
+.hero-col-right{display:flex;flex-direction:column;gap:1.5rem}
+
+.hero-actions{display:flex;gap:0.6rem;flex-wrap:wrap}
+.btn{
+  font-family:var(--sans);font-size:0.85rem;font-weight:600;
+  padding:0.7rem 1.6rem;border:none;cursor:pointer;
+  display:inline-flex;align-items:center;gap:0.4rem;
+  transition:all 0.2s;border-radius:6px;
+}
+.btn-black{background:var(--black);color:white}
+.btn-black:hover{background:#333;transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.1)}
+.btn-border{background:transparent;border:1.5px solid var(--fg5);color:var(--fg2)}
+.btn-border:hover{border-color:var(--fg4);background:var(--off)}
+
+.hero-stats{
+  display:flex;gap:2rem;
+  padding-top:1.5rem;border-top:1px solid var(--fg6);
+}
+.hero-stat .hs-num{
+  font-family:var(--display);font-size:1.6rem;font-style:italic;
+  line-height:1;
+}
+.hero-stat .hs-label{font-size:0.68rem;color:var(--fg3);margin-top:0.15rem}
+
+/* ═══ THE REDACTION — newspaper clipping style ═══ */
+.redaction-section{padding:5rem 0;border-bottom:1px solid var(--fg6)}
+
+.redaction-header{
+  text-align:center;margin-bottom:3rem;
+}
+.redaction-header .rh-sub{
+  font-family:var(--code);font-size:0.58rem;letter-spacing:0.18em;
+  text-transform:uppercase;color:var(--fg3);margin-bottom:0.5rem;
+}
+.redaction-header h2{
+  font-family:var(--display);font-size:clamp(1.6rem,3vw,2.2rem);
+  font-weight:400;
+}
+.redaction-header h2 em{font-style:italic}
+
+.redaction-stage{
+  max-width:700px;margin:0 auto;
+  border:1px solid var(--fg5);
+  background:var(--bg);
+  position:relative;
+}
+
+/* Classified stamp */
+.stamp{
+  position:absolute;top:1.5rem;right:1.5rem;
+  font-family:var(--sans);font-size:0.65rem;font-weight:800;
+  letter-spacing:0.15em;text-transform:uppercase;
+  padding:0.3rem 0.8rem;
+  border:2px solid;border-radius:3px;
+  transform:rotate(3deg);
+  z-index:5;
+  transition:all 0.5s;
+}
+.stamp.exposed{color:var(--danger);border-color:var(--danger);background:var(--danger-bg)}
+.stamp.sealed{color:var(--safe);border-color:var(--safe);background:var(--safe-bg)}
+
+.redaction-body{
+  padding:2rem 2.5rem;
+  font-family:var(--code);font-size:0.8rem;line-height:2.4;
+}
+
+.rd-line{display:flex;align-items:baseline;margin:0.1rem 0}
+.rd-key{color:var(--fg3);white-space:nowrap}
+.rd-eq{color:var(--fg5);margin:0 0.15rem}
+
+.rd-val{
+  position:relative;display:inline;
+  transition:all 0.35s;
+}
+.rd-val.exposed{color:var(--danger)}
+
+/* The redaction bar effect */
+.rd-val.redacting{
+  background:var(--black);color:var(--black);
+  padding:0.05rem 0.2rem;margin:0 -0.2rem;
+  border-radius:2px;
+}
+
+.rd-val.sealed{
+  color:var(--safe);font-weight:500;
+  background:transparent;padding:0;margin:0;
+}
+
+.rd-val.sealed::before{
+  content:'';position:absolute;left:-4px;right:-4px;top:-1px;bottom:-1px;
+  background:var(--safe-bg);border-radius:3px;z-index:-1;
+}
+
+.redaction-footer{
+  padding:0.8rem 2.5rem;
+  border-top:1px solid var(--fg6);
+  display:flex;align-items:center;justify-content:space-between;
+  font-family:var(--code);font-size:0.65rem;color:var(--fg4);
+}
+.redaction-footer button{
+  background:none;border:1px solid var(--fg6);font-family:var(--code);
+  font-size:0.6rem;color:var(--fg4);padding:0.15rem 0.5rem;
+  border-radius:3px;cursor:pointer;transition:all 0.15s;
+}
+.redaction-footer button:hover{border-color:var(--fg4);color:var(--fg2)}
+
+/* ═══ EDITORIAL GRID ═══ */
+.editorial-section{
+  padding:5rem 0;border-bottom:1px solid var(--fg6);
+}
+
+.editorial-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:0;
+  border:1px solid var(--fg5);
+}
+.eg-cell{
+  padding:2.5rem;
+  border-bottom:1px solid var(--fg6);
+  border-right:1px solid var(--fg6);
+  transition:background 0.2s;
+}
+.eg-cell:nth-child(2n){border-right:none}
+.eg-cell:nth-last-child(-n+2){border-bottom:none}
+.eg-cell:hover{background:var(--off)}
+
+.eg-cell .eg-num{
+  font-family:var(--display);font-size:2.5rem;font-style:italic;
+  color:var(--fg6);line-height:1;margin-bottom:0.8rem;
+}
+.eg-cell:hover .eg-num{color:var(--fg5)}
+.eg-cell h3{font-size:0.95rem;font-weight:700;margin-bottom:0.4rem}
+.eg-cell p{font-size:0.88rem;color:var(--fg2);line-height:1.7}
+.eg-cell .eg-cmd{
+  margin-top:0.6rem;display:inline-block;
+  font-family:var(--code);font-size:0.68rem;
+  color:var(--fg3);
+  padding:0.2rem 0.6rem;background:var(--off);
+  border-radius:3px;
+}
+
+/* ═══ ARCHITECTURE — TYPOGRAPHIC ═══ */
+.arch-section{padding:5rem 0;border-bottom:1px solid var(--fg6);background:var(--off)}
+
+.arch-columns{
+  margin-top:3rem;
+  display:grid;grid-template-columns:1fr 1fr 1fr 1fr;
+  gap:0;
+  border-top:2px solid var(--black);
+  border-bottom:1px solid var(--fg5);
+}
+.arch-col{
+  padding:1.8rem 1.5rem;
+  border-right:1px solid var(--fg6);
+}
+.arch-col:last-child{border-right:none}
+
+.arch-col .ac-label{
+  font-family:var(--code);font-size:0.55rem;font-weight:600;
+  letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--fg3);margin-bottom:0.4rem;
+}
+.arch-col h4{
+  font-family:var(--display);font-size:1.2rem;font-weight:500;
+  margin-bottom:0.15rem;
+}
+.arch-col .ac-port{
+  font-family:var(--code);font-size:0.68rem;color:var(--fg4);
+  margin-bottom:0.8rem;
+}
+.arch-col p{font-size:0.82rem;color:var(--fg2);line-height:1.65}
+
+/* Key hierarchy — horizontal newspaper ruler */
+.key-ruler{
+  margin-top:2rem;
+  display:flex;
+  border:1px solid var(--fg5);
+}
+.kr-cell{
+  flex:1;padding:1.2rem 1.5rem;
+  border-right:1px solid var(--fg6);
+  position:relative;
+}
+.kr-cell:last-child{border-right:none}
+.kr-cell::after{
+  content:'→';position:absolute;right:-7px;top:50%;transform:translateY(-50%);
+  font-size:0.8rem;color:var(--fg5);background:var(--off);padding:0.1rem 0;z-index:1;
+}
+.kr-cell:last-child::after{display:none}
+
+.kr-cell .kr-name{
+  font-family:var(--code);font-size:0.65rem;font-weight:600;
+  letter-spacing:0.08em;color:var(--fg2);margin-bottom:0.2rem;
+}
+.kr-cell .kr-desc{font-size:0.78rem;color:var(--fg3);line-height:1.5}
+.kr-cell .kr-algo{font-family:var(--code);font-size:0.6rem;color:var(--fg4);margin-top:0.3rem}
+
+/* ═══ AI — DEPOSITION STYLE ═══ */
+.deposition-section{padding:5rem 0;border-bottom:1px solid var(--fg6)}
+
+.depo-layout{
+  margin-top:3rem;
+  display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start;
+}
+
+.depo-transcript{
+  border:1px solid var(--fg5);
+  background:var(--bg);
+  padding:2rem;
+  position:relative;
+}
+.depo-transcript::before{
+  content:'TRANSCRIPT';position:absolute;top:-0.5em;left:1.5rem;
+  font-family:var(--code);font-size:0.55rem;font-weight:600;
+  letter-spacing:0.15em;color:var(--fg4);
+  background:var(--bg);padding:0 0.5rem;
+}
+
+.depo-line{
+  display:grid;grid-template-columns:60px 1fr;gap:0.8rem;
+  padding:0.8rem 0;border-bottom:1px solid var(--fg6);
+  font-size:0.88rem;line-height:1.65;
+}
+.depo-line:last-child{border-bottom:none}
+.depo-who{
+  font-family:var(--code);font-size:0.62rem;font-weight:600;
+  letter-spacing:0.06em;text-transform:uppercase;
+  color:var(--fg3);padding-top:0.15rem;
+}
+.depo-what{color:var(--fg2)}
+.depo-what code{
+  font-family:var(--code);font-size:0.78rem;
+  background:var(--safe-bg);color:var(--safe);
+  padding:0.05rem 0.35rem;border-radius:3px;
+}
+
+.depo-text .dt-ey{
+  font-family:var(--code);font-size:0.58rem;font-weight:600;
+  letter-spacing:0.15em;text-transform:uppercase;
+  color:var(--fg3);margin-bottom:0.5rem;
+}
+.depo-text h2{
+  font-family:var(--display);font-size:clamp(1.6rem,2.5vw,2rem);
+  font-weight:400;line-height:1.25;margin-bottom:1rem;
+}
+.depo-text h2 em{font-style:italic}
+.depo-text>p{font-size:0.95rem;color:var(--fg2);line-height:1.8}
+.depo-text ul{
+  list-style:none;margin-top:1rem;display:flex;flex-direction:column;gap:0.4rem;
+}
+.depo-text li{
+  font-size:0.88rem;color:var(--fg2);line-height:1.55;
+  padding-left:1rem;position:relative;
+}
+.depo-text li::before{
+  content:'—';position:absolute;left:0;color:var(--fg4);
+}
+
+/* ═══ INSTALL ═══ */
+.install-section{
+  padding:5rem 0;background:var(--black);color:white;
+}
+.install-section .dt-ey{color:rgba(255,255,255,0.3)}
+.install-section h2{font-family:var(--display);font-size:clamp(1.6rem,3vw,2rem);font-weight:400;color:white;line-height:1.2}
+.install-section h2 em{font-style:italic}
+
+.install-block{
+  margin-top:2rem;max-width:560px;
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;overflow:hidden;
+}
+.ibb{padding:0.5rem 1rem;display:flex;align-items:center;gap:0.4rem;border-bottom:1px solid rgba(255,255,255,0.06)}
+.ibb .d{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.1)}
+.ibb span{margin-left:auto;font-family:var(--code);font-size:0.58rem;color:rgba(255,255,255,0.2)}
+.ibx{padding:1.3rem 1.5rem;font-family:var(--code);font-size:0.76rem;line-height:2.2;color:rgba(255,255,255,0.4)}
+.ibx .p{color:rgba(255,255,255,0.15)}
+.ibx .c{color:rgba(255,255,255,0.8)}
+.ibx .f{color:#93c5fd}
+.ibx .g{color:#86efac}
+.ibx .dm{color:rgba(255,255,255,0.15)}
+
+/* ═══ CTA ═══ */
+.cta-section{
+  padding:7rem 0;text-align:center;
+  border-bottom:2px solid var(--black);
+}
+.cta-section h2{
+  font-family:var(--display);font-size:clamp(2rem,5vw,3.5rem);
+  font-weight:400;line-height:1.05;margin-bottom:1rem;
+}
+.cta-section h2 em{font-style:italic}
+.cta-section>p{color:var(--fg3);max-width:400px;margin:0 auto 2.5rem;font-size:1rem;line-height:1.8}
+.cta-btns{display:flex;justify-content:center;gap:0.6rem;flex-wrap:wrap}
+.cta-meta{margin-top:3rem;display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap}
+.cta-meta span{font-size:0.75rem;color:var(--fg4)}
+
+footer{padding:1.5rem 0}
+.ft{display:flex;justify-content:space-between;align-items:center;font-size:0.75rem;color:var(--fg4)}
+.ft a{color:var(--fg3);transition:color 0.15s}
+.ft a:hover{color:var(--fg)}
+
+/* ═══ ANIM ═══ */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+.rv{opacity:0;transform:translateY(16px);transition:opacity 0.55s ease,transform 0.55s ease}
+.rv.vis{opacity:1;transform:translateY(0)}
+
+@media(max-width:900px){
+  .hero-columns{grid-template-columns:1fr}
+  .editorial-grid{grid-template-columns:1fr}
+  .eg-cell{border-right:none!important}
+  .arch-columns{grid-template-columns:1fr 1fr}
+  .arch-col{border-bottom:1px solid var(--fg6)}
+  .depo-layout{grid-template-columns:1fr}
+  .nk a:not(.nc){display:none}
+  .hero-stats{gap:1.5rem}
+  .key-ruler{flex-direction:column}
+  .kr-cell{border-right:none;border-bottom:1px solid var(--fg6)}
+  .kr-cell:last-child{border-bottom:none}
+  .kr-cell::after{display:none}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav"><div class="ni">
+  <a href="#" class="logo"><span class="logo-line"></span>VeilKey</a>
+  <div class="nk">
+    <a href="#how">How</a>
+    <a href="#arch">Architecture</a>
+    <a href="#ai">AI</a>
+    <a href="https://github.com/veilkey/veilkey-selfhosted" class="nc">GitHub →</a>
+  </div>
+</div></nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="w">
+    <div class="hero-date">Volume I · Issue 1 · Open Source · AGPL-3.0</div>
+    <h1 class="hero-headline">
+      <em>Plaintext secrets</em> are the vulnerability you forgot to patch.
+    </h1>
+    <div class="hero-columns">
+      <div class="hero-col-text">
+        <span class="drop-cap">V</span>eilKey intercepts every secret at the moment of creation and replaces it with an encrypted, scoped reference. The original plaintext is destroyed. What remains — <em style="font-family:var(--code);font-size:0.88em;color:var(--safe)">VK:LOCAL:a1b2c3d4</em> — is visible, auditable, and permanently unreadable without the key hierarchy.
+      </div>
+      <div class="hero-col-right">
+        <div class="hero-actions">
+          <a href="https://github.com/veilkey/veilkey-selfhosted" class="btn btn-black">Get Started →</a>
+          <a href="https://github.com/veilkey/veilkey-selfhosted/blob/main/docs/architecture.md" class="btn btn-border">Read Docs</a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="hs-num">222+</div><div class="hs-label">Detection patterns</div></div>
+          <div class="hero-stat"><div class="hs-num">AES-256</div><div class="hs-label">Encryption</div></div>
+          <div class="hero-stat"><div class="hs-num">0</div><div class="hs-label">Plaintext at rest</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ REDACTION ═══ -->
+<section class="redaction-section">
+  <div class="w">
+    <div class="redaction-header rv">
+      <div class="rh-sub">Live Demo</div>
+      <h2>Watch secrets get <em>redacted</em> in real time</h2>
+    </div>
+    <div class="redaction-stage rv" id="redStage">
+      <div class="stamp exposed" id="stamp">EXPOSED</div>
+      <div class="redaction-body" id="redBody"></div>
+      <div class="redaction-footer">
+        <span id="redStatus">ready</span>
+        <button id="redReplay">↻ replay</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ WORKFLOW ═══ -->
+<section id="how" class="editorial-section">
+  <div class="w">
+    <div style="text-align:center;margin-bottom:3rem" class="rv">
+      <div style="font-family:var(--code);font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--fg3);margin-bottom:0.5rem">Workflow</div>
+      <h2 style="font-family:var(--display);font-size:clamp(1.6rem,3vw,2.2rem);font-weight:400">Four operations. Zero <em style="font-style:italic">plaintext.</em></h2>
+    </div>
+    <div class="editorial-grid rv">
+      <div class="eg-cell"><div class="eg-num">01</div><h3>Scan</h3><p>222+ patterns detect AWS keys, GitHub tokens, private keys, JWTs, database URLs. Runs fully offline.</p><span class="eg-cmd">vk scan .env</span></div>
+      <div class="eg-cell"><div class="eg-num">02</div><h3>Filter</h3><p>Replace every detected secret with an AES-256-GCM encrypted VK: reference. Plaintext destroyed.</p><span class="eg-cmd">vk filter .env</span></div>
+      <div class="eg-cell"><div class="eg-num">03</div><h3>Wrap</h3><p>Execute commands with output masking. If a secret leaks to stdout, it's caught and replaced.</p><span class="eg-cmd">vk wrap ./deploy.sh</span></div>
+      <div class="eg-cell"><div class="eg-num">04</div><h3>Exec</h3><p>Resolve VK: tokens at runtime. Decrypted in process memory only — never disk, never env vars.</p><span class="eg-cmd">vk exec ./app</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ ARCHITECTURE ═══ -->
+<section id="arch" class="arch-section">
+  <div class="w">
+    <div class="rv">
+      <div style="font-family:var(--code);font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--fg3);margin-bottom:0.5rem">Architecture</div>
+      <h2 style="font-family:var(--display);font-size:clamp(1.6rem,3vw,2.2rem);font-weight:400">Hub-and-spoke. Every node <em style="font-style:italic">isolated.</em></h2>
+    </div>
+    <div class="arch-columns rv">
+      <div class="arch-col"><div class="ac-label">Control Plane</div><h4>KeyCenter</h4><div class="ac-port">:10181</div><p>Node identity, DEK lifecycle, rotation policy, secret registry. Single instance.</p></div>
+      <div class="arch-col"><div class="ac-label">Node Agent</div><h4>LocalVault</h4><div class="ac-port">:10180</div><p>Stores ciphertext only. Heartbeats every 5m. Cannot decrypt without KeyCenter.</p></div>
+      <div class="arch-col"><div class="ac-label">Enforcement</div><h4>Proxy</h4><div class="ac-port">:18080</div><p>Intercepts outbound HTTP. Blocks plaintext leaks. Shell hooks block curl/wget.</p></div>
+      <div class="arch-col"><div class="ac-label">Operator</div><h4>CLI</h4><div class="ac-port">&nbsp;</div><p>scan, filter, wrap, exec, resolve. PTY wrapping with automatic secret masking.</p></div>
+    </div>
+
+    <div class="key-ruler rv">
+      <div class="kr-cell"><div class="kr-name">KEK</div><div class="kr-desc">From password. Never stored.</div><div class="kr-algo">scrypt</div></div>
+      <div class="kr-cell"><div class="kr-name">DEK</div><div class="kr-desc">256-bit random. Encrypted with KEK.</div><div class="kr-algo">AES-256-GCM</div></div>
+      <div class="kr-cell"><div class="kr-name">Ciphertext</div><div class="kr-desc">Per-secret unique nonce. Referenced as VK:*</div><div class="kr-algo">VK:{SCOPE}:{REF}</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ AI DEPOSITION ═══ -->
+<section id="ai" class="deposition-section">
+  <div class="w">
+    <div class="depo-layout rv">
+      <div class="depo-transcript">
+        <div class="depo-line"><div class="depo-who">Human</div><div class="depo-what">Deploy the service. Config is in .env.production.</div></div>
+        <div class="depo-line"><div class="depo-who">Agent</div><div class="depo-what">Config loaded. I see <code>VK:LOCAL:db01</code> and <code>VK:LOCAL:st4c</code>. Running <code>vk exec deploy.sh</code>. Secrets resolve at runtime — I don't need real values.</div></div>
+        <div class="depo-line"><div class="depo-who">Human</div><div class="depo-what">Did the deploy succeed?</div></div>
+        <div class="depo-line"><div class="depo-who">Agent</div><div class="depo-what">Deploy complete. 2 refs resolved. App running with real credentials. I only handled references throughout.</div></div>
+      </div>
+      <div class="depo-text">
+        <div class="dt-ey">AI Safety</div>
+        <h2>The agent never touches <em>real credentials.</em></h2>
+        <p>AI agents work with VK: references. Real secrets exist only in process memory at exec time.</p>
+        <ul>
+          <li>AI reads VK:LOCAL:xxxx — works normally</li>
+          <li>Real secret injected at exec, never on disk</li>
+          <li>Zero exposure in chat, logs, or git</li>
+          <li>No workflow changes required</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ INSTALL ═══ -->
+<section class="install-section">
+  <div class="w rv">
+    <div class="dt-ey">Quick Start</div>
+    <h2>Sealed in <em>five minutes.</em></h2>
+    <div class="install-block">
+      <div class="ibb"><span class="d"></span><span class="d"></span><span class="d"></span><span>macOS</span></div>
+      <div class="ibx">
+<span class="p">$</span> <span class="c">git clone</span> <span class="f">https://github.com/veilkey/veilkey-selfhosted.git</span>
+<span class="p">$</span> <span class="c">cd</span> veilkey-selfhosted
+<span class="p">$</span> <span class="c">./installer/scripts/install-mac.sh</span> <span class="f">install</span>
+<span class="dm">  [OK] Go · 5 binaries · KeyCenter · LocalVault</span>
+<span class="p">$</span> <span class="c">./installer/scripts/install-mac.sh</span> <span class="f">start</span>
+<span class="g">  ✓ KeyCenter :10181 · LocalVault :10180</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ═══ -->
+<section class="cta-section">
+  <div class="w rv">
+    <h2>This is the last time<br>you see a secret <em>in the clear.</em></h2>
+    <p>One command. Every secret encrypted before it hits disk.</p>
+    <div class="cta-btns">
+      <a href="https://github.com/veilkey/veilkey-selfhosted" class="btn btn-black">View on GitHub →</a>
+      <a href="https://github.com/veilkey/veilkey-selfhosted/blob/main/docs/installation.md" class="btn btn-border">Install Guide</a>
+    </div>
+    <div class="cta-meta"><span>AGPL-3.0</span><span>Go + SQLite</span><span>AES-256-GCM</span><span>macOS + Linux</span></div>
+  </div>
+</section>
+
+<footer><div class="w"><div class="ft"><span>VeilKey</span><a href="https://github.com/veilkey/veilkey-selfhosted">github.com/veilkey</a></div></div></footer>
+
+<script>
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('s',scrollY>30));
+
+// ═══ REDACTION ANIMATION ═══
+const secrets=[
+  {k:'DATABASE_URL',d:'postgres://admin:s3cret@db:5432',s:'VK:LOCAL:db01a2b3'},
+  {k:'AWS_SECRET',d:'wJalrXUtnFEMI/K7MDENG',s:'VK:LOCAL:aws4c5d6'},
+  {k:'GITHUB_TOKEN',d:'ghp_abc123def456ghi789',s:'VK:LOCAL:gh7e8f9a'},
+  {k:'STRIPE_SK',d:'sk_live_51HG8axYzKlMnOp',s:'VK:LOCAL:st0b1c2d'},
+  {k:'JWT_SECRET',d:'super-secret-jwt-2024!',s:'VK:LOCAL:jw3e4f5a'},
+  {k:'REDIS_URL',d:'redis://:p4ssw0rd@cache:6379',s:'VK:LOCAL:rd6g7h8i'},
+];
+
+const sl=ms=>new Promise(r=>setTimeout(r,ms));
+
+async function playRedaction(){
+  const body=document.getElementById('redBody');
+  const stamp=document.getElementById('stamp');
+  const status=document.getElementById('redStatus');
+
+  body.innerHTML='';
+  stamp.className='stamp exposed';stamp.textContent='EXPOSED';
+  status.textContent='ready';
+
+  await sl(400);
+
+  // Build lines
+  for(let i=0;i<secrets.length;i++){
+    const line=document.createElement('div');line.className='rd-line';
+    line.innerHTML=`<span class="rd-key">${secrets[i].k}</span><span class="rd-eq">=</span><span class="rd-val exposed" id="rv-${i}">${secrets[i].d}</span>`;
+    line.style.animation=`fadeIn 0.2s ease ${i*50}ms both`;
+    body.appendChild(line);
+    await sl(100);
+  }
+
+  status.textContent=`${secrets.length} secrets exposed`;
+  await sl(1200);
+
+  // REDACT — black bar then reveal sealed
+  status.textContent='redacting...';
+
+  for(let i=0;i<secrets.length;i++){
+    const val=document.getElementById('rv-'+i);
+
+    // Phase 1: black bar
+    val.classList.remove('exposed');
+    val.classList.add('redacting');
+    val.textContent='█'.repeat(secrets[i].d.length > 20 ? 20 : secrets[i].d.length);
+    await sl(250);
+
+    // Phase 2: reveal sealed
+    val.classList.remove('redacting');
+    val.classList.add('sealed');
+    val.textContent=secrets[i].s;
+    await sl(200);
+  }
+
+  stamp.className='stamp sealed';stamp.textContent='SEALED';
+  status.textContent=`✓ ${secrets.length} secrets redacted and sealed`;
+
+  await sl(5000);
+  playRedaction();
+}
+
+document.getElementById('redReplay').addEventListener('click',playRedaction);
+setTimeout(playRedaction,700);
+
+// ═══ REVEAL ═══
+const obs=new IntersectionObserver(es=>{
+  es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis')});
+},{threshold:0.06,rootMargin:'0px 0px -20px 0px'});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+</script>
+
+</body>
+</html>

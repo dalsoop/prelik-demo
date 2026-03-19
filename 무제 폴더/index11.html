@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dalforge — DAL = CLI + SKILL + HOOK + PLAYER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Noto+Sans+KR:wght@300;400;500;700;900&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --k:    #070705;
+  --k2:   #111110;
+  --k3:   #1c1c1a;
+  --k4:   #2e2e2a;
+  --k5:   #464640;
+  --w:    #f0ece4;
+  --w2:   #c8c4bc;
+  --w3:   #888480;
+  --lime: #cbff00;
+  --lime2:#e4ff66;
+  --lime3:#f4ffa0;
+  --limed:#0e1200;
+  --f-d: 'Anton', sans-serif;
+  --f-k: 'Noto Sans KR', sans-serif;
+  --f-m: 'Fira Code', monospace;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--k); color: var(--w); font-family: var(--f-k); font-size: 14px; line-height: 1.65; overflow-x: hidden; }
+::selection { background: var(--lime); color: var(--k); }
+a { text-decoration: none; color: inherit; }
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-thumb { background: var(--lime); }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+  height: 52px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px; border-bottom: 1px solid var(--k4);
+  background: rgba(7,7,5,.96); backdrop-filter: blur(16px);
+}
+.n-logo { font-family: var(--f-m); font-weight: 500; font-size: 14px; letter-spacing: .04em; color: var(--w); }
+.n-logo em { color: var(--lime); font-style: normal; }
+.n-links { display: flex; align-items: center; gap: 28px; }
+.n-link { font-family: var(--f-m); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--w3); transition: color .15s; }
+.n-link:hover { color: var(--lime); }
+.n-btn { font-family: var(--f-m); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; padding: 7px 18px; border: 1px solid var(--lime); color: var(--lime); transition: background .15s; }
+.n-btn:hover { background: rgba(203,255,0,.1); }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh; padding-top: 52px;
+  display: flex; flex-direction: column;
+  overflow: hidden; position: relative;
+}
+.hero-eq {
+  flex: 1; display: flex; flex-direction: column; justify-content: center;
+  padding: 60px 48px 0;
+}
+.eq-row {
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 16px;
+  line-height: .88;
+}
+.eq-row + .eq-row { margin-top: 8px; }
+.eq-term {
+  font-family: var(--f-d);
+  font-size: clamp(64px, 11vw, 156px);
+  letter-spacing: .01em; text-transform: uppercase;
+  color: var(--w);
+  transition: color .15s;
+}
+.eq-term:hover { color: var(--lime); cursor: default; }
+.eq-term.lime { color: var(--lime); }
+.eq-op {
+  font-family: var(--f-d);
+  font-size: clamp(40px, 6vw, 88px);
+  color: var(--k5); letter-spacing: .02em;
+}
+.eq-dot { color: var(--k5); margin: 0 4px; }
+
+.hero-sub-row {
+  padding: 28px 48px 0;
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px;
+  background: var(--k4);
+  border-top: 1px solid var(--k4);
+  margin-top: 32px;
+}
+.hsub { background: var(--k2); padding: 20px 24px; }
+.hsub-label { font-family: var(--f-m); font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--lime); margin-bottom: 6px; }
+.hsub-val { font-size: 13px; color: var(--w2); line-height: 1.7; }
+
+.hero-ticker {
+  border-top: 1px solid var(--k4); overflow: hidden;
+  background: var(--k2); padding: 0; margin-top: 0;
+}
+.ticker-inner { display: flex; white-space: nowrap; animation: ts 26s linear infinite; padding: 12px 0; }
+.ti { display: inline-flex; align-items: center; gap: 8px; padding: 0 28px; font-family: var(--f-m); font-size: 10px; color: var(--k5); border-right: 1px solid var(--k4); }
+.ti-d { width: 5px; height: 5px; border-radius: 50%; }
+.ti-d.on { background: var(--lime); box-shadow: 0 0 5px var(--lime); }
+.ti-d.idle { background: var(--k5); }
+.ti-d.off  { background: #f87171; }
+.ti-n { color: var(--w2); } .ti-a { color: var(--lime2); }
+@keyframes ts { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+/* ── COMPONENT SECTIONS ── */
+.comp-sec {
+  border-top: 3px solid var(--k4);
+  display: grid; grid-template-columns: 320px 1fr;
+  min-height: 420px;
+}
+.comp-left {
+  padding: 60px 48px;
+  border-right: 1px solid var(--k4);
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.comp-right { padding: 60px 48px; display: flex; flex-direction: column; justify-content: space-between; }
+
+/* CLI */
+.sec-cli  .comp-left { background: var(--limed); }
+.sec-cli  .comp-letter { color: var(--lime); }
+/* SKILL */
+.sec-skill .comp-left { background: #0a0c0e; }
+.sec-skill .comp-letter { color: #60a5fa; }
+/* HOOK */
+.sec-hook .comp-left { background: #0c0a12; }
+.sec-hook .comp-letter { color: #a78bfa; }
+/* PLAYER */
+.sec-player .comp-left { background: #060e0a; }
+.sec-player .comp-letter { color: #4ade80; }
+
+.comp-letter {
+  font-family: var(--f-d);
+  font-size: clamp(100px, 16vw, 220px);
+  line-height: .88; letter-spacing: .02em; text-transform: uppercase;
+}
+.comp-id {
+  font-family: var(--f-m); font-size: 10px; color: var(--k5);
+  margin-top: 12px; letter-spacing: .06em;
+}
+.comp-title { font-size: clamp(24px, 3vw, 40px); font-weight: 900; margin-bottom: 16px; line-height: 1.1; }
+.comp-body { font-size: 14px; color: var(--w2); line-height: 1.9; max-width: 520px; }
+.comp-bottom { }
+.comp-cue {
+  font-family: var(--f-m); font-size: 11px; line-height: 1.85;
+  color: var(--w3); padding: 16px 20px; background: var(--k2);
+  border-left: 3px solid;
+}
+.sec-cli  .comp-cue { border-color: var(--lime); }
+.sec-skill .comp-cue { border-color: #60a5fa; }
+.sec-hook  .comp-cue { border-color: #a78bfa; }
+.sec-player .comp-cue { border-color: #4ade80; }
+.cc { color: var(--k5); font-style: italic; }
+.cl { color: var(--lime2); }
+.cb { color: #93c5fd; }
+.cp { color: #c4b5fd; }
+.cg { color: #86efac; }
+
+/* export badge */
+.export-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-top: 14px; font-family: var(--f-m); font-size: 10px;
+  padding: 6px 12px; border: 1px solid var(--k4); color: var(--w3);
+}
+.eb-arrow { color: var(--lime); }
+.eb-dst { color: var(--w2); }
+
+/* ── DAL EQUATION BREAKDOWN ── */
+.breakdown-sec {
+  border-top: 3px solid var(--k4);
+  background: var(--lime); color: var(--k);
+  padding: 72px 48px;
+}
+.bd-label { font-family: var(--f-m); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--limed); margin-bottom: 24px; }
+.bd-eq {
+  font-family: var(--f-d);
+  font-size: clamp(28px, 5vw, 72px);
+  line-height: 1.1; letter-spacing: .02em; text-transform: uppercase;
+  color: var(--k);
+}
+.bd-detail {
+  margin-top: 40px;
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  gap: 1px; background: rgba(0,0,0,.15);
+  border: 1px solid rgba(0,0,0,.15);
+}
+.bd-item { background: var(--lime); padding: 20px 16px; }
+.bd-item:hover { background: var(--lime2); }
+.bd-cat { font-family: var(--f-d); font-size: 22px; letter-spacing: .04em; margin-bottom: 8px; }
+.bd-desc { font-size: 12px; color: var(--limed); line-height: 1.7; }
+.bd-id { font-family: var(--f-m); font-size: 9px; color: rgba(0,0,0,.35); margin-top: 10px; }
+
+/* ── EXPORT SECTION ── */
+.export-sec {
+  border-top: 3px solid var(--k4);
+  padding: 72px 48px;
+}
+.exp-head { font-size: clamp(28px, 4vw, 52px); font-weight: 900; margin-bottom: 8px; }
+.exp-sub { font-size: 14px; color: var(--w3); margin-bottom: 40px; }
+.exp-pipeline {
+  display: flex; flex-direction: column; gap: 0;
+  border: 1px solid var(--k4);
+}
+.exp-row {
+  display: grid; grid-template-columns: 1fr 56px 1fr 56px 1fr;
+  border-bottom: 1px solid var(--k4);
+}
+.exp-row:last-child { border-bottom: none; }
+.exp-cell {
+  padding: 18px 20px; border-right: 1px solid var(--k4);
+  font-family: var(--f-m); font-size: 11px;
+}
+.exp-cell:last-child { border-right: none; }
+.exp-cell.arrow { display: flex; align-items: center; justify-content: center; color: var(--k5); font-size: 16px; background: var(--k2); }
+.exp-label { font-size: 8px; letter-spacing: .18em; text-transform: uppercase; color: var(--k5); margin-bottom: 5px; }
+.exp-val   { color: var(--w2); line-height: 1.6; }
+.exp-val .hl { color: var(--lime); }
+.exp-val .bl { color: #93c5fd; }
+.exp-val .pl { color: #c4b5fd; }
+.exp-header-row {
+  background: var(--k3); border-bottom: 1px solid var(--k4);
+  padding: 10px 20px; font-family: var(--f-m); font-size: 9px;
+  letter-spacing: .15em; text-transform: uppercase; color: var(--k5);
+  display: flex; align-items: center; gap: 12px;
+}
+.exp-header-row .lime { color: var(--lime); }
+
+/* ── HOW STRIP ── */
+.how-strip {
+  border-top: 3px solid var(--k4);
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 0; background: var(--k4);
+}
+.how-item { background: var(--k2); padding: 36px 28px; border-right: 1px solid var(--k4); }
+.how-item:last-child { border-right: none; }
+.how-n { font-family: var(--f-m); font-size: 9px; letter-spacing: .2em; color: var(--lime); margin-bottom: 14px; }
+.how-t { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+.how-b { font-size: 12px; color: var(--w3); line-height: 1.8; margin-bottom: 14px; }
+.how-c { font-family: var(--f-m); font-size: 10px; color: var(--lime2); padding: 7px 12px; background: var(--k); border-left: 2px solid var(--lime); }
+
+/* ── TERMINAL ── */
+.term-sec { border-top: 3px solid var(--k4); padding: 0; background: var(--k); }
+.term-wrap { }
+.term-bar { padding: 11px 20px; background: var(--k3); border-bottom: 1px solid var(--k4); display: flex; align-items: center; gap: 7px; }
+.td { width: 9px; height: 9px; border-radius: 50%; }
+.td:nth-child(1){ background:#2a1010; border:1px solid #4a2020; }
+.td:nth-child(2){ background:#1e1608; border:1px solid #3a2a10; }
+.td:nth-child(3){ background:#0a1a0a; border:1px solid #103010; }
+.tt { font-family: var(--f-m); font-size: 10px; letter-spacing: .1em; color: var(--k5); margin: 0 auto; }
+.term-body { padding: 24px 28px 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 0 40px; }
+.tl { display: block; font-family: var(--f-m); font-size: 11px; line-height: 1.9; }
+.tl.p { color: var(--lime2); }
+.tl.c { color: var(--k5); font-style: italic; }
+.tl.s { color: #4ade80; }
+.tl.i { color: var(--w3); }
+.tl.o { color: var(--w2); }
+.tl.g { height: 8px; display: block; }
+.tl.h { color: var(--k5); border-bottom: 1px solid var(--k4); padding-bottom: 4px; margin-bottom: 2px; }
+.cur { display: inline-block; width: 7px; height: 12px; background: var(--lime); vertical-align: middle; animation: blink .9s step-end infinite; }
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:0} }
+
+/* ── CTA ── */
+.cta-sec {
+  border-top: 3px solid var(--k4);
+  display: grid; grid-template-columns: 1fr 440px;
+  min-height: 360px;
+}
+.cta-left {
+  padding: 72px 64px;
+  border-right: 1px solid var(--k4);
+}
+.cta-head {
+  font-family: var(--f-d);
+  font-size: clamp(52px, 8vw, 108px);
+  line-height: .88; letter-spacing: .02em; text-transform: uppercase; color: var(--w);
+  margin-bottom: 24px;
+}
+.cta-head .lime { color: var(--lime); }
+.cta-sub { font-size: 14px; color: var(--w3); margin-bottom: 32px; }
+.cta-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn { font-family: var(--f-m); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; padding: 12px 26px; transition: all .15s; }
+.btn-lime { background: var(--lime); color: var(--k); }
+.btn-lime:hover { background: var(--lime2); }
+.btn-ghost { border: 1px solid var(--k4); color: var(--w2); }
+.btn-ghost:hover { border-color: var(--lime); color: var(--lime); }
+.cta-right {
+  background: var(--k2); padding: 48px;
+  display: flex; flex-direction: column; justify-content: center; gap: 20px;
+}
+.cta-install-label { font-family: var(--f-m); font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--k5); margin-bottom: 8px; }
+.cta-install code { font-family: var(--f-m); font-size: 11px; color: var(--lime2); padding: 12px 16px; background: var(--k); border: 1px solid var(--k4); display: block; }
+.cta-fact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--k4); border: 1px solid var(--k4); }
+.cf { background: var(--k2); padding: 14px; }
+.cf-val { font-family: var(--f-d); font-size: 28px; color: var(--lime); letter-spacing: .04em; }
+.cf-lbl { font-family: var(--f-m); font-size: 8px; letter-spacing: .16em; text-transform: uppercase; color: var(--k5); }
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--k4); padding: 22px 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--k2);
+}
+.f-logo { font-family: var(--f-m); font-size: 13px; color: var(--w2); }
+.f-logo em { color: var(--lime); font-style: normal; }
+.f-links { display: flex; gap: 24px; }
+.f-link { font-family: var(--f-m); font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--k5); transition: color .15s; }
+.f-link:hover { color: var(--lime); }
+.f-copy { font-family: var(--f-m); font-size: 9px; color: var(--k5); }
+
+/* ── ANIM ── */
+@keyframes fadeUp { from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none} }
+.fade{opacity:0;animation:fadeUp .6s ease forwards;}
+.d1{animation-delay:.05s}.d2{animation-delay:.15s}.d3{animation-delay:.25s}.d4{animation-delay:.35s}
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .5s,transform .5s}
+.reveal.visible{opacity:1;transform:none}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1024px){
+  .comp-sec{grid-template-columns:1fr;min-height:auto}
+  .comp-left{border-right:none;border-bottom:1px solid var(--k4)}
+  .comp-letter{font-size:100px}
+  .bd-detail{grid-template-columns:1fr 1fr}
+  .how-strip{grid-template-columns:1fr 1fr}
+  .cta-sec{grid-template-columns:1fr}
+  .cta-right{display:none}
+  .term-body{grid-template-columns:1fr}
+  footer{flex-direction:column;gap:14px}
+}
+@media(max-width:640px){
+  nav{padding:0 20px}
+  .hero-eq{padding:40px 20px 0}
+  .hero-sub-row{grid-template-columns:1fr}
+  .exp-row{grid-template-columns:1fr}
+  .exp-cell.arrow{display:none}
+  .how-strip{grid-template-columns:1fr}
+  .bd-detail{grid-template-columns:1fr}
+  .eq-term{font-size:52px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="n-logo">dal<em>forge</em></div>
+  <div class="n-links">
+    <a class="n-link" href="#cli">CLI</a>
+    <a class="n-link" href="#skill">Skill</a>
+    <a class="n-link" href="#hook">Hook</a>
+    <a class="n-link" href="#export">Export</a>
+    <a class="n-btn" href="https://github.com/dalsoop/dalforge" target="_blank">GitHub →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eq">
+    <div class="eq-row fade d1">
+      <span class="eq-term lime">DAL</span>
+    </div>
+    <div class="eq-row fade d2">
+      <span class="eq-op">=</span>
+      <span class="eq-term">CLI</span>
+      <span class="eq-op">+</span>
+      <span class="eq-term">SKILL</span>
+      <span class="eq-op">+</span>
+      <span class="eq-term">HOOK</span>
+    </div>
+    <div class="eq-row fade d3">
+      <span class="eq-op">+</span>
+      <span class="eq-term">PLAYER</span>
+      <span class="eq-op">+</span>
+      <span class="eq-term">VAULT</span>
+    </div>
+  </div>
+
+  <div class="hero-sub-row fade d4">
+    <div class="hsub">
+      <div class="hsub-label">What is a Dal?</div>
+      <div class="hsub-val">달(dal)은 레포 하나에 귀속된 AI 에이전트 인스턴스. CLI 도구부터 스킬, 훅, PLAYER, 시크릿까지 하나의 단위로 선언·관리됩니다.</div>
+    </div>
+    <div class="hsub">
+      <div class="hsub-label">How it works</div>
+      <div class="hsub-val">.dalfactory/templates/*.cue 에 선언 → dalcenter join · export · provision → 컨테이너 기동 + 런타임 심링크 자동화.</div>
+    </div>
+    <div class="hsub">
+      <div class="hsub-label">ID System</div>
+      <div class="hsub-val">모든 구성 요소는 DAL:{CATEGORY}:{uuid8} 형식의 고유 ID를 가집니다. CLI · PLAYER · CONTAINER · SKILL · HOOK.</div>
+    </div>
+  </div>
+
+  <div class="hero-ticker">
+    <div class="ticker-inner" id="ticker"></div>
+  </div>
+</div>
+
+<!-- CLI SECTION -->
+<div class="comp-sec sec-cli reveal" id="cli">
+  <div class="comp-left">
+    <div class="comp-letter">CLI</div>
+    <div class="comp-id">DAL:CLI:uuid8</div>
+  </div>
+  <div class="comp-right">
+    <div>
+      <div class="comp-title">달 안에 설치되는<br>명령줄 도구 패키지</div>
+      <div class="comp-body">
+        CLI는 달 인스턴스 자체이자, 컨테이너 안에서 동작하는 도구 패키지입니다. cloud hub의 레지스트리에서 DAL:CLI ID로 버전 관리되며, provision 시 컨테이너에 자동으로 설치됩니다.
+        <br><br>
+        dalcenter join 명령이 레포를 달포지에 등록할 때 이 CLI 인스턴스 ID가 발급됩니다.
+      </div>
+    </div>
+    <div class="comp-bottom">
+      <div class="comp-cue"><span class="cc"># .dalfactory/templates/default.cue</span>
+<span class="cl">cli</span>: [
+  <span class="cl">"DAL:CLI:b1c2d3e4"</span>,  <span class="cc">// dalcli-code-runner</span>
+  <span class="cl">"DAL:CLI:f4a91c0e"</span>,  <span class="cc">// dalcli-test-gen</span>
+]</div>
+      <div class="export-badge">
+        <span>dalcenter join</span>
+        <span class="eb-arrow">→</span>
+        <span class="eb-dst">DAL:CLI:a3f82c1d 발급</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SKILL SECTION -->
+<div class="comp-sec sec-skill reveal" id="skill">
+  <div class="comp-left">
+    <div class="comp-letter">SKILL</div>
+    <div class="comp-id">DAL:SKILL:uuid8</div>
+  </div>
+  <div class="comp-right">
+    <div>
+      <div class="comp-title">AI 에이전트가 쓰는<br>스킬 파일 묶음</div>
+      <div class="comp-body">
+        스킬은 .dalfactory/skills/ 안에 위치한 마크다운 기반 AI 지시 파일입니다. exports 에 선언하면 dalcenter export 실행 시 ~/.claude/skills/ 또는 ~/.codex/skills/ 에 심링크됩니다.
+        <br><br>
+        claude, codex 등 AI 런타임이 이 심링크를 통해 스킬을 자동으로 인식합니다.
+      </div>
+    </div>
+    <div class="comp-bottom">
+      <div class="comp-cue"><span class="cc"># exports 선언 (templates/*.cue)</span>
+<span class="cb">exports</span>: {
+  claude: {
+    <span class="cb">skills</span>: [
+      <span style="color:#93c5fd">"skills/code-review/skill.md"</span>,
+      <span style="color:#93c5fd">"skills/pr-check/skill.md"</span>,
+    ]
+  }
+}</div>
+      <div class="export-badge">
+        <span>dalcenter export</span>
+        <span class="eb-arrow">→</span>
+        <span class="eb-dst">~/.claude/skills/ symlink</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HOOK SECTION -->
+<div class="comp-sec sec-hook reveal" id="hook">
+  <div class="comp-left">
+    <div class="comp-letter">HOOK</div>
+    <div class="comp-id">DAL:HOOK:uuid8</div>
+  </div>
+  <div class="comp-right">
+    <div>
+      <div class="comp-title">git 이벤트에 연결되는<br>자동화 훅 스크립트</div>
+      <div class="comp-body">
+        훅은 pre-commit, post-push 같은 git 이벤트에 연결되는 실행 스크립트입니다. dalcenter export 실행 시 ~/.claude/hooks/ 에 심링크되고, claude의 settings.json 에도 자동으로 등록됩니다.
+        <br><br>
+        달마다 독립된 훅 세트를 관리할 수 있어 레포별 AI 자동화가 가능합니다.
+      </div>
+    </div>
+    <div class="comp-bottom">
+      <div class="comp-cue"><span class="cc"># exports.claude.hooks</span>
+<span class="cp">hooks</span>: [
+  <span style="color:#c4b5fd">"hooks/pre-commit.sh"</span>,
+  <span style="color:#c4b5fd">"hooks/post-push.sh"</span>,
+]
+
+<span class="cc">→ ~/.claude/hooks/pre-commit.sh (symlink)</span>
+<span class="cc">→ ~/.claude/settings.json (자동 병합)</span></div>
+      <div class="export-badge">
+        <span>dalcenter export</span>
+        <span class="eb-arrow">→</span>
+        <span class="eb-dst">~/.claude/hooks/ + settings.json</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PLAYER SECTION -->
+<div class="comp-sec sec-player reveal">
+  <div class="comp-left">
+    <div class="comp-letter">PLAYER</div>
+    <div class="comp-id">DAL:PLAYER:uuid8</div>
+  </div>
+  <div class="comp-right">
+    <div>
+      <div class="comp-title">컨테이너 안에서<br>실제로 실행되는 AI</div>
+      <div class="comp-body">
+        PLAYER는 LXC 컨테이너 안에서 실행되는 실제 AI 에이전트입니다. claude_sdk, codex_appserver, gemini_cli, openai_compatible 타입 중 하나로 지정됩니다.
+        <br><br>
+        SecretVault에서 복호화된 시크릿을 환경변수로 받아 동작하며, watch 모드가 상태를 60초마다 점검합니다.
+      </div>
+    </div>
+    <div class="comp-bottom">
+      <div class="comp-cue"><span class="cc"># container.agents (templates/*.cue)</span>
+<span class="cg">container</span>: {
+  base: <span style="color:#86efac">"ubuntu-24.04"</span>
+  <span class="cg">agents</span>: {
+    claude: {
+      type:    <span style="color:#86efac">"claude_sdk"</span>
+      package: <span style="color:#86efac">"@anthropic/claude-code"</span>
+    }
+  }
+}</div>
+      <div class="export-badge">
+        <span>dalcenter provision</span>
+        <span class="eb-arrow">→</span>
+        <span class="eb-dst">LXC 기동 + PLAYER 실행</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BREAKDOWN (lime section) -->
+<div class="breakdown-sec reveal">
+  <div class="bd-label">Dal = sum of its parts</div>
+  <div class="bd-eq">DAL:CLI:a3f82c1d<br>= 2 CLI + 2 SKILL + 2 HOOK + 1 PLAYER + VAULT</div>
+  <div class="bd-detail">
+    <div class="bd-item">
+      <div class="bd-cat">CLI</div>
+      <div class="bd-desc">달 인스턴스 ID. join 시 발급. 도구 패키지 포함.</div>
+      <div class="bd-id">DAL:CLI:a3f82c1d</div>
+    </div>
+    <div class="bd-item">
+      <div class="bd-cat">SKILL</div>
+      <div class="bd-desc">스킬 파일 → AI 런타임 심링크. 버전 관리.</div>
+      <div class="bd-id">DAL:SKILL:c2d3e4f5</div>
+    </div>
+    <div class="bd-item">
+      <div class="bd-cat">HOOK</div>
+      <div class="bd-desc">git 이벤트 훅 → settings.json 자동 등록.</div>
+      <div class="bd-id">DAL:HOOK:e5a14d8b</div>
+    </div>
+    <div class="bd-item">
+      <div class="bd-cat">PLAYER</div>
+      <div class="bd-desc">컨테이너 안 AI 실행체. claude / codex / gemini.</div>
+      <div class="bd-id">DAL:PLAYER:b71e3a9c</div>
+    </div>
+    <div class="bd-item">
+      <div class="bd-cat">VAULT</div>
+      <div class="bd-desc">AES-256-GCM 암호화 시크릿. 기동 시 자동 주입.</div>
+      <div class="bd-id">SecretVault · SQLite</div>
+    </div>
+  </div>
+</div>
+
+<!-- EXPORT PIPELINE -->
+<div class="export-sec reveal" id="export">
+  <div class="exp-head">Export Pipeline</div>
+  <div class="exp-sub">dalcenter export — .dalfactory 선언에서 AI 런타임까지</div>
+  <div class="exp-pipeline">
+    <div class="exp-header-row">
+      <span class="lime">dalcenter export &lt;dal-id&gt;</span>
+      <span>— 스킬·훅을 각 AI 런타임 홈 디렉토리로 심링크</span>
+    </div>
+    <div class="exp-row">
+      <div class="exp-cell">
+        <div class="exp-label">Source (dal)</div>
+        <div class="exp-val">.dalfactory/<span class="hl">skills/code-review/</span></div>
+      </div>
+      <div class="exp-cell arrow">→</div>
+      <div class="exp-cell">
+        <div class="exp-label">Type</div>
+        <div class="exp-val">SKILL symlink</div>
+      </div>
+      <div class="exp-cell arrow">→</div>
+      <div class="exp-cell">
+        <div class="exp-label">Runtime target</div>
+        <div class="exp-val"><span class="hl">~/.claude</span>/skills/code-review/<br><span class="bl">~/.codex</span>/skills/code-review/</div>
+      </div>
+    </div>
+    <div class="exp-row">
+      <div class="exp-cell">
+        <div class="exp-label">Source (dal)</div>
+        <div class="exp-val">.dalfactory/<span class="hl">hooks/pre-commit.sh</span></div>
+      </div>
+      <div class="exp-cell arrow">→</div>
+      <div class="exp-cell">
+        <div class="exp-label">Type</div>
+        <div class="exp-val">HOOK symlink<br>+ settings.json merge</div>
+      </div>
+      <div class="exp-cell arrow">→</div>
+      <div class="exp-cell">
+        <div class="exp-label">Runtime target</div>
+        <div class="exp-val"><span class="hl">~/.claude</span>/hooks/pre-commit.sh<br><span class="hl">~/.claude</span>/settings.json (자동 병합)</div>
+      </div>
+    </div>
+    <div class="exp-row">
+      <div class="exp-cell">
+        <div class="exp-label">Source (vault)</div>
+        <div class="exp-val">SecretVault<br><span class="pl">GITHUB_TOKEN, OPENAI_KEY</span></div>
+      </div>
+      <div class="exp-cell arrow">→</div>
+      <div class="exp-cell">
+        <div class="exp-label">Type</div>
+        <div class="exp-val">AES-256-GCM decrypt<br>at provision time</div>
+      </div>
+      <div class="exp-cell arrow">→</div>
+      <div class="exp-cell">
+        <div class="exp-label">Runtime target</div>
+        <div class="exp-val">LXC 컨테이너 환경변수<br>(.env 파일 불필요)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW STRIP -->
+<div class="how-strip reveal">
+  <div class="how-item">
+    <div class="how-n">01 · Declare</div>
+    <div class="how-t">선언</div>
+    <div class="how-b">.dalfactory/templates/*.cue 에 CLI · 스킬 · 훅 · 시크릿 · 컨테이너를 CUE로 선언. validate 즉시 검증.</div>
+    <div class="how-c">$ dalcenter validate</div>
+  </div>
+  <div class="how-item">
+    <div class="how-n">02 · Register</div>
+    <div class="how-t">등록 + 내보내기</div>
+    <div class="how-b">join으로 DAL ID 발급. export로 스킬·훅을 ~/.claude/, ~/.codex/ 에 심링크. settings.json 자동 병합.</div>
+    <div class="how-c">$ dalcenter join && export</div>
+  </div>
+  <div class="how-item">
+    <div class="how-n">03 · Provision</div>
+    <div class="how-t">프로비저닝</div>
+    <div class="how-b">LXC 컨테이너 자동 생성. CLI 도구 설치, PLAYER 기동, SecretVault 시크릿 복호화 주입.</div>
+    <div class="how-c">$ dalcenter provision &lt;id&gt;</div>
+  </div>
+  <div class="how-item">
+    <div class="how-n">04 · Watch</div>
+    <div class="how-t">자동 감시</div>
+    <div class="how-b">60s 자동 점검. drift 감지 시 reconcile 자동 실행. 에이전트는 꺼지지 않습니다.</div>
+    <div class="how-c">$ dalcenter watch</div>
+  </div>
+</div>
+
+<!-- TERMINAL -->
+<div class="term-sec reveal">
+  <div class="term-wrap">
+    <div class="term-bar">
+      <div class="td"></div><div class="td"></div><div class="td"></div>
+      <span class="tt">dalcenter — validate → join → export → provision</span>
+    </div>
+    <div class="term-body">
+      <div>
+<span class="tl c"># 선언 검증</span>
+<span class="tl p">$ dalcenter validate</span>
+<span class="tl s">✓ dal.cue valid</span>
+<span class="tl i">  cli:     2 packages</span>
+<span class="tl i">  skills:  2 (claude)</span>
+<span class="tl i">  hooks:   2 (claude)</span>
+<span class="tl i">  secrets: 2 entries</span>
+<span class="tl g"></span>
+<span class="tl c"># 달 등록</span>
+<span class="tl p">$ dalcenter join</span>
+<span class="tl s">✓ DAL:CLI:a3f82c1d registered</span>
+<span class="tl g"></span>
+<span class="tl c"># 스킬·훅 내보내기</span>
+<span class="tl p">$ dalcenter export a3f82c1d</span>
+<span class="tl s">✓ ~/.claude/skills/code-review → symlink</span>
+<span class="tl s">✓ ~/.claude/skills/pr-check   → symlink</span>
+<span class="tl s">✓ ~/.claude/hooks/pre-commit  → symlink</span>
+<span class="tl s">✓ ~/.claude/settings.json     → merged (2 hooks)</span>
+      </div>
+      <div>
+<span class="tl c"># 시크릿 등록</span>
+<span class="tl p">$ dalcenter secret set GITHUB_TOKEN</span>
+<span class="tl s">✓ encrypted (AES-256-GCM) → vault</span>
+<span class="tl g"></span>
+<span class="tl c"># 컨테이너 프로비저닝</span>
+<span class="tl p">$ dalcenter provision a3f82c1d</span>
+<span class="tl i">  → LXC ubuntu-24.04 creating</span>
+<span class="tl i">  → installing 2 CLI packages</span>
+<span class="tl i">  → starting claude (claude_sdk)</span>
+<span class="tl i">  → injecting 2 secrets from vault</span>
+<span class="tl s">✓ DAL:CONTAINER:b71e3a9c online</span>
+<span class="tl g"></span>
+<span class="tl c"># 상태 확인</span>
+<span class="tl p">$ dalcenter list</span>
+<span class="tl h">  ID        SKILLS  HOOKS  STATUS   PLAYER</span>
+<span class="tl o">  a3f82c1d  2       2      active   claude</span>
+<span class="tl o">  c2d14e7f  3       1      active   codex</span>
+<span class="tl g"></span>
+<span class="tl p">$ <span class="cur"></span></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-sec reveal">
+  <div class="cta-left">
+    <div class="cta-head">달 하나가<br><span class="lime">전부다.</span></div>
+    <div class="cta-sub">DAL = CLI + SKILL + HOOK + PLAYER + VAULT.<br>레포마다, 달마다, 각각의 ID로.</div>
+    <div class="cta-btns">
+      <a class="btn btn-lime" href="https://github.com/dalsoop/dalforge" target="_blank">GitHub에서 시작하기 →</a>
+      <a class="btn btn-ghost" href="#cli">구성 요소 보기</a>
+    </div>
+  </div>
+  <div class="cta-right">
+    <div>
+      <div class="cta-install-label">Install</div>
+      <code>go install dalforge-hub/dalcenter/cmd/dalcenter@latest</code>
+    </div>
+    <div class="cta-fact-grid">
+      <div class="cf"><div class="cf-val">Go</div><div class="cf-lbl">1.25</div></div>
+      <div class="cf"><div class="cf-val">CUE</div><div class="cf-lbl">0.16</div></div>
+      <div class="cf"><div class="cf-val">5</div><div class="cf-lbl">Categories</div></div>
+      <div class="cf"><div class="cf-val">MIT</div><div class="cf-lbl">License</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="f-logo">dal<em>forge</em></div>
+  <div class="f-links">
+    <a class="f-link" href="https://github.com/dalsoop/dalforge" target="_blank">GitHub</a>
+    <a class="f-link" href="#">Docs</a>
+    <a class="f-link" href="#">Catalog</a>
+    <a class="f-link" href="#">Changelog</a>
+  </div>
+  <div class="f-copy">Go 1.25 · CUE 0.16 · SQLite · Proxmox LXC · MIT</div>
+</footer>
+
+<script>
+/* TICKER */
+const repos = [
+  {n:'backend-api',a:'claude',s:'on'},{n:'frontend-app',a:'codex',s:'on'},
+  {n:'ml-pipeline',a:'gemini',s:'on'},{n:'data-sync',a:'claude',s:'idle'},
+  {n:'infra-tf',a:'codex',s:'off'},{n:'mobile-rn',a:'claude',s:'on'},
+  {n:'auth-service',a:'codex',s:'on'},{n:'test-runner',a:'gemini',s:'on'},
+];
+const t = document.getElementById('ticker');
+t.innerHTML = [...repos,...repos].map(r =>
+  `<div class="ti"><div class="ti-d ${r.s}"></div><span class="ti-n">${r.n}</span><span>·</span><span class="ti-a">${r.a}</span></div>`
+).join('');
+
+/* SCROLL REVEAL */
+const obs = new IntersectionObserver(es => {
+  es.forEach(e => { if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);} });
+},{threshold:0.06,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

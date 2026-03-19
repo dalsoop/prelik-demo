@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VeilKey — The Blackout Protocol</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700;800;900&family=Spline+Sans+Mono:wght@400;500;600&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap');
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --fg:#f0f0ec;
+  --fg2:#a0a098;
+  --fg3:#686860;
+  --fg4:#3a3a35;
+  --bg:#0b0b0e;
+  --bg2:#111114;
+  --bg3:#18181c;
+  --neon:#b5ff4a;
+  --neon-dim:#7db82e;
+  --neon-bg:rgba(181,255,74,0.04);
+  --neon-line:rgba(181,255,74,0.12);
+  --neon-glow:rgba(181,255,74,0.15);
+  --red:#ff4a4a;
+  --red-bg:rgba(255,74,74,0.06);
+  --display:'Spectral',Georgia,serif;
+  --sans:'Unbounded',system-ui,sans-serif;
+  --code:'Spline Sans Mono',monospace;
+}
+
+html{scroll-behavior:smooth;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;-webkit-font-smoothing:antialiased}
+body{overflow-x:hidden}
+::selection{background:var(--neon);color:var(--bg)}
+a{color:inherit;text-decoration:none}
+
+.w{max-width:1100px;margin:0 auto;padding:0 clamp(1.5rem,4vw,3rem)}
+
+/* scanlines */
+body::before{
+  content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);
+}
+
+/* ═══ NAV ═══ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:300;
+  background:rgba(11,11,14,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--fg4);
+}
+.ni{max-width:1100px;margin:0 auto;padding:0 clamp(1.5rem,4vw,3rem);display:flex;align-items:center;justify-content:space-between;height:56px}
+.logo{font-weight:800;font-size:0.8rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--neon);display:flex;align-items:center;gap:0.6rem}
+.logo-glyph{
+  width:20px;height:20px;border:2px solid var(--neon);
+  position:relative;display:flex;align-items:center;justify-content:center;
+}
+.logo-glyph::after{content:'';width:6px;height:6px;background:var(--neon);border-radius:1px}
+.nk{display:flex;align-items:center;gap:2rem}
+.nk a{font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--fg3);font-weight:500;transition:color 0.15s}
+.nk a:hover{color:var(--fg)}
+.nk .nc{
+  font-size:0.68rem;font-weight:600;padding:0.4rem 1rem;
+  border:1px solid var(--neon-line);color:var(--neon);
+  transition:all 0.2s;
+}
+.nk .nc:hover{background:var(--neon);color:var(--bg)}
+
+/* ═══ HERO ═══ */
+.hero{
+  min-height:100vh;display:flex;align-items:center;
+  position:relative;padding-top:56px;
+}
+
+/* grid overlay */
+.hero-grid{
+  position:absolute;inset:0;overflow:hidden;opacity:0.04;pointer-events:none;
+}
+.hero-grid::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(var(--neon) 1px,transparent 1px),
+    linear-gradient(90deg,var(--neon) 1px,transparent 1px);
+  background-size:80px 80px;
+}
+
+.hero-inner{
+  position:relative;z-index:1;
+  display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;
+}
+
+.hero-left{animation:slideIn 0.7s ease both}
+
+.hero-tag{
+  font-size:0.58rem;font-weight:700;letter-spacing:0.2em;
+  text-transform:uppercase;color:var(--neon);
+  margin-bottom:1.5rem;
+  display:flex;align-items:center;gap:0.6rem;
+}
+.hero-tag::before{content:'//';color:var(--fg4)}
+
+.hero h1{
+  font-size:clamp(2.2rem,4.5vw,3.8rem);
+  font-weight:900;line-height:1.05;
+  letter-spacing:-0.03em;
+  text-transform:uppercase;
+  margin-bottom:1.5rem;
+}
+.hero h1 .glow{
+  color:var(--neon);
+  text-shadow:0 0 30px var(--neon-glow);
+}
+
+.hero-p{
+  font-family:var(--display);
+  font-size:1.1rem;color:var(--fg2);
+  max-width:420px;line-height:1.8;
+  font-weight:300;font-style:italic;
+  margin-bottom:2.5rem;
+}
+
+.hero-btns{display:flex;gap:0.6rem;flex-wrap:wrap}
+.btn{
+  font-family:var(--sans);font-size:0.72rem;font-weight:700;
+  letter-spacing:0.08em;text-transform:uppercase;
+  padding:0.8rem 1.8rem;border:none;cursor:pointer;
+  display:inline-flex;align-items:center;gap:0.4rem;
+  transition:all 0.2s;
+}
+.btn-neon{background:var(--neon);color:var(--bg)}
+.btn-neon:hover{box-shadow:0 0 30px var(--neon-glow);transform:translateY(-2px)}
+.btn-wire{background:transparent;border:1px solid var(--fg4);color:var(--fg2)}
+.btn-wire:hover{border-color:var(--fg3);color:var(--fg)}
+
+/* Hero right — THE BLACKOUT TERMINAL */
+.hero-right{animation:slideIn 0.7s ease 0.15s both}
+
+.blackout-term{
+  background:var(--bg2);border:1px solid var(--fg4);
+  position:relative;overflow:hidden;
+  box-shadow:0 0 60px rgba(0,0,0,0.4),0 0 1px var(--neon-line);
+}
+
+.bt-bar{
+  padding:0.5rem 0.8rem;display:flex;align-items:center;gap:0.4rem;
+  border-bottom:1px solid var(--fg4);
+  background:rgba(255,255,255,0.01);
+}
+.bt-bar .btd{width:7px;height:7px;border-radius:1px;background:var(--fg4)}
+.bt-bar .btt{margin-left:auto;font-family:var(--code);font-size:0.58rem;color:var(--fg4);letter-spacing:0.08em}
+
+.bt-body{
+  padding:1.2rem 1.5rem;font-family:var(--code);font-size:0.78rem;
+  line-height:2.2;min-height:260px;position:relative;
+}
+
+/* blackout animation classes */
+.bo-line{opacity:0;animation:lineReveal 0.2s ease forwards}
+.bo-key{color:var(--fg3)}
+.bo-eq{color:var(--fg4)}
+.bo-exposed{color:var(--red)}
+.bo-sealed{color:var(--neon);font-weight:500}
+
+/* the blackout effect — neon strike-through */
+.bo-val{position:relative;display:inline}
+.bo-val.striking::after{
+  content:'';position:absolute;left:0;top:45%;
+  width:100%;height:3px;
+  background:var(--neon);
+  box-shadow:0 0 8px var(--neon-glow);
+  animation:strikeThrough 0.3s ease forwards;
+}
+
+.bt-status{
+  padding:0.5rem 1rem;border-top:1px solid var(--fg4);
+  font-family:var(--code);font-size:0.6rem;
+  color:var(--fg4);letter-spacing:0.06em;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.bt-status .bts-dot{
+  width:5px;height:5px;border-radius:50%;
+  margin-right:0.4rem;display:inline-block;
+  transition:all 0.3s;
+}
+.bts-red{background:var(--red);box-shadow:0 0 6px rgba(255,74,74,0.4)}
+.bts-green{background:var(--neon);box-shadow:0 0 6px var(--neon-glow)}
+
+.bt-status button{
+  background:none;border:1px solid var(--fg4);
+  font-family:var(--code);font-size:0.55rem;color:var(--fg4);
+  padding:0.15rem 0.5rem;cursor:pointer;transition:all 0.15s;
+  letter-spacing:0.06em;
+}
+.bt-status button:hover{border-color:var(--neon-line);color:var(--neon)}
+
+/* ═══ DIVIDER ═══ */
+.div-line{height:1px;background:linear-gradient(90deg,transparent,var(--fg4) 20%,var(--fg4) 80%,transparent)}
+
+/* ═══ COUNTER STRIP ═══ */
+.counter-strip{
+  padding:2rem 0;border-bottom:1px solid var(--fg4);
+}
+.cs-inner{
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1.5rem;
+}
+.cs-item{text-align:center}
+.cs-num{
+  font-size:1.8rem;font-weight:900;letter-spacing:-0.02em;
+  color:var(--neon);line-height:1;
+  text-shadow:0 0 20px var(--neon-glow);
+}
+.cs-label{
+  font-size:0.55rem;letter-spacing:0.15em;text-transform:uppercase;
+  color:var(--fg3);margin-top:0.3rem;
+}
+
+/* ═══ SECTIONS ═══ */
+section{padding:6rem 0;position:relative;z-index:1}
+.sey{font-size:0.55rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--neon-dim);margin-bottom:0.6rem;display:flex;align-items:center;gap:0.5rem}
+.sey::before{content:'//';color:var(--fg4)}
+.sh{font-size:clamp(1.6rem,3vw,2.4rem);font-weight:800;letter-spacing:-0.02em;text-transform:uppercase;line-height:1.1;margin-bottom:0.6rem}
+.sh .glow{color:var(--neon);text-shadow:0 0 20px var(--neon-glow)}
+.sp{font-family:var(--display);font-size:0.95rem;color:var(--fg2);line-height:1.8;font-weight:300;font-style:italic;max-width:460px}
+
+/* ═══ PROCESS — HORIZONTAL TRACK ═══ */
+.process-section{border-top:1px solid var(--fg4);border-bottom:1px solid var(--fg4);background:var(--bg2)}
+
+.process-track{
+  margin-top:3rem;
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:0;
+}
+.pt-step{
+  padding:2rem 1.5rem;
+  border-right:1px solid var(--fg4);
+  position:relative;
+}
+.pt-step:last-child{border-right:none}
+
+.pt-num{
+  font-size:2.5rem;font-weight:900;
+  color:var(--fg4);line-height:1;margin-bottom:1rem;
+  letter-spacing:-0.03em;
+  transition:color 0.3s;
+}
+.pt-step:hover .pt-num{color:var(--neon);text-shadow:0 0 15px var(--neon-glow)}
+
+.pt-step h3{
+  font-size:0.78rem;font-weight:700;letter-spacing:0.06em;
+  text-transform:uppercase;margin-bottom:0.4rem;
+}
+.pt-step p{
+  font-family:var(--display);font-size:0.85rem;color:var(--fg2);
+  line-height:1.65;font-weight:300;font-style:italic;
+}
+.pt-cmd{
+  margin-top:0.8rem;font-family:var(--code);font-size:0.65rem;
+  color:var(--neon-dim);display:flex;align-items:center;gap:0.3rem;
+}
+.pt-cmd::before{content:'$';color:var(--fg4)}
+
+/* ═══ SPLIT — before/after ═══ */
+.split-section{padding:6rem 0}
+
+.split-box{
+  margin-top:3rem;
+  display:grid;grid-template-columns:1fr 1fr;
+  border:1px solid var(--fg4);
+  position:relative;
+}
+.split-box::after{
+  content:'VEILKEY';
+  position:absolute;left:50%;top:50%;
+  transform:translate(-50%,-50%) rotate(-90deg);
+  font-size:0.5rem;font-weight:900;letter-spacing:0.3em;
+  color:var(--fg4);
+  background:var(--bg);padding:0.8rem 0.5rem;
+  z-index:2;
+}
+
+.split-pane{padding:2rem;min-height:240px}
+.split-pane+.split-pane{border-left:1px solid var(--fg4)}
+
+.split-label{
+  font-size:0.55rem;font-weight:700;letter-spacing:0.15em;
+  text-transform:uppercase;margin-bottom:1rem;
+  display:flex;align-items:center;gap:0.4rem;
+}
+.split-label .sl-dot{width:6px;height:6px;border-radius:1px}
+.sl-red{background:var(--red)}
+.sl-green{background:var(--neon)}
+.split-label.danger{color:var(--red)}
+.split-label.safe{color:var(--neon)}
+
+.split-code{font-family:var(--code);font-size:0.76rem;line-height:2.2}
+.sc-key{color:var(--fg3)}
+.sc-eq{color:var(--fg4)}
+.sc-bad{color:var(--red)}
+.sc-good{color:var(--neon)}
+
+/* ═══ ARCH — BRUTALIST BLOCKS ═══ */
+.arch-section{
+  padding:6rem 0;
+  border-top:1px solid var(--fg4);
+  border-bottom:1px solid var(--fg4);
+  background:var(--bg2);
+}
+
+.arch-blocks{
+  margin-top:3rem;
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:2px;
+  background:var(--fg4);
+}
+.arch-block{
+  background:var(--bg2);padding:1.8rem;
+  transition:background 0.2s;
+}
+.arch-block:hover{background:var(--bg3)}
+
+.ab-tag{
+  font-size:0.5rem;font-weight:700;letter-spacing:0.15em;
+  text-transform:uppercase;color:var(--neon);
+  margin-bottom:0.8rem;
+  padding:0.2rem 0.5rem;border:1px solid var(--neon-line);
+  display:inline-block;
+}
+.arch-block h3{
+  font-size:0.85rem;font-weight:700;letter-spacing:0.04em;
+  text-transform:uppercase;margin-bottom:0.2rem;
+}
+.arch-block .ab-port{font-family:var(--code);font-size:0.65rem;color:var(--fg3);margin-bottom:0.6rem}
+.arch-block p{
+  font-family:var(--display);font-size:0.82rem;color:var(--fg2);
+  line-height:1.6;font-weight:300;font-style:italic;
+}
+
+/* Key chain — horizontal */
+.key-bar{
+  margin-top:2px;
+  display:flex;gap:2px;background:var(--fg4);
+}
+.kb-cell{
+  flex:1;background:var(--bg2);padding:1.2rem 1.5rem;
+  position:relative;
+}
+.kb-cell::after{
+  content:'→';position:absolute;right:-8px;top:50%;transform:translateY(-50%);
+  color:var(--fg4);font-size:0.8rem;background:var(--bg2);
+  padding:0.15rem 0;z-index:1;
+}
+.kb-cell:last-child::after{display:none}
+
+.kb-name{font-family:var(--code);font-size:0.6rem;font-weight:600;letter-spacing:0.1em;color:var(--neon);margin-bottom:0.2rem}
+.kb-desc{font-family:var(--display);font-size:0.78rem;color:var(--fg2);font-style:italic;line-height:1.5}
+.kb-algo{font-family:var(--code);font-size:0.55rem;color:var(--fg4);margin-top:0.2rem}
+
+/* ═══ AI SECTION ═══ */
+.ai-section{padding:6rem 0}
+
+.ai-grid{
+  margin-top:3rem;
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:3rem;align-items:start;
+}
+
+.ai-terminal{
+  background:var(--bg2);border:1px solid var(--fg4);
+  font-family:var(--code);font-size:0.78rem;
+  overflow:hidden;
+}
+.ai-term-bar{
+  padding:0.4rem 0.8rem;display:flex;align-items:center;gap:0.3rem;
+  border-bottom:1px solid var(--fg4);background:rgba(255,255,255,0.01);
+}
+.ai-term-bar .atd{width:6px;height:6px;border-radius:1px;background:var(--fg4)}
+.ai-term-bar span{margin-left:auto;font-size:0.55rem;color:var(--fg4);letter-spacing:0.08em}
+.ai-term-body{padding:1.2rem}
+.ai-line{padding:0.4rem 0;line-height:1.65}
+.ai-who{
+  font-size:0.55rem;font-weight:600;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--fg4);margin-bottom:0.15rem;
+}
+.ai-what{color:var(--fg2)}
+.ai-what code{color:var(--neon);background:var(--neon-bg);padding:0.05rem 0.3rem}
+
+.ai-text .ai-list{
+  list-style:none;margin-top:1rem;display:flex;flex-direction:column;gap:0.5rem;
+}
+.ai-list li{
+  font-family:var(--display);font-size:0.9rem;color:var(--fg2);
+  line-height:1.55;font-style:italic;
+  padding-left:1.2rem;position:relative;
+}
+.ai-list li::before{
+  content:'';position:absolute;left:0;top:0.55em;
+  width:5px;height:5px;background:var(--neon);
+}
+
+/* ═══ FEATURES — TICKER TAPE ═══ */
+.feat-section{
+  padding:6rem 0;
+  border-top:1px solid var(--fg4);border-bottom:1px solid var(--fg4);
+  background:var(--bg2);
+}
+
+.feat-tape{
+  margin-top:3rem;
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:2px;background:var(--fg4);
+}
+.feat-cell{
+  background:var(--bg2);padding:2rem;
+  transition:background 0.2s;position:relative;
+}
+.feat-cell:hover{background:var(--bg3)}
+
+.feat-cell .fc-idx{
+  font-size:0.5rem;font-weight:700;letter-spacing:0.15em;
+  color:var(--fg4);margin-bottom:0.8rem;
+}
+.feat-cell h3{
+  font-size:0.82rem;font-weight:700;letter-spacing:0.04em;
+  text-transform:uppercase;margin-bottom:0.4rem;
+}
+.feat-cell p{
+  font-family:var(--display);font-size:0.85rem;color:var(--fg2);
+  line-height:1.65;font-weight:300;font-style:italic;
+}
+
+/* ═══ INSTALL ═══ */
+.install-section{padding:6rem 0}
+
+.install-block{
+  margin-top:2.5rem;max-width:600px;
+  border:1px solid var(--fg4);overflow:hidden;
+}
+.install-bar{
+  padding:0.4rem 0.8rem;display:flex;align-items:center;gap:0.3rem;
+  border-bottom:1px solid var(--fg4);
+}
+.install-bar .ibd{width:6px;height:6px;border-radius:1px;background:var(--fg4)}
+.install-bar span{margin-left:auto;font-family:var(--code);font-size:0.55rem;color:var(--fg4)}
+.install-body{
+  padding:1.3rem 1.5rem;font-family:var(--code);font-size:0.76rem;
+  line-height:2.2;color:var(--fg3);
+}
+.install-body .p{color:var(--fg4)}
+.install-body .c{color:var(--fg)}
+.install-body .f{color:var(--neon-dim)}
+.install-body .g{color:var(--neon)}
+.install-body .d{color:var(--fg4)}
+
+/* ═══ CTA ═══ */
+.cta{padding:8rem 0;text-align:center;border-top:1px solid var(--fg4)}
+.cta h2{
+  font-size:clamp(2rem,5vw,3.5rem);font-weight:900;
+  letter-spacing:-0.02em;text-transform:uppercase;
+  line-height:1.05;margin-bottom:1rem;
+}
+.cta h2 .glow{color:var(--neon);text-shadow:0 0 20px var(--neon-glow)}
+.cta>p{
+  font-family:var(--display);color:var(--fg2);max-width:400px;
+  margin:0 auto 2.5rem;font-size:1.05rem;line-height:1.8;
+  font-weight:300;font-style:italic;
+}
+.cta-btns{display:flex;justify-content:center;gap:0.6rem;flex-wrap:wrap}
+.cta-meta{margin-top:3rem;display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap}
+.cta-meta span{font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--fg4)}
+
+footer{border-top:1px solid var(--fg4);padding:1.5rem 0}
+.ft{display:flex;justify-content:space-between;align-items:center;font-size:0.65rem;color:var(--fg4);letter-spacing:0.06em}
+.ft a{color:var(--fg3);transition:color 0.15s}
+.ft a:hover{color:var(--neon)}
+
+/* ═══ ANIM ═══ */
+@keyframes slideIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes lineReveal{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:translateX(0)}}
+@keyframes strikeThrough{from{width:0}to{width:100%}}
+
+.rv{opacity:0;transform:translateY(16px);transition:opacity 0.5s,transform 0.5s}
+.rv.vis{opacity:1;transform:translateY(0)}
+
+@media(max-width:900px){
+  .hero-inner{grid-template-columns:1fr}
+  .process-track{grid-template-columns:1fr 1fr}
+  .pt-step{border-right:none;border-bottom:1px solid var(--fg4)}
+  .split-box{grid-template-columns:1fr}
+  .split-pane+.split-pane{border-left:none;border-top:1px solid var(--fg4)}
+  .split-box::after{display:none}
+  .arch-blocks{grid-template-columns:1fr 1fr}
+  .ai-grid{grid-template-columns:1fr}
+  .feat-tape{grid-template-columns:1fr}
+  .key-bar{flex-direction:column}
+  .kb-cell::after{display:none}
+  .nk a:not(.nc){display:none}
+}
+</style>
+</head>
+<body>
+
+<nav><div class="ni">
+  <a href="#" class="logo"><div class="logo-glyph"></div>VEILKEY</a>
+  <div class="nk">
+    <a href="#process">Process</a>
+    <a href="#arch">Arch</a>
+    <a href="#features">Features</a>
+    <a href="https://github.com/veilkey/veilkey-selfhosted" class="nc">GITHUB ↗</a>
+  </div>
+</div></nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="w">
+    <div class="hero-inner">
+      <div class="hero-left">
+        <div class="hero-tag">Protocol v1.0 · Open Source</div>
+        <h1>The <span class="glow">blackout</span><br>protocol.</h1>
+        <p class="hero-p">
+          Every secret that enters VeilKey gets a neon strike-through
+          and a new identity. The original is destroyed. What remains
+          is a reference that glows — but never reveals.
+        </p>
+        <div class="hero-btns">
+          <a href="https://github.com/veilkey/veilkey-selfhosted" class="btn btn-neon">INITIATE →</a>
+          <a href="https://github.com/veilkey/veilkey-selfhosted/blob/main/docs/architecture.md" class="btn btn-wire">DOCS</a>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="blackout-term" id="blackoutTerm">
+          <div class="bt-bar">
+            <span class="btd"></span><span class="btd"></span><span class="btd"></span>
+            <span class="btt">BLACKOUT.EXE</span>
+          </div>
+          <div class="bt-body" id="btBody"></div>
+          <div class="bt-status">
+            <span><span class="bts-dot bts-red" id="btsDot"></span><span id="btsText">MONITORING</span></span>
+            <button id="btReplay">↻ REPLAY</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ COUNTER STRIP ═══ -->
+<div class="counter-strip">
+  <div class="w"><div class="cs-inner">
+    <div class="cs-item"><div class="cs-num">222+</div><div class="cs-label">Detection Patterns</div></div>
+    <div class="cs-item"><div class="cs-num">AES-256</div><div class="cs-label">Encryption</div></div>
+    <div class="cs-item"><div class="cs-num">0</div><div class="cs-label">Plaintext at Rest</div></div>
+    <div class="cs-item"><div class="cs-num">3-LAYER</div><div class="cs-label">Key Hierarchy</div></div>
+    <div class="cs-item"><div class="cs-num">∞</div><div class="cs-label">Rotation</div></div>
+  </div></div>
+</div>
+
+<!-- ═══ PROCESS ═══ -->
+<section id="process" class="process-section">
+  <div class="w">
+    <div class="rv">
+      <div class="sey">Protocol</div>
+      <h2 class="sh">Four phases. Zero <span class="glow">exposure.</span></h2>
+    </div>
+    <div class="process-track rv">
+      <div class="pt-step"><div class="pt-num">01</div><h3>Scan</h3><p>222+ patterns. AWS, GitHub, Stripe, private keys. Fully offline.</p><div class="pt-cmd">vk scan .env</div></div>
+      <div class="pt-step"><div class="pt-num">02</div><h3>Filter</h3><p>Strike-through plaintext. Replace with AES-256-GCM encrypted VK: reference.</p><div class="pt-cmd">vk filter .env</div></div>
+      <div class="pt-step"><div class="pt-num">03</div><h3>Wrap</h3><p>Execute with output masking. Secrets can't leak to logs or terminals.</p><div class="pt-cmd">vk wrap ./deploy</div></div>
+      <div class="pt-step"><div class="pt-num">04</div><h3>Exec</h3><p>Resolve VK: tokens at launch. Memory only — never disk.</p><div class="pt-cmd">vk exec ./app</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SPLIT ═══ -->
+<section class="split-section">
+  <div class="w">
+    <div style="text-align:center" class="rv">
+      <div class="sey" style="justify-content:center">Visual</div>
+      <h2 class="sh">Before. <span class="glow">After.</span></h2>
+    </div>
+    <div class="split-box rv">
+      <div class="split-pane">
+        <div class="split-label danger"><span class="sl-dot sl-red"></span>EXPOSED</div>
+        <div class="split-code">
+          <div><span class="sc-key">DATABASE_URL</span><span class="sc-eq">=</span><span class="sc-bad">postgres://admin:s3cret@db</span></div>
+          <div><span class="sc-key">AWS_SECRET</span><span class="sc-eq">=</span><span class="sc-bad">wJalrXUtnFEMI/K7MDENG</span></div>
+          <div><span class="sc-key">GITHUB_TOKEN</span><span class="sc-eq">=</span><span class="sc-bad">ghp_abc123def456ghi789</span></div>
+          <div><span class="sc-key">STRIPE_SK</span><span class="sc-eq">=</span><span class="sc-bad">sk_live_51HG8axYzKlMn</span></div>
+          <div><span class="sc-key">JWT_SECRET</span><span class="sc-eq">=</span><span class="sc-bad">super-secret-jwt-2024!</span></div>
+        </div>
+      </div>
+      <div class="split-pane">
+        <div class="split-label safe"><span class="sl-dot sl-green"></span>SEALED</div>
+        <div class="split-code">
+          <div><span class="sc-key">DATABASE_URL</span><span class="sc-eq">=</span><span class="sc-good">VK:LOCAL:db01a2b3</span></div>
+          <div><span class="sc-key">AWS_SECRET</span><span class="sc-eq">=</span><span class="sc-good">VK:LOCAL:aws4c5d6</span></div>
+          <div><span class="sc-key">GITHUB_TOKEN</span><span class="sc-eq">=</span><span class="sc-good">VK:LOCAL:gh7e8f9a</span></div>
+          <div><span class="sc-key">STRIPE_SK</span><span class="sc-eq">=</span><span class="sc-good">VK:LOCAL:st0b1c2d</span></div>
+          <div><span class="sc-key">JWT_SECRET</span><span class="sc-eq">=</span><span class="sc-good">VK:LOCAL:jw3e4f5a</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ ARCHITECTURE ═══ -->
+<section id="arch" class="arch-section">
+  <div class="w">
+    <div class="rv">
+      <div class="sey">Architecture</div>
+      <h2 class="sh">Hub-and-spoke. Nodes <span class="glow">isolated.</span></h2>
+    </div>
+    <div class="arch-blocks rv">
+      <div class="arch-block"><div class="ab-tag">KC</div><h3>KeyCenter</h3><div class="ab-port">:10181</div><p>Control plane. Node identity, DEK lifecycle, rotation policy.</p></div>
+      <div class="arch-block"><div class="ab-tag">LV</div><h3>LocalVault</h3><div class="ab-port">:10180</div><p>Node agent. Ciphertext only. Heartbeats every 5m.</p></div>
+      <div class="arch-block"><div class="ab-tag">PX</div><h3>Proxy</h3><div class="ab-port">:18080</div><p>Egress enforcement. Intercepts HTTP, blocks plaintext leaks.</p></div>
+      <div class="arch-block"><div class="ab-tag">CLI</div><h3>CLI</h3><div class="ab-port">&nbsp;</div><p>Operator tool. scan, filter, wrap, exec, resolve.</p></div>
+    </div>
+    <div class="key-bar rv">
+      <div class="kb-cell"><div class="kb-name">KEK</div><div class="kb-desc">From password. Never stored.</div><div class="kb-algo">scrypt · N=32768</div></div>
+      <div class="kb-cell"><div class="kb-name">DEK</div><div class="kb-desc">256-bit random. Encrypted with KEK.</div><div class="kb-algo">AES-256-GCM</div></div>
+      <div class="kb-cell"><div class="kb-name">CIPHERTEXT</div><div class="kb-desc">Per-secret nonce. Referenced as VK:*</div><div class="kb-algo">VK:{SCOPE}:{REF}</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ AI ═══ -->
+<section class="ai-section">
+  <div class="w">
+    <div class="ai-grid rv">
+      <div class="ai-terminal">
+        <div class="ai-term-bar"><span class="atd"></span><span class="atd"></span><span class="atd"></span><span>AGENT SESSION</span></div>
+        <div class="ai-term-body">
+          <div class="ai-line"><div class="ai-who">HUMAN</div><div class="ai-what">Deploy this service. Config in .env.production.</div></div>
+          <div class="ai-line"><div class="ai-who">AGENT</div><div class="ai-what">Config loaded: <code>VK:LOCAL:db01</code> and <code>VK:LOCAL:st4c</code>. Running <code>vk exec deploy.sh</code>. Secrets resolve at runtime.</div></div>
+          <div class="ai-line"><div class="ai-who">HUMAN</div><div class="ai-what">Status?</div></div>
+          <div class="ai-line"><div class="ai-who">AGENT</div><div class="ai-what">✓ 2 refs resolved. App running. I only handled references.</div></div>
+        </div>
+      </div>
+      <div class="ai-text">
+        <div class="sey">AI Safety</div>
+        <h2 class="sh">Agents see <span class="glow">references.</span> Never keys.</h2>
+        <p class="sp">Your AI operates with VK: tokens. Real secrets exist only in process memory at exec.</p>
+        <ul class="ai-list">
+          <li>AI reads VK:LOCAL:xxxx — works perfectly</li>
+          <li>Real secret injected at exec, never disk</li>
+          <li>Zero exposure in chat, logs, or git</li>
+          <li>No workflow changes required</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FEATURES ═══ -->
+<section id="features" class="feat-section">
+  <div class="w">
+    <div style="text-align:center" class="rv">
+      <div class="sey" style="justify-content:center">Capabilities</div>
+      <h2 class="sh">Built for the <span class="glow">post-AI</span> era.</h2>
+    </div>
+    <div class="feat-tape rv">
+      <div class="feat-cell"><div class="fc-idx">001</div><h3>Zero Plaintext</h3><p>Encrypted at entry. Configs, git, logs — only references survive.</p></div>
+      <div class="feat-cell"><div class="fc-idx">002</div><h3>Seamless Rotation</h3><p>KeyCenter schedules. Each node re-encrypts independently. Zero downtime.</p></div>
+      <div class="feat-cell"><div class="fc-idx">003</div><h3>Node Isolation</h3><p>Every node has its own DEK. Breach one — the rest stay sealed.</p></div>
+      <div class="feat-cell"><div class="fc-idx">004</div><h3>AI-Safe Refs</h3><p>AI agents see VK: tokens. They deploy, test, code — zero exposure.</p></div>
+      <div class="feat-cell"><div class="fc-idx">005</div><h3>Egress Guard</h3><p>Proxy blocks plaintext in outbound HTTP. Shell hooks block curl/wget.</p></div>
+      <div class="feat-cell"><div class="fc-idx">006</div><h3>Self-Hosted</h3><p>SQLite, no cloud deps. macOS or Linux. AGPL-3.0.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ INSTALL ═══ -->
+<section class="install-section">
+  <div class="w rv">
+    <div class="sey">Quick Start</div>
+    <h2 class="sh">Operational in <span class="glow">five</span> minutes.</h2>
+    <div class="install-block">
+      <div class="install-bar"><span class="ibd"></span><span class="ibd"></span><span class="ibd"></span><span>MACOS</span></div>
+      <div class="install-body">
+<span class="p">$</span> <span class="c">git clone</span> <span class="f">https://github.com/veilkey/veilkey-selfhosted.git</span>
+<span class="p">$</span> <span class="c">cd</span> veilkey-selfhosted
+<span class="p">$</span> <span class="c">./installer/scripts/install-mac.sh</span> <span class="f">install</span>
+<span class="d">  [OK] Go · 5 binaries · KeyCenter · LocalVault</span>
+<span class="p">$</span> <span class="c">./installer/scripts/install-mac.sh</span> <span class="f">start</span>
+<span class="g">  ✓ KeyCenter :10181 · LocalVault :10180</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ═══ -->
+<section class="cta">
+  <div class="w rv">
+    <h2>Execute the<br><span class="glow">blackout.</span></h2>
+    <p>One protocol. Every secret encrypted before it touches disk.</p>
+    <div class="cta-btns">
+      <a href="https://github.com/veilkey/veilkey-selfhosted" class="btn btn-neon">GITHUB →</a>
+      <a href="https://github.com/veilkey/veilkey-selfhosted/blob/main/docs/installation.md" class="btn btn-wire">INSTALL GUIDE</a>
+    </div>
+    <div class="cta-meta"><span>AGPL-3.0</span><span>GO + SQLITE</span><span>AES-256-GCM</span><span>MACOS + LINUX</span></div>
+  </div>
+</section>
+
+<footer><div class="w"><div class="ft"><span>VEILKEY</span><a href="https://github.com/veilkey/veilkey-selfhosted">GITHUB.COM/VEILKEY</a></div></div></footer>
+
+<script>
+// ═══ BLACKOUT ANIMATION ═══
+const secrets=[
+  {k:'DATABASE_URL',d:'postgres://admin:s3cret@db',s:'VK:LOCAL:db01a2b3'},
+  {k:'AWS_SECRET',d:'wJalrXUtnFEMI/K7MDENG',s:'VK:LOCAL:aws4c5d6'},
+  {k:'GITHUB_TOKEN',d:'ghp_abc123def456ghi78',s:'VK:LOCAL:gh7e8f9a'},
+  {k:'STRIPE_SK',d:'sk_live_51HG8axYzKlMn',s:'VK:LOCAL:st0b1c2d'},
+  {k:'JWT_SECRET',d:'super-secret-jwt-2024!',s:'VK:LOCAL:jw3e4f5a'},
+];
+
+const sl=ms=>new Promise(r=>setTimeout(r,ms));
+
+async function playBlackout(){
+  const body=document.getElementById('btBody');
+  const dot=document.getElementById('btsDot');
+  const status=document.getElementById('btsText');
+
+  body.innerHTML='';
+  dot.className='bts-dot bts-red';status.textContent='MONITORING';
+
+  await sl(400);
+
+  // Build exposed lines
+  for(let i=0;i<secrets.length;i++){
+    const line=document.createElement('div');line.className='bo-line';
+    line.style.animationDelay=(i*40)+'ms';
+    line.innerHTML=`<span class="bo-key">${secrets[i].k}</span><span class="bo-eq">=</span><span class="bo-val bo-exposed" id="bv-${i}">${secrets[i].d}</span>`;
+    body.appendChild(line);
+    await sl(100);
+  }
+
+  status.textContent=`${secrets.length} TARGETS ACQUIRED`;
+  await sl(1000);
+
+  status.textContent='EXECUTING BLACKOUT...';
+
+  // Strike-through each, then replace
+  for(let i=0;i<secrets.length;i++){
+    const val=document.getElementById('bv-'+i);
+
+    // Neon strike
+    val.classList.add('striking');
+    await sl(350);
+
+    // Replace
+    val.classList.remove('striking','bo-exposed');
+    val.classList.add('bo-sealed');
+    val.textContent=secrets[i].s;
+    val.style.textShadow='0 0 8px '+getComputedStyle(document.documentElement).getPropertyValue('--neon-glow');
+    await sl(150);
+    val.style.textShadow='none';
+    await sl(100);
+  }
+
+  dot.className='bts-dot bts-green';
+  status.textContent=`BLACKOUT COMPLETE · ${secrets.length} SEALED`;
+
+  await sl(5000);
+  playBlackout();
+}
+
+document.getElementById('btReplay').addEventListener('click',playBlackout);
+setTimeout(playBlackout,700);
+
+// ═══ REVEAL ═══
+const obs=new IntersectionObserver(es=>{
+  es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis')});
+},{threshold:0.06,rootMargin:'0px 0px -20px 0px'});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+</script>
+
+</body>
+</html>

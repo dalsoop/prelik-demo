@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prelik — Shape the Future</title>
+<style>
+:root {
+  --green: #007A45;
+  --green-light: rgba(0,122,69,0.09);
+  --green-mid: rgba(0,122,69,0.2);
+  --ink: #0B0B0B;
+  --dark: #111410;
+  --white: #FFFFFF;
+  --off: #F7F6F2;
+  --mid: #838383;
+  --faint: #E5E3DE;
+  --mono: 'Courier New', Courier, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --serif: Georgia, 'Times New Roman', serif;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--sans);background:var(--white);color:var(--ink);overflow-x:hidden;}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  height:60px;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0 3rem;
+  transition:background 0.4s, border-color 0.4s;
+  border-bottom:1px solid transparent;
+}
+nav.solid{background:rgba(255,255,255,0.96);backdrop-filter:blur(14px);border-color:var(--faint);}
+.nav-logo{
+  font-family:var(--mono);font-size:0.88rem;letter-spacing:0.18em;
+  text-decoration:none;color:var(--white);
+  transition:color 0.4s;
+  display:flex;align-items:center;gap:0.6rem;
+}
+nav.solid .nav-logo{color:var(--ink);}
+.nlmark{
+  display:flex;gap:2px;align-items:center;
+}
+.nlmark span{
+  display:block;width:4px;height:14px;background:var(--green);
+  transition:height 0.3s;
+}
+.nlmark span:nth-child(2){height:9px;}
+.nlmark span:nth-child(3){height:12px;}
+.nav-logo:hover .nlmark span:nth-child(1){height:9px;}
+.nav-logo:hover .nlmark span:nth-child(2){height:14px;}
+.nav-logo:hover .nlmark span:nth-child(3){height:7px;}
+.nav-links{display:flex;gap:2.5rem;list-style:none;}
+.nav-links a{
+  font-family:var(--mono);font-size:0.58rem;letter-spacing:0.16em;
+  text-transform:uppercase;text-decoration:none;
+  color:rgba(255,255,255,0.55);
+  transition:color 0.3s;
+}
+nav.solid .nav-links a{color:var(--mid);}
+.nav-links a:hover{color:var(--green)!important;}
+.nav-right{display:flex;align-items:center;gap:1.5rem;}
+.nav-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:ndot 2.5s ease infinite;}
+@keyframes ndot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.3;transform:scale(0.6)}}
+.nav-open{
+  font-family:var(--mono);font-size:0.58rem;letter-spacing:0.14em;
+  text-transform:uppercase;color:rgba(255,255,255,0.55);
+  background:none;border:none;cursor:pointer;
+  transition:color 0.3s;
+}
+nav.solid .nav-open{color:var(--mid);}
+.nav-open:hover{color:var(--green)!important;}
+.nav-cta{
+  padding:0.42rem 1.1rem;
+  border:1px solid var(--green);
+  font-family:var(--mono);font-size:0.58rem;letter-spacing:0.12em;
+  text-transform:uppercase;color:var(--green);text-decoration:none;
+  background:transparent;
+  transition:background 0.25s,color 0.25s;
+}
+.nav-cta:hover{background:var(--green);color:var(--white);}
+
+/* ── HERO: SPLIT ── */
+#hero{height:100vh;min-height:680px;display:grid;grid-template-columns:58% 42%;padding-top:60px;}
+
+.hero-dark{
+  background:var(--dark);
+  padding:3.5rem 3rem;
+  display:flex;flex-direction:column;justify-content:space-between;
+  position:relative;overflow:hidden;
+}
+/* animated grid bg */
+.hero-dark::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size:60px 60px;
+}
+.hd-top{position:relative;z-index:1;}
+.hd-eyebrow{
+  font-family:var(--mono);font-size:0.56rem;letter-spacing:0.22em;
+  text-transform:uppercase;color:var(--green);
+  display:flex;align-items:center;gap:0.8rem;margin-bottom:3rem;
+}
+.hd-eyebrow::before{content:'';display:inline-block;width:24px;height:1px;background:var(--green);}
+
+.hd-h1{
+  font-family:var(--mono);
+  font-size:clamp(3.2rem,7.5vw,8.5rem);
+  font-weight:400;line-height:0.9;
+  letter-spacing:-0.04em;
+  color:var(--white);
+  position:relative;z-index:1;
+}
+.hd-h1 .ln{display:block;overflow:hidden;}
+.hd-h1 .ln .li{
+  display:block;
+  transform:translateY(110%);
+  animation:linesUp 0.85s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+.hd-h1 .ln:nth-child(1) .li{animation-delay:0.3s;}
+.hd-h1 .ln:nth-child(2) .li{animation-delay:0.46s;}
+.hd-h1 .ln:nth-child(3) .li{animation-delay:0.62s;color:var(--green);}
+@keyframes linesUp{to{transform:translateY(0);}}
+
+.hd-bottom{position:relative;z-index:1;}
+.hd-desc{
+  font-size:0.92rem;line-height:1.75;
+  color:rgba(255,255,255,0.38);
+  max-width:42ch;margin-bottom:2.5rem;
+  opacity:0;animation:fo 0.7s ease 1s forwards;
+}
+@keyframes fo{to{opacity:1;}}
+.hd-actions{
+  display:flex;align-items:center;gap:1.2rem;
+  opacity:0;animation:fo 0.7s ease 1.2s forwards;
+}
+.btn-green{
+  padding:0.85rem 2rem;background:var(--green);color:var(--white);
+  font-family:var(--mono);font-size:0.6rem;letter-spacing:0.14em;
+  text-transform:uppercase;text-decoration:none;
+  position:relative;overflow:hidden;transition:color 0.3s;
+}
+.btn-green::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,0.12);transform:scaleX(0);transform-origin:left;transition:transform 0.4s cubic-bezier(0.22,1,0.36,1);}
+.btn-green:hover::after{transform:scaleX(1);}
+.btn-green span{position:relative;z-index:1;}
+.btn-ghost-w{
+  padding:0.85rem 2rem;border:1px solid rgba(255,255,255,0.15);
+  font-family:var(--mono);font-size:0.6rem;letter-spacing:0.14em;
+  text-transform:uppercase;text-decoration:none;color:rgba(255,255,255,0.4);
+  transition:border-color 0.25s,color 0.25s;
+}
+.btn-ghost-w:hover{border-color:var(--green);color:var(--green);}
+
+/* hero right: light panel */
+.hero-light{
+  background:var(--off);
+  display:flex;flex-direction:column;
+  border-left:1px solid var(--faint);
+}
+.hero-light-top{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:3rem;position:relative;overflow:hidden;
+}
+/* rotating rings */
+.ring-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+.ring-wrap svg{width:100%;height:100%;max-width:360px;max-height:360px;}
+
+.hl-center{text-align:center;position:relative;z-index:1;}
+.hl-year{
+  font-family:var(--mono);
+  font-size:clamp(5rem,10vw,11rem);
+  font-weight:400;line-height:1;
+  letter-spacing:-0.05em;
+  color:var(--ink);
+  opacity:0;animation:fo 0.8s ease 0.8s forwards;
+}
+.hl-year sup{font-size:0.3em;vertical-align:super;color:var(--green);}
+.hl-year-label{
+  font-family:var(--mono);font-size:0.54rem;letter-spacing:0.22em;
+  text-transform:uppercase;color:var(--mid);margin-top:0.5rem;
+  opacity:0;animation:fo 0.8s ease 1s forwards;
+}
+
+.hero-light-bottom{
+  display:grid;grid-template-columns:1fr 1fr;
+  border-top:1px solid var(--faint);
+}
+.hlb-cell{
+  padding:1.5rem 2rem;
+  border-right:1px solid var(--faint);
+}
+.hlb-cell:last-child{border-right:none;}
+.hlb-n{
+  font-family:var(--mono);font-size:2.2rem;font-weight:400;
+  letter-spacing:-0.03em;line-height:1;
+  opacity:0;animation:fo 0.8s ease 1.3s forwards;
+}
+.hlb-n .c{color:var(--green);}
+.hlb-l{
+  font-family:var(--mono);font-size:0.52rem;letter-spacing:0.16em;
+  text-transform:uppercase;color:var(--mid);margin-top:0.4rem;
+  opacity:0;animation:fo 0.8s ease 1.5s forwards;
+}
+
+/* ── MARQUEE ── */
+.marquee-strip{
+  height:44px;border-top:1px solid var(--faint);border-bottom:1px solid var(--faint);
+  overflow:hidden;display:flex;align-items:center;background:var(--white);
+}
+.mq-track{display:flex;animation:mq 20s linear infinite;white-space:nowrap;}
+@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.mq-item{
+  font-family:var(--mono);font-size:0.56rem;letter-spacing:0.2em;
+  text-transform:uppercase;color:var(--mid);
+  padding:0 2.5rem;flex-shrink:0;
+  border-right:1px solid var(--faint);line-height:44px;
+}
+.mq-item.g{color:var(--green);}
+
+/* ── SHARED ── */
+.rv{opacity:0;transform:translateY(28px);transition:opacity 0.9s cubic-bezier(0.22,1,0.36,1),transform 0.9s cubic-bezier(0.22,1,0.36,1);}
+.rv.vis{opacity:1;transform:translateY(0);}
+.d1{transition-delay:.12s}.d2{transition-delay:.24s}
+.d3{transition-delay:.36s}.d4{transition-delay:.48s}.d5{transition-delay:.6s}
+
+.ey{font-family:var(--mono);font-size:0.56rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--green);margin-bottom:1.2rem;display:flex;align-items:center;gap:0.6rem;}
+.ey::before{content:'';width:20px;height:1px;background:var(--green);}
+.sh{font-family:var(--mono);font-size:clamp(1.8rem,2.8vw,3rem);font-weight:400;line-height:1.05;letter-spacing:-0.02em;}
+.sh .a{color:var(--green);}
+
+/* ── MANIFESTO ── */
+#manifesto{
+  background:var(--dark);padding:8rem 3rem;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;position:relative;overflow:hidden;
+}
+#manifesto::before{
+  content:'';position:absolute;
+  width:600px;height:600px;
+  background:radial-gradient(circle,rgba(0,122,69,0.12) 0%,transparent 70%);
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  pointer-events:none;
+}
+.mf-label{
+  font-family:var(--mono);font-size:0.56rem;letter-spacing:0.24em;
+  text-transform:uppercase;color:var(--green);margin-bottom:2.5rem;
+}
+.mf-quote{
+  font-family:var(--serif);
+  font-size:clamp(2rem,4.5vw,5rem);
+  font-weight:400;font-style:italic;
+  line-height:1.2;letter-spacing:-0.02em;
+  color:var(--white);
+  max-width:18ch;margin:0 auto 2.5rem;
+}
+.mf-quote em{color:var(--green);font-style:normal;}
+.mf-sub{
+  font-family:var(--mono);font-size:0.6rem;letter-spacing:0.18em;
+  text-transform:uppercase;color:rgba(255,255,255,0.2);
+}
+
+/* ── ABOUT ── */
+#about{padding:8rem 3rem;}
+.about-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:4rem;}
+.ag{
+  padding:3rem 2.5rem;border-right:1px solid var(--faint);
+  position:relative;transition:background 0.3s;
+}
+.ag:first-child{border-left:1px solid var(--faint);}
+.ag::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--green);transform:scaleX(0);transform-origin:left;
+  transition:transform 0.5s cubic-bezier(0.22,1,0.36,1);
+}
+.ag:hover{background:var(--off);}
+.ag:hover::before{transform:scaleX(1);}
+.ag-num{
+  font-family:var(--mono);font-size:0.54rem;letter-spacing:0.2em;
+  color:var(--green);margin-bottom:1.5rem;
+}
+.ag-icon{width:36px;height:36px;margin-bottom:1.5rem;}
+.ag-icon svg{width:100%;height:100%;stroke:var(--faint);fill:none;stroke-width:1.5;}
+.ag-title{font-family:var(--mono);font-size:1rem;font-weight:400;margin-bottom:0.8rem;color:var(--ink);}
+.ag-body{font-size:0.83rem;line-height:1.75;color:var(--mid);}
+
+/* ── SERVICES: horizontal scroll ── */
+#services{padding:8rem 0;}
+.sv-head{padding:0 3rem;display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:3rem;}
+.sv-hint{font-family:var(--mono);font-size:0.54rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--mid);display:flex;align-items:center;gap:0.5rem;}
+.sv-hint::before{content:'←';color:var(--green);}
+.sv-hint::after{content:'→';color:var(--green);}
+
+.sv-scroll{overflow-x:auto;padding:0 3rem 2rem;cursor:grab;user-select:none;}
+.sv-scroll::-webkit-scrollbar{height:2px;}
+.sv-scroll::-webkit-scrollbar-track{background:var(--faint);}
+.sv-scroll::-webkit-scrollbar-thumb{background:var(--green);}
+.sv-scroll.grabbing{cursor:grabbing;}
+.sv-track{display:flex;gap:1.5rem;width:max-content;}
+.sv-card{
+  width:280px;flex-shrink:0;
+  border:1px solid var(--faint);
+  padding:2.5rem;
+  transition:border-color 0.3s,transform 0.3s;
+  background:var(--white);
+}
+.sv-card:hover{border-color:var(--green);transform:translateY(-4px);}
+.sv-card-num{font-family:var(--mono);font-size:0.52rem;letter-spacing:0.2em;color:var(--green);margin-bottom:2rem;}
+.sv-card-ico{width:32px;height:32px;margin-bottom:1.5rem;}
+.sv-card-ico svg{width:100%;height:100%;stroke:#BBBBBB;fill:none;stroke-width:1.5;}
+.sv-card-name{font-family:var(--mono);font-size:1rem;letter-spacing:-0.01em;margin-bottom:0.7rem;color:var(--ink);}
+.sv-card-desc{font-size:0.78rem;line-height:1.7;color:var(--mid);margin-bottom:1.8rem;}
+.sv-card-tag{
+  display:inline-block;
+  font-family:var(--mono);font-size:0.5rem;letter-spacing:0.14em;
+  text-transform:uppercase;
+  padding:0.2rem 0.65rem;
+  background:var(--green-light);color:var(--green);
+}
+
+/* ── RECOGNITION ── */
+#recognition{background:var(--ink);padding:5rem 3rem;overflow:hidden;}
+.rec-inner{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0;}
+.rec-cell{
+  padding:2.5rem 2rem;border-right:1px solid rgba(255,255,255,0.06);
+  position:relative;
+}
+.rec-cell:last-child{border-right:none;}
+.rec-cell::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:rgba(255,255,255,0.05);}
+.rec-n{
+  font-family:var(--mono);font-size:clamp(2.5rem,4vw,4.2rem);
+  font-weight:400;letter-spacing:-0.04em;line-height:1;
+  color:var(--white);
+}
+.rec-n .c{color:var(--green);}
+.rec-bar{
+  height:1px;background:rgba(255,255,255,0.06);
+  margin:1.2rem 0;position:relative;overflow:hidden;
+}
+.rec-bar-fill{
+  position:absolute;top:0;left:0;height:100%;width:0;
+  background:var(--green);
+  transition:width 1.6s cubic-bezier(0.22,1,0.36,1);
+}
+.rec-cell.vis .rec-bar-fill{width:var(--w);}
+.rec-key{font-family:var(--mono);font-size:0.54rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.28);}
+.rec-sub{margin-top:0.6rem;font-size:0.78rem;color:rgba(255,255,255,0.15);line-height:1.5;}
+
+/* ── TEAM ── */
+#team{padding:8rem 3rem;}
+.team-top{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:end;margin-bottom:4rem;}
+.team-top-right{font-size:0.9rem;line-height:1.8;color:var(--mid);}
+
+.team-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;}
+.tc{border:1px solid var(--faint);transition:border-color 0.3s,transform 0.3s;position:relative;}
+.tc:hover{border-color:var(--green);transform:translateY(-5px);}
+.tc-vis{
+  aspect-ratio:3/4;background:var(--off);
+  position:relative;overflow:hidden;
+  display:flex;align-items:flex-end;padding:1.5rem;
+}
+.tc:nth-child(1) .tc-vis{background:#EEF5F0;}
+.tc:nth-child(2) .tc-vis{background:#F0F5EE;}
+.tc:nth-child(3) .tc-vis{background:#EBF5F0;}
+.tc:nth-child(4) .tc-vis{background:#F0EEF5;}
+.tc-bg-letter{
+  position:absolute;bottom:-0.1em;right:-0.05em;
+  font-family:var(--mono);font-size:7rem;font-weight:400;line-height:1;
+  color:rgba(0,122,69,0.07);user-select:none;pointer-events:none;
+}
+.tc-tag{
+  font-family:var(--mono);font-size:0.52rem;letter-spacing:0.14em;
+  text-transform:uppercase;padding:0.25rem 0.6rem;
+  background:var(--green);color:var(--white);
+  position:relative;z-index:1;
+  transform:translateY(6px);opacity:0;
+  transition:transform 0.35s cubic-bezier(0.22,1,0.36,1),opacity 0.3s;
+}
+.tc:hover .tc-tag{transform:translateY(0);opacity:1;}
+.tc-bar{height:2px;background:var(--faint);overflow:hidden;}
+.tc-bar-fill{height:100%;width:0;background:var(--green);transition:width 0.5s cubic-bezier(0.22,1,0.36,1);}
+.tc:hover .tc-bar-fill{width:100%;}
+.tc-info{padding:1.4rem;}
+.tc-name{font-family:var(--mono);font-size:0.9rem;letter-spacing:-0.01em;margin-bottom:0.2rem;}
+.tc-role{font-family:var(--mono);font-size:0.52rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--green);margin-bottom:0.8rem;}
+.tc-bio{font-size:0.75rem;line-height:1.65;color:var(--mid);}
+
+/* ── CONTACT ── */
+#contact{background:var(--off);padding:8rem 3rem;}
+.ct-inner{display:grid;grid-template-columns:1fr 1fr;gap:8rem;align-items:start;}
+.ct-l{}
+.ct-h{
+  font-family:var(--mono);
+  font-size:clamp(2.5rem,5vw,5.5rem);
+  font-weight:400;line-height:0.95;
+  letter-spacing:-0.04em;margin-bottom:2rem;
+}
+.ct-h .a{color:var(--green);}
+.ct-desc{font-size:0.9rem;line-height:1.8;color:var(--mid);margin-bottom:3rem;}
+
+.ct-items{display:flex;flex-direction:column;}
+.ct-item{
+  display:flex;align-items:flex-start;gap:1.2rem;
+  padding:1.3rem 0;border-bottom:1px solid var(--faint);
+}
+.ct-item:first-child{border-top:1px solid var(--faint);}
+.ct-icon{
+  width:34px;height:34px;flex-shrink:0;
+  background:var(--ink);
+  display:flex;align-items:center;justify-content:center;
+  transition:background 0.25s;
+}
+.ct-item:hover .ct-icon{background:var(--green);}
+.ct-icon svg{width:13px;height:13px;stroke:#fff;fill:none;stroke-width:1.8;}
+.ct-label{font-family:var(--mono);font-size:0.52rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--mid);margin-bottom:0.3rem;}
+.ct-val{font-size:0.9rem;color:var(--ink);}
+
+.ct-r form{}
+.fg{margin-bottom:1rem;}
+.fg label{display:block;font-family:var(--mono);font-size:0.52rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--mid);margin-bottom:0.5rem;}
+.fg input,.fg select,.fg textarea{
+  width:100%;padding:0.85rem 1rem;
+  border:1px solid var(--faint);background:var(--white);
+  font-family:var(--sans);font-size:0.88rem;color:var(--ink);
+  outline:none;appearance:none;
+  transition:border-color 0.25s,box-shadow 0.25s;
+}
+.fg input:focus,.fg select:focus,.fg textarea:focus{
+  border-color:var(--green);
+  box-shadow:0 0 0 3px rgba(0,122,69,0.08);
+}
+.fg textarea{resize:none;min-height:110px;}
+.fg select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23838383' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 1rem center;padding-right:2.5rem;}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+
+.cf-footer{
+  display:flex;align-items:center;justify-content:space-between;margin-top:1.5rem;gap:1rem;
+  flex-wrap:wrap;
+}
+.cf-agree{display:flex;align-items:flex-start;gap:0.7rem;font-size:0.75rem;color:var(--mid);line-height:1.5;}
+.cf-agree input[type=checkbox]{accent-color:var(--green);flex-shrink:0;margin-top:2px;}
+.cf-sub{
+  padding:0.9rem 2.2rem;
+  background:var(--green);color:var(--white);border:none;
+  font-family:var(--mono);font-size:0.6rem;letter-spacing:0.14em;
+  text-transform:uppercase;cursor:pointer;white-space:nowrap;
+  display:flex;align-items:center;gap:0.8rem;
+  position:relative;overflow:hidden;transition:color 0.3s;
+}
+.cf-sub::before{content:'';position:absolute;inset:0;background:var(--ink);transform:translateX(-101%);transition:transform 0.45s cubic-bezier(0.22,1,0.36,1);}
+.cf-sub:hover::before{transform:translateX(0);}
+.cf-sub span,.cf-sub i{position:relative;z-index:1;}
+.cf-sub i{font-style:normal;transition:transform 0.25s;}
+.cf-sub:hover i{transform:translateX(4px);}
+
+/* ── FOOTER ── */
+footer{background:var(--dark);padding:4rem 3rem 2rem;}
+.ft{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:3rem;padding-bottom:3rem;border-bottom:1px solid rgba(255,255,255,0.06);}
+.ft-brand{}
+.ft-mark{display:flex;align-items:center;gap:0.6rem;text-decoration:none;margin-bottom:1rem;}
+.ft-mark-bars{display:flex;gap:2px;align-items:flex-end;}
+.ft-mark-bars span{display:block;width:4px;background:var(--green);}
+.ft-mark-bars span:nth-child(1){height:14px;}
+.ft-mark-bars span:nth-child(2){height:9px;}
+.ft-mark-bars span:nth-child(3){height:12px;}
+.ft-mark-name{font-family:var(--mono);font-size:0.88rem;letter-spacing:0.16em;color:var(--white);}
+.ft-tagline{font-family:var(--mono);font-size:0.52rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.2);margin-bottom:2rem;}
+.ft-social{display:flex;gap:0.8rem;}
+.ft-soc-btn{
+  width:30px;height:30px;border:1px solid rgba(255,255,255,0.1);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:0.52rem;letter-spacing:0.1em;
+  color:rgba(255,255,255,0.3);text-decoration:none;
+  transition:border-color 0.25s,color 0.25s;
+}
+.ft-soc-btn:hover{border-color:var(--green);color:var(--green);}
+.ft-col-h{font-family:var(--mono);font-size:0.52rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.22);margin-bottom:1.2rem;}
+.ft-col-links{list-style:none;display:flex;flex-direction:column;gap:0.7rem;}
+.ft-col-links a{font-family:var(--mono);font-size:0.62rem;letter-spacing:0.05em;color:rgba(255,255,255,0.38);text-decoration:none;transition:color 0.2s;}
+.ft-col-links a:hover{color:var(--green);}
+.ft-bottom{padding-top:2rem;display:flex;justify-content:space-between;align-items:center;}
+.ft-copy{font-family:var(--mono);font-size:0.52rem;letter-spacing:0.1em;color:rgba(255,255,255,0.15);}
+.ft-loc{font-family:var(--mono);font-size:0.52rem;letter-spacing:0.1em;color:rgba(255,255,255,0.15);display:flex;align-items:center;gap:0.5rem;}
+.ft-loc::before{content:'◉';color:var(--green);font-size:0.45rem;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:960px){
+  nav{padding:0 1.5rem;}
+  .nav-links,.nav-dot,.nav-open{display:none;}
+  #hero{grid-template-columns:1fr;height:auto;}
+  .hero-dark{min-height:70vh;padding:2.5rem 1.5rem;}
+  .hero-light{min-height:280px;}
+  #manifesto{padding:6rem 1.5rem;}
+  #about{padding:5rem 1.5rem;}
+  .about-grid{grid-template-columns:1fr;margin-top:2.5rem;}
+  .ag{border-right:none;border-bottom:1px solid var(--faint);}
+  .ag:first-child{border-left:none;border-top:1px solid var(--faint);}
+  #services{padding:5rem 0;}
+  .sv-head{padding:0 1.5rem;}
+  .sv-scroll{padding:0 1.5rem 1.5rem;}
+  #recognition{padding:4rem 1.5rem;}
+  .rec-inner{grid-template-columns:1fr 1fr;}
+  .rec-cell:nth-child(2n){border-right:none;}
+  .rec-cell{border-bottom:1px solid rgba(255,255,255,0.06);}
+  #team{padding:5rem 1.5rem;}
+  .team-top{grid-template-columns:1fr;gap:1.5rem;}
+  .team-grid{grid-template-columns:1fr 1fr;}
+  #contact{padding:5rem 1.5rem;}
+  .ct-inner{grid-template-columns:1fr;gap:4rem;}
+  .fg2{grid-template-columns:1fr;}
+  footer{padding:3rem 1.5rem 1.5rem;}
+  .ft{grid-template-columns:1fr 1fr;gap:2.5rem;}
+  .ft-bottom{flex-direction:column;gap:0.8rem;}
+}
+@media(max-width:600px){
+  .team-grid{grid-template-columns:1fr 1fr;}
+  .rec-inner{grid-template-columns:1fr;}
+  .rec-cell{border-right:none;}
+  .ft{grid-template-columns:1fr;}
+  .hero-light-bottom{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav id="nav">
+  <a href="#" class="nav-logo">
+    <div class="nlmark"><span></span><span></span><span></span></div>
+    PRELIK
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">소개</a></li>
+    <li><a href="#services">서비스</a></li>
+    <li><a href="#team">팀</a></li>
+    <li><a href="#contact">연락처</a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="nav-dot"></div>
+    <a href="#contact" class="nav-cta">시작하기</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section id="hero">
+  <!-- Dark Left -->
+  <div class="hero-dark">
+    <div class="hd-top">
+      <div class="hd-eyebrow">Shape the Future</div>
+    </div>
+    <div>
+      <h1 class="hd-h1">
+        <span class="ln"><span class="li">미래를</span></span>
+        <span class="ln"><span class="li">설계하는</span></span>
+        <span class="ln"><span class="li">파트너</span></span>
+      </h1>
+      <p class="hd-desc">기술과 전략의 교차점에서 기업의 복잡한 문제를 해결합니다. 데이터 기반 인사이트로 측정 가능한 성과를 만들어냅니다.</p>
+      <div class="hd-actions">
+        <a href="#services" class="btn-green"><span>서비스 보기</span></a>
+        <a href="#about" class="btn-ghost-w">회사 소개</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Light Right -->
+  <div class="hero-light">
+    <div class="hero-light-top">
+      <div class="ring-wrap">
+        <svg viewBox="0 0 360 360" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="180" cy="180" r="160" fill="none" stroke="#E5E3DE" stroke-width="1" stroke-dasharray="4 8">
+            <animateTransform attributeName="transform" type="rotate" from="0 180 180" to="360 180 180" dur="35s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="180" cy="180" r="110" fill="none" stroke="#E5E3DE" stroke-width="1">
+            <animateTransform attributeName="transform" type="rotate" from="0 180 180" to="-360 180 180" dur="22s" repeatCount="indefinite"/>
+          </circle>
+          <rect x="122" y="122" width="116" height="116" fill="none" stroke="rgba(0,122,69,0.15)" stroke-width="1">
+            <animateTransform attributeName="transform" type="rotate" from="45 180 180" to="135 180 180" dur="16s" repeatCount="indefinite"/>
+          </rect>
+          <!-- orbit dots -->
+          <circle r="5" fill="#007A45" opacity="0.7">
+            <animateMotion dur="9s" repeatCount="indefinite"><mpath href="#p1"/></animateMotion>
+          </circle>
+          <path id="p1" d="M180 20a160 160 0 1 1-0.1 0" fill="none"/>
+          <circle r="3" fill="#007A45" opacity="0.4">
+            <animateMotion dur="5.5s" repeatCount="indefinite" begin="-2s"><mpath href="#p2"/></animateMotion>
+          </circle>
+          <path id="p2" d="M180 70a110 110 0 1 0 0.1 0" fill="none"/>
+          <circle cx="180" cy="180" r="6" fill="none" stroke="rgba(0,122,69,0.3)" stroke-width="1">
+            <animate attributeName="r" values="6;20;6" dur="3.5s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.5;0;0.5" dur="3.5s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="180" cy="180" r="3.5" fill="#007A45"/>
+          <!-- crosshair -->
+          <line x1="180" y1="10" x2="180" y2="350" stroke="#EEECE8" stroke-width="0.5"/>
+          <line x1="10" y1="180" x2="350" y2="180" stroke="#EEECE8" stroke-width="0.5"/>
+        </svg>
+      </div>
+      <div class="hl-center">
+        <div class="hl-year">6<sup>yr</sup></div>
+        <div class="hl-year-label">Business Excellence</div>
+      </div>
+    </div>
+    <div class="hero-light-bottom">
+      <div class="hlb-cell">
+        <div class="hlb-n"><span class="count-up" data-t="50">0</span><span class="c">+</span></div>
+        <div class="hlb-l">프로젝트</div>
+      </div>
+      <div class="hlb-cell">
+        <div class="hlb-n"><span class="count-up" data-t="98">0</span><span class="c">%</span></div>
+        <div class="hlb-l">만족도</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Marquee -->
+<div class="marquee-strip">
+  <div class="mq-track" id="mqTrack"></div>
+</div>
+
+<!-- Manifesto -->
+<section id="manifesto">
+  <div class="mf-label rv">// PRELIK PHILOSOPHY</div>
+  <blockquote class="mf-quote rv d1">"최고의 솔루션은 <em>사람</em>을 이해하는 데서 시작된다"</blockquote>
+  <div class="mf-sub rv d2">PRELIK · SEOUL · SINCE 2019</div>
+</section>
+
+<!-- About -->
+<section id="about">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:end;margin-bottom:0;">
+    <div>
+      <p class="ey rv">// 회사 소개</p>
+      <h2 class="sh rv d1">기술로 경계를<br><span class="a">허물다</span></h2>
+    </div>
+    <p class="rv d2" style="font-size:0.9rem;line-height:1.8;color:var(--mid);">
+      2019년 설립 이후 50개 이상의 기업과 함께 성장해왔습니다. 단순한 서비스 제공을 넘어 진정한 파트너십을 구축하는 것이 Prelik의 핵심 철학입니다.
+    </p>
+  </div>
+  <div class="about-grid">
+    <div class="ag rv">
+      <div class="ag-num">[ 01 ]</div>
+      <div class="ag-icon">
+        <svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="13"/><path d="M12 18h12M18 12v12"/></svg>
+      </div>
+      <div class="ag-title">데이터 중심</div>
+      <p class="ag-body">모든 전략은 검증된 데이터와 심층 분석을 기반으로 설계됩니다. 직관이 아닌 근거로 의사결정을 지원합니다.</p>
+    </div>
+    <div class="ag rv d1">
+      <div class="ag-num">[ 02 ]</div>
+      <div class="ag-icon">
+        <svg viewBox="0 0 36 36"><polyline points="4,28 12,16 20,22 28,10 36,14"/><circle cx="12" cy="16" r="2" fill="none"/><circle cx="20" cy="22" r="2" fill="none"/><circle cx="28" cy="10" r="2" fill="none"/></svg>
+      </div>
+      <div class="ag-title">측정 가능한 성과</div>
+      <p class="ag-body">모든 프로젝트에는 명확한 KPI와 검증 기준이 있습니다. 성과는 숫자로 증명하고, 지속적으로 개선합니다.</p>
+    </div>
+    <div class="ag rv d2">
+      <div class="ag-num">[ 03 ]</div>
+      <div class="ag-icon">
+        <svg viewBox="0 0 36 36"><path d="M18 4 L32 12 L32 24 L18 32 L4 24 L4 12 Z"/><circle cx="18" cy="18" r="5"/></svg>
+      </div>
+      <div class="ag-title">장기적 파트너십</div>
+      <p class="ag-body">단기 성과보다 지속 가능한 관계를 추구합니다. 클라이언트의 성공이 우리의 성공입니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Services -->
+<section id="services">
+  <div class="sv-head rv">
+    <div>
+      <p class="ey">// 서비스</p>
+      <h2 class="sh">제공 솔루션</h2>
+    </div>
+    <div class="sv-hint">드래그하여 탐색</div>
+  </div>
+  <div class="sv-scroll" id="svScroll">
+    <div class="sv-track">
+      <div class="sv-card rv">
+        <div class="sv-card-num">01 —</div>
+        <div class="sv-card-ico"><svg viewBox="0 0 32 32"><rect x="2" y="2" width="12" height="12" rx="1"/><rect x="18" y="2" width="12" height="12" rx="1"/><rect x="2" y="18" width="12" height="12" rx="1"/><rect x="18" y="18" width="12" height="12" rx="1"/></svg></div>
+        <div class="sv-card-name">디지털 전환</div>
+        <p class="sv-card-desc">기존 비즈니스 프로세스를 디지털 환경으로 전환하여 운영 효율성을 극대화합니다.</p>
+        <span class="sv-card-tag">Strategy</span>
+      </div>
+      <div class="sv-card rv d1">
+        <div class="sv-card-num">02 —</div>
+        <div class="sv-card-ico"><svg viewBox="0 0 32 32"><polyline points="3,24 9,14 16,19 22,9 29,13"/><circle cx="9" cy="14" r="2" fill="none"/><circle cx="22" cy="9" r="2" fill="none"/></svg></div>
+        <div class="sv-card-name">데이터 분석</div>
+        <p class="sv-card-desc">방대한 데이터에서 핵심 인사이트를 추출하고 맞춤형 대시보드로 의사결정을 지원합니다.</p>
+        <span class="sv-card-tag">Analytics</span>
+      </div>
+      <div class="sv-card rv d2">
+        <div class="sv-card-num">03 —</div>
+        <div class="sv-card-ico"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11"/><path d="M10 16C10 10 16 7 16 7C16 7 22 10 22 16C22 22 16 25 16 25C16 25 10 22 10 16Z"/><line x1="5" y1="16" x2="27" y2="16"/></svg></div>
+        <div class="sv-card-name">글로벌 전략</div>
+        <p class="sv-card-desc">해외 시장 진출을 위한 전략 수립부터 현지화까지 글로벌 성장을 함께합니다.</p>
+        <span class="sv-card-tag">Global</span>
+      </div>
+      <div class="sv-card rv d3">
+        <div class="sv-card-num">04 —</div>
+        <div class="sv-card-ico"><svg viewBox="0 0 32 32"><rect x="4" y="4" width="24" height="24" rx="2"/><polyline points="10,16 14,20 22,12"/></svg></div>
+        <div class="sv-card-name">맞춤 소프트웨어</div>
+        <p class="sv-card-desc">비즈니스에 특화된 확장 가능한 소프트웨어를 설계하고 개발합니다.</p>
+        <span class="sv-card-tag">Dev</span>
+      </div>
+      <div class="sv-card rv d4">
+        <div class="sv-card-num">05 —</div>
+        <div class="sv-card-ico"><svg viewBox="0 0 32 32"><path d="M16 4 L28 10 L28 22 L16 28 L4 22 L4 10 Z"/><circle cx="16" cy="16" r="5"/></svg></div>
+        <div class="sv-card-name">브랜드 컨설팅</div>
+        <p class="sv-card-desc">브랜드 정체성부터 마케팅 전략까지 일관된 브랜드 경험을 설계합니다.</p>
+        <span class="sv-card-tag">Brand</span>
+      </div>
+      <div class="sv-card rv d5">
+        <div class="sv-card-num">06 —</div>
+        <div class="sv-card-ico"><svg viewBox="0 0 32 32"><path d="M16 4C9.4 4 4 9.4 4 16s5.4 12 12 12 12-5.4 12-12S22.6 4 16 4z"/><path d="M10 16c0-3.3 2.7-6 6-6s6 2.7 6 6-2.7 6-6 6"/><circle cx="16" cy="16" r="2"/></svg></div>
+        <div class="sv-card-name">조직 혁신</div>
+        <p class="sv-card-desc">변화에 적응하는 조직 문화를 구축하고 구성원의 역량을 개발합니다.</p>
+        <span class="sv-card-tag">Org</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Recognition -->
+<section id="recognition">
+  <div class="rec-inner">
+    <div class="rec-cell rv" data-w="85%">
+      <div class="rec-n"><span class="count-up" data-t="50">0</span><span class="c">+</span></div>
+      <div class="rec-bar"><div class="rec-bar-fill" style="--w:85%"></div></div>
+      <div class="rec-key">프로젝트 완료</div>
+      <div class="rec-sub">국내외 다양한 산업</div>
+    </div>
+    <div class="rec-cell rv d1" data-w="98%">
+      <div class="rec-n"><span class="count-up" data-t="98">0</span><span class="c">%</span></div>
+      <div class="rec-bar"><div class="rec-bar-fill" style="--w:98%"></div></div>
+      <div class="rec-key">고객 만족도</div>
+      <div class="rec-sub">지속적 파트너십 기준</div>
+    </div>
+    <div class="rec-cell rv d2" data-w="70%">
+      <div class="rec-n"><span class="count-up" data-t="24">0</span><span class="c">명</span></div>
+      <div class="rec-bar"><div class="rec-bar-fill" style="--w:70%"></div></div>
+      <div class="rec-key">전문 인력</div>
+      <div class="rec-sub">분야별 5년+ 경력자</div>
+    </div>
+    <div class="rec-cell rv d3" data-w="60%">
+      <div class="rec-n"><span class="count-up" data-t="6">0</span><span class="c">년</span></div>
+      <div class="rec-bar"><div class="rec-bar-fill" style="--w:60%"></div></div>
+      <div class="rec-key">업력</div>
+      <div class="rec-sub">2019년 서울 설립</div>
+    </div>
+  </div>
+</section>
+
+<!-- Team -->
+<section id="team">
+  <div class="team-top rv">
+    <div>
+      <p class="ey">// 팀</p>
+      <h2 class="sh">Prelik을<br>이끄는 <span class="a">사람들</span></h2>
+    </div>
+    <p class="team-top-right">각 분야 최고의 전문가들이 하나의 목표를 향해 함께합니다. 다양한 경험이 만나 새로운 가능성을 만들어냅니다.</p>
+  </div>
+  <div class="team-grid">
+    <div class="tc rv">
+      <div class="tc-vis">
+        <div class="tc-bg-letter">KJ</div>
+        <span class="tc-tag">CEO</span>
+      </div>
+      <div class="tc-bar"><div class="tc-bar-fill"></div></div>
+      <div class="tc-info">
+        <div class="tc-name">김지원</div>
+        <div class="tc-role">대표이사 · CEO</div>
+        <p class="tc-bio">10년+ 전략 컨설팅 경험. 기술과 비즈니스의 교차점에서 새로운 가치를 창출합니다.</p>
+      </div>
+    </div>
+    <div class="tc rv d1">
+      <div class="tc-vis">
+        <div class="tc-bg-letter">LM</div>
+        <span class="tc-tag">CTO</span>
+      </div>
+      <div class="tc-bar"><div class="tc-bar-fill"></div></div>
+      <div class="tc-info">
+        <div class="tc-name">이민준</div>
+        <div class="tc-role">기술이사 · CTO</div>
+        <p class="tc-bio">실리콘밸리 출신 엔지니어. 확장 가능한 아키텍처와 기술 문화를 책임집니다.</p>
+      </div>
+    </div>
+    <div class="tc rv d2">
+      <div class="tc-vis">
+        <div class="tc-bg-letter">PH</div>
+        <span class="tc-tag">CSO</span>
+      </div>
+      <div class="tc-bar"><div class="tc-bar-fill"></div></div>
+      <div class="tc-info">
+        <div class="tc-name">박혜린</div>
+        <div class="tc-role">전략이사 · CSO</div>
+        <p class="tc-bio">글로벌 시장 전문가. 데이터 중심의 성장 전략을 수립하고 실행합니다.</p>
+      </div>
+    </div>
+    <div class="tc rv d3">
+      <div class="tc-vis">
+        <div class="tc-bg-letter">CS</div>
+        <span class="tc-tag">COO</span>
+      </div>
+      <div class="tc-bar"><div class="tc-bar-fill"></div></div>
+      <div class="tc-info">
+        <div class="tc-name">최성민</div>
+        <div class="tc-role">운영이사 · COO</div>
+        <p class="tc-bio">프로세스 최적화 전문가. 효율적인 운영 시스템으로 조직의 성과를 높입니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section id="contact">
+  <div class="ct-inner">
+    <div class="ct-l">
+      <p class="ey rv">// 연락처</p>
+      <h2 class="ct-h rv d1">함께<br><span class="a">시작</span><br>합시다</h2>
+      <p class="ct-desc rv d2">새로운 프로젝트나 협업 기회에 대해 논의하고 싶으신가요? 언제든지 연락 주세요. 1영업일 내 답변 드립니다.</p>
+      <div class="ct-items rv d3">
+        <div class="ct-item">
+          <div class="ct-icon"><svg viewBox="0 0 13 13"><path d="M1 2h11v9H1z"/><path d="M1 2l5.5 4.5L12 2"/></svg></div>
+          <div><div class="ct-label">이메일</div><div class="ct-val">hello@prelik.co.kr</div></div>
+        </div>
+        <div class="ct-item">
+          <div class="ct-icon"><svg viewBox="0 0 13 13"><path d="M1.5 1.5h3L6 4.5 4 5.8a8 8 0 003.2 3.2L8.5 7 11.5 8.5v3c0 0-9 .8-10-10z"/></svg></div>
+          <div><div class="ct-label">전화</div><div class="ct-val">02-1234-5678</div></div>
+        </div>
+        <div class="ct-item">
+          <div class="ct-icon"><svg viewBox="0 0 13 13"><path d="M6.5 1C4 1 2 3 2 5.5c0 3.5 4.5 6.5 4.5 6.5S11 9 11 5.5C11 3 9 1 6.5 1z"/><circle cx="6.5" cy="5.5" r="1.5"/></svg></div>
+          <div><div class="ct-label">주소</div><div class="ct-val">서울 강남구 테헤란로 427, 8층</div></div>
+        </div>
+        <div class="ct-item">
+          <div class="ct-icon"><svg viewBox="0 0 13 13"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M6.5 3.5v3l2 2"/></svg></div>
+          <div><div class="ct-label">운영시간</div><div class="ct-val">월–금 09:00–18:00</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="ct-r rv d2">
+      <form onsubmit="handleSubmit(event)">
+        <div class="fg2">
+          <div class="fg"><label>성함 *</label><input type="text" placeholder="홍길동" required></div>
+          <div class="fg"><label>이메일 *</label><input type="email" placeholder="you@company.com" required></div>
+        </div>
+        <div class="fg2">
+          <div class="fg"><label>회사명</label><input type="text" placeholder="주식회사 ○○"></div>
+          <div class="fg"><label>서비스</label>
+            <select><option value="">선택</option><option>디지털 전환</option><option>데이터 분석</option><option>글로벌 전략</option><option>맞춤 소프트웨어</option><option>브랜드 컨설팅</option><option>조직 혁신</option><option>기타</option></select>
+          </div>
+        </div>
+        <div class="fg"><label>문의 내용 *</label><textarea placeholder="프로젝트 또는 협업에 대해 소개해 주세요." required></textarea></div>
+        <div class="cf-footer">
+          <label class="cf-agree"><input type="checkbox" required>개인정보 수집 및 이용에 동의합니다.</label>
+          <button type="submit" class="cf-sub"><span id="sbtxt">보내기</span><i>→</i></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="ft">
+    <div class="ft-brand">
+      <a href="#" class="ft-mark">
+        <div class="ft-mark-bars"><span></span><span></span><span></span></div>
+        <span class="ft-mark-name">PRELIK</span>
+      </a>
+      <div class="ft-tagline">Shape the Future · Est. 2019</div>
+      <div class="ft-social" style="margin-top:1.5rem;">
+        <a href="#" class="ft-soc-btn">Li</a>
+        <a href="#" class="ft-soc-btn">Ig</a>
+        <a href="#" class="ft-soc-btn">Bl</a>
+      </div>
+    </div>
+    <div>
+      <div class="ft-col-h">서비스</div>
+      <ul class="ft-col-links">
+        <li><a href="#">디지털 전환</a></li>
+        <li><a href="#">데이터 분석</a></li>
+        <li><a href="#">글로벌 전략</a></li>
+        <li><a href="#">맞춤 소프트웨어</a></li>
+        <li><a href="#">브랜드 컨설팅</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="ft-col-h">회사</div>
+      <ul class="ft-col-links">
+        <li><a href="#">소개</a></li>
+        <li><a href="#">사례</a></li>
+        <li><a href="#">팀</a></li>
+        <li><a href="#">블로그</a></li>
+        <li><a href="#">채용</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="ft-col-h">법적고지</div>
+      <ul class="ft-col-links">
+        <li><a href="#">개인정보처리방침</a></li>
+        <li><a href="#">이용약관</a></li>
+        <li><a href="#">쿠키 정책</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="ft-bottom">
+    <span class="ft-copy">© 2025 Prelik Co., Ltd. All rights reserved.</span>
+    <span class="ft-loc">서울특별시 강남구 테헤란로 427</span>
+  </div>
+</footer>
+
+<script>
+/* Nav */
+window.addEventListener('scroll',()=>{
+  document.getElementById('nav').classList.toggle('solid',window.scrollY>60);
+});
+
+/* Marquee */
+const mqItems=['디지털 전환','데이터 분석','글로벌 전략','맞춤 소프트웨어','브랜드 컨설팅','조직 혁신','PRELIK','서울 강남','Shape the Future'];
+const mq=document.getElementById('mqTrack');
+const mqHtml=mqItems.map((v,i)=>`<span class="mq-item${i%4===0?' g':''}">${v}</span>`).join('');
+mq.innerHTML=mqHtml+mqHtml;
+
+/* Reveal */
+const rv=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('vis');rv.unobserve(x.target);}});},{threshold:0.1});
+document.querySelectorAll('.rv').forEach(el=>rv.observe(el));
+
+/* Rec cells with bar */
+const recObs=new IntersectionObserver(e=>{
+  e.forEach(x=>{
+    if(x.isIntersecting){
+      x.target.classList.add('vis');
+      recObs.unobserve(x.target);
+    }
+  });
+},{threshold:0.3});
+document.querySelectorAll('.rec-cell').forEach(el=>recObs.observe(el));
+
+/* Count-up */
+const cu=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){countUp(x.target);cu.unobserve(x.target);}});},{threshold:0.5});
+document.querySelectorAll('.count-up').forEach(el=>cu.observe(el));
+function countUp(el){
+  const t=+el.dataset.t,d=1500,s=performance.now();
+  (function f(n){const p=Math.min((n-s)/d,1),e=1-Math.pow(1-p,3);
+    el.textContent=Math.floor(e*t);if(p<1)requestAnimationFrame(f);else el.textContent=t;})(s);
+}
+
+/* Drag scroll for services */
+const sc=document.getElementById('svScroll');
+let isDown=false,startX,scrollLeft;
+sc.addEventListener('mousedown',e=>{isDown=true;sc.classList.add('grabbing');startX=e.pageX-sc.offsetLeft;scrollLeft=sc.scrollLeft;});
+sc.addEventListener('mouseleave',()=>{isDown=false;sc.classList.remove('grabbing');});
+sc.addEventListener('mouseup',()=>{isDown=false;sc.classList.remove('grabbing');});
+sc.addEventListener('mousemove',e=>{if(!isDown)return;e.preventDefault();const x=e.pageX-sc.offsetLeft;sc.scrollLeft=scrollLeft-(x-startX)*1.5;});
+
+/* Form submit */
+function handleSubmit(e){
+  e.preventDefault();
+  const t=document.getElementById('sbtxt');
+  t.textContent='전송 완료 ✓';
+  e.target.querySelector('.cf-sub').style.background='var(--ink)';
+  setTimeout(()=>{t.textContent='보내기';e.target.querySelector('.cf-sub').style.background='';e.target.reset();},3000);
+}
+</script>
+</body>
+</html>

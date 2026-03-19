@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prelik — AI 개발자를 위한 플랫폼</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #08080d;
+  --bg2:       #0e0e16;
+  --bg3:       #13131c;
+  --bg4:       #191924;
+  --border:    #1c1c2a;
+  --border2:   #252535;
+  --ink:       #e6e4f2;
+  --ink2:      #8e8ca6;
+  --ink3:      #4a4860;
+  --ink4:      #25233a;
+  --brand:     #6366f1;
+  --brand2:    #818cf8;
+  --brand-glow:rgba(99,102,241,.18);
+  --cyan:      #22d3ee;
+
+  --dal-c:     #00c896;
+  --dal-dim:   rgba(0,200,150,.1);
+  --dal-glow:  rgba(0,200,150,.2);
+
+  --vk-c:      #f5a623;
+  --vk-dim:    rgba(245,166,35,.1);
+  --vk-glow:   rgba(245,166,35,.2);
+
+  --lrn-c:     #a78bfa;
+  --lrn-dim:   rgba(167,139,250,.1);
+  --lrn-glow:  rgba(167,139,250,.2);
+
+  --r: 10px;
+  --r2: 16px;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* ─── NOISE OVERLAY ─── */
+body::before {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  opacity: 0.4;
+}
+
+/* ─── NAV ─── */
+nav {
+  position: fixed; top:0; left:0; right:0; z-index: 100;
+  height: 60px;
+  display: flex; align-items: center;
+  padding: 0 32px;
+  background: rgba(8,8,13,.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Syne', sans-serif;
+  font-size: 20px; font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-right: 48px;
+}
+.nav-logo-mark {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--brand), var(--cyan));
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 800; color: white;
+}
+
+.nav-links { display: flex; align-items: center; gap: 4px; flex:1; }
+.nav-link {
+  padding: 6px 14px; border-radius: 6px;
+  font-size: 14px; font-weight: 450; color: var(--ink2);
+  transition: color .2s, background .2s; cursor: pointer;
+  position: relative;
+}
+.nav-link:hover { color: var(--ink); background: var(--bg3); }
+.nav-link.has-badge::after {
+  content:''; width:6px; height:6px; border-radius:50%;
+  background: var(--dal-c); position:absolute; top:6px; right:8px;
+}
+
+.nav-sep { width:1px; height:20px; background:var(--border2); margin:0 12px; }
+
+.nav-right { display:flex; align-items:center; gap:10px; }
+
+.btn {
+  display:inline-flex; align-items:center; gap:8px;
+  padding: 8px 18px; border-radius: var(--r);
+  font-size: 14px; font-weight: 500; font-family: 'DM Sans', sans-serif;
+  cursor: pointer; border: none; transition: all .2s;
+}
+.btn-ghost {
+  background:transparent; color:var(--ink2); border:1px solid var(--border2);
+}
+.btn-ghost:hover { color:var(--ink); border-color:var(--border2); background:var(--bg3); }
+.btn-primary {
+  background: linear-gradient(135deg, var(--brand), #4f46e5);
+  color: white;
+  box-shadow: 0 0 20px var(--brand-glow);
+}
+.btn-primary:hover { transform:translateY(-1px); box-shadow: 0 4px 24px var(--brand-glow); }
+
+/* ─── HERO ─── */
+.hero {
+  min-height: 100vh;
+  display: flex; align-items: center;
+  padding: 120px 0 80px;
+  position: relative; overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute; inset:0; pointer-events:none;
+}
+.hero-mesh {
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 70% 70% at 15% 40%, rgba(99,102,241,.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 85% 70%, rgba(34,211,238,.07) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 40% at 60% 15%, rgba(0,200,150,.06) 0%, transparent 50%);
+  animation: meshPulse 10s ease-in-out infinite alternate;
+}
+@keyframes meshPulse {
+  from { opacity:.7; transform:scale(1); }
+  to   { opacity:1;  transform:scale(1.04) translate(-1%, .5%); }
+}
+.hero-grid {
+  position:absolute; inset:0;
+  background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 80%);
+  opacity: .3;
+}
+
+.hero-inner {
+  max-width: 1200px; margin: 0 auto; padding: 0 32px;
+  width:100%;
+  display: grid; grid-template-columns: 1fr 520px; gap: 80px; align-items: center;
+}
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 5px 12px;
+  background: var(--brand-glow);
+  border: 1px solid rgba(99,102,241,.3);
+  border-radius: 20px;
+  font-size: 12px; font-weight: 500; color: var(--brand2);
+  letter-spacing: .04em; text-transform: uppercase;
+  margin-bottom: 24px;
+}
+.hero-eyebrow span { width:6px; height:6px; border-radius:50%; background:var(--brand2); animation: blink 2s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+.hero-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(42px, 5.5vw, 72px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-bottom: 24px;
+}
+.hero-title .grad {
+  background: linear-gradient(135deg, var(--ink) 0%, var(--brand2) 60%, var(--cyan) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+.hero-desc {
+  font-size: 17px; color: var(--ink2); line-height: 1.7;
+  max-width: 480px; margin-bottom: 36px;
+}
+
+.hero-actions { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:48px; }
+.btn-lg { padding: 12px 28px; font-size: 15px; border-radius: var(--r2); }
+
+.hero-products-strip {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.product-pill {
+  display:flex; align-items:center; gap:7px;
+  padding: 6px 12px;
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 20px; font-size: 13px; font-weight: 500; color: var(--ink2);
+  transition: all .2s;
+}
+.product-pill:hover { border-color: var(--border2); color: var(--ink); transform:translateY(-1px); }
+.product-pill .dot { width:8px; height:8px; border-radius:50%; }
+
+/* ─── HERO PRODUCT CARDS (right side) ─── */
+.hero-cards {
+  position: relative; height: 480px;
+}
+.hero-card {
+  position: absolute;
+  width: 300px;
+  padding: 24px;
+  background: var(--bg2);
+  border-radius: var(--r2);
+  border: 1px solid var(--border2);
+  transition: transform .3s ease;
+}
+.hero-card::before {
+  content:''; position:absolute; top:0; left:0; right:0;
+  height: 3px; border-radius: var(--r2) var(--r2) 0 0;
+}
+.hero-card.dalforge { top:0; left:80px; z-index:3; animation: floatA 6s ease-in-out infinite; }
+.hero-card.dalforge::before { background: var(--dal-c); }
+.hero-card.veilkey  { top:160px; left:0;   z-index:2; animation: floatB 7s ease-in-out infinite; }
+.hero-card.veilkey::before  { background: var(--vk-c); }
+.hero-card.learning { top:310px; left:120px; z-index:1; animation: floatC 8s ease-in-out infinite; }
+.hero-card.learning::before { background: var(--lrn-c); }
+
+@keyframes floatA { 0%,100%{transform:translateY(0)}   50%{transform:translateY(-10px)} }
+@keyframes floatB { 0%,100%{transform:translateY(0)}   50%{transform:translateY(-8px) translateX(4px)} }
+@keyframes floatC { 0%,100%{transform:translateY(0)}   50%{transform:translateY(-12px)} }
+
+.hero-card-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  font-size: 11px; font-weight: 600; letter-spacing:.06em; text-transform:uppercase;
+  margin-bottom: 12px;
+}
+.hero-card-title {
+  font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700;
+  letter-spacing: -0.02em; margin-bottom: 8px;
+}
+.hero-card-desc { font-size:13px; color:var(--ink2); line-height:1.5; }
+
+/* ─── SECTION BASE ─── */
+.section { padding: 100px 0; }
+.section-inner { max-width: 1200px; margin:0 auto; padding:0 32px; }
+
+.section-label {
+  font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--brand2); margin-bottom: 16px;
+  display:flex; align-items:center; gap:8px;
+}
+.section-label::before { content:''; width:20px; height:1px; background:var(--brand2); }
+
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 800; letter-spacing:-0.03em; line-height:1.1;
+  margin-bottom: 16px;
+}
+.section-sub {
+  font-size: 17px; color: var(--ink2); line-height: 1.7; max-width: 540px;
+}
+
+/* ─── STATS BAR ─── */
+.stats-bar {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  padding: 36px 0;
+}
+.stats-grid {
+  max-width: 1200px; margin:0 auto; padding: 0 32px;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  divide-x: 1px solid var(--border);
+  gap: 0;
+}
+.stat-item {
+  padding: 0 40px;
+  border-right: 1px solid var(--border);
+  text-align: center;
+}
+.stat-item:first-child { padding-left:0; }
+.stat-item:last-child  { border-right:none; }
+.stat-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 36px; font-weight: 800; letter-spacing:-0.03em;
+  background: linear-gradient(135deg, var(--ink), var(--brand2));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+.stat-label { font-size:13px; color:var(--ink3); margin-top:4px; }
+
+/* ─── PRODUCTS ─── */
+.products-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 24px; margin-top: 64px;
+}
+.product-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 36px; overflow: hidden;
+  position: relative; transition: transform .25s, border-color .25s, box-shadow .25s;
+}
+.product-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+}
+.product-card.dalforge::before { background: linear-gradient(90deg, var(--dal-c), transparent); }
+.product-card.veilkey::before  { background: linear-gradient(90deg, var(--vk-c), transparent); }
+.product-card.learning::before { background: linear-gradient(90deg, var(--lrn-c), transparent); }
+
+.product-card::after {
+  content:''; position:absolute; top:0; left:0; right:0; bottom:0;
+  opacity:0; transition: opacity .3s;
+  pointer-events:none;
+}
+.product-card.dalforge::after { background: radial-gradient(ellipse 60% 60% at 50% 0%, var(--dal-dim), transparent); }
+.product-card.veilkey::after  { background: radial-gradient(ellipse 60% 60% at 50% 0%, var(--vk-dim), transparent); }
+.product-card.learning::after { background: radial-gradient(ellipse 60% 60% at 50% 0%, var(--lrn-dim), transparent); }
+
+.product-card:hover { transform:translateY(-4px); border-color:var(--border2); }
+.product-card:hover::after { opacity:1; }
+.product-card.dalforge:hover { box-shadow: 0 20px 60px rgba(0,200,150,.1); border-color:rgba(0,200,150,.3); }
+.product-card.veilkey:hover  { box-shadow: 0 20px 60px rgba(245,166,35,.1); border-color:rgba(245,166,35,.3); }
+.product-card.learning:hover { box-shadow: 0 20px 60px rgba(167,139,250,.1); border-color:rgba(167,139,250,.3); }
+
+.product-icon {
+  width: 52px; height: 52px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; margin-bottom: 20px;
+  position: relative; z-index:1;
+}
+.product-card.dalforge .product-icon { background: var(--dal-dim); }
+.product-card.veilkey  .product-icon { background: var(--vk-dim); }
+.product-card.learning .product-icon { background: var(--lrn-dim); }
+
+.product-name {
+  font-family: 'Syne', sans-serif; font-size:22px; font-weight:700;
+  letter-spacing:-0.02em; margin-bottom:10px; position:relative;z-index:1;
+}
+.product-tagline { font-size:14px; color:var(--ink2); line-height:1.6; margin-bottom:24px; position:relative;z-index:1; }
+
+.product-features { list-style:none; margin-bottom:28px; position:relative;z-index:1; }
+.product-features li {
+  font-size:13px; color:var(--ink2); padding:6px 0;
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:8px;
+}
+.product-features li::before { content:''; width:5px; height:5px; border-radius:50%; flex-shrink:0; }
+.dalforge .product-features li::before { background:var(--dal-c); }
+.veilkey  .product-features li::before { background:var(--vk-c); }
+.learning .product-features li::before { background:var(--lrn-c); }
+
+.product-cta {
+  display:inline-flex; align-items:center; gap:6px;
+  font-size:14px; font-weight:500; position:relative;z-index:1;
+  padding: 9px 18px; border-radius: var(--r);
+  border: 1px solid transparent; transition: all .2s;
+}
+.dalforge .product-cta { color:var(--dal-c); border-color:rgba(0,200,150,.3); }
+.dalforge .product-cta:hover { background:var(--dal-dim); }
+.veilkey  .product-cta { color:var(--vk-c); border-color:rgba(245,166,35,.3); }
+.veilkey  .product-cta:hover { background:var(--vk-dim); }
+.learning .product-cta { color:var(--lrn-c); border-color:rgba(167,139,250,.3); }
+.learning .product-cta:hover { background:var(--lrn-dim); }
+
+/* ─── DALFORGE DEEP DIVE ─── */
+.feature-section {
+  padding: 100px 0;
+  border-top: 1px solid var(--border);
+}
+.feature-inner {
+  max-width:1200px; margin:0 auto; padding:0 32px;
+  display:grid; grid-template-columns: 1fr 1fr; gap:80px; align-items:center;
+}
+.feature-inner.reverse { direction:rtl; }
+.feature-inner.reverse > * { direction:ltr; }
+
+.feature-tag {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:4px 12px; border-radius:20px; margin-bottom:20px;
+  font-size:12px; font-weight:600; letter-spacing:.04em; text-transform:uppercase;
+}
+.tag-dal  { background:var(--dal-dim); color:var(--dal-c); border:1px solid rgba(0,200,150,.2); }
+.tag-vk   { background:var(--vk-dim);  color:var(--vk-c);  border:1px solid rgba(245,166,35,.2); }
+.tag-lrn  { background:var(--lrn-dim); color:var(--lrn-c); border:1px solid rgba(167,139,250,.2); }
+
+.feature-title {
+  font-family:'Syne',sans-serif; font-size:38px; font-weight:800;
+  letter-spacing:-0.03em; line-height:1.1; margin-bottom:16px;
+}
+.feature-desc { font-size:16px; color:var(--ink2); line-height:1.75; margin-bottom:32px; }
+.feature-bullets { list-style:none; }
+.feature-bullets li {
+  display:flex; align-items:flex-start; gap:12px;
+  padding: 12px 0; border-bottom:1px solid var(--border);
+  font-size:14px; color:var(--ink2);
+}
+.feature-bullets li:last-child { border-bottom:none; }
+.bullet-icon {
+  width:28px; height:28px; border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px; flex-shrink:0; margin-top:1px;
+}
+.bi-dal { background:var(--dal-dim); color:var(--dal-c); }
+.bi-vk  { background:var(--vk-dim);  color:var(--vk-c); }
+.bi-lrn { background:var(--lrn-dim); color:var(--lrn-c); }
+
+/* ─── CODE PANEL ─── */
+.code-panel {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: var(--r2); overflow: hidden;
+}
+.code-panel-header {
+  padding: 12px 20px; background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+  display:flex; align-items:center; gap:8px;
+}
+.code-panel-dots { display:flex; gap:6px; }
+.code-panel-dots span { width:12px; height:12px; border-radius:50%; }
+.code-panel-dots span:nth-child(1) { background:#ff5f57; }
+.code-panel-dots span:nth-child(2) { background:#febc2e; }
+.code-panel-dots span:nth-child(3) { background:#28c840; }
+.code-panel-title {
+  flex:1; text-align:center; font-family:'JetBrains Mono',monospace;
+  font-size:12px; color:var(--ink3);
+}
+.code-content {
+  padding: 24px; font-family:'JetBrains Mono',monospace;
+  font-size:12.5px; line-height:1.7; color:var(--ink2);
+  white-space: pre;
+}
+.c-dim    { color: var(--ink3); }
+.c-green  { color: var(--dal-c); }
+.c-amber  { color: var(--vk-c); }
+.c-purple { color: var(--lrn-c); }
+.c-brand  { color: var(--brand2); }
+.c-cyan   { color: var(--cyan); }
+.c-white  { color: var(--ink); }
+
+/* ─── VEILKEY PANEL ─── */
+.vk-panel {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: var(--r2); padding: 28px; position:relative; overflow:hidden;
+}
+.vk-panel::before {
+  content:''; position:absolute; inset:0;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(245,166,35,.06), transparent);
+}
+.vk-panel-title {
+  font-family:'Syne',sans-serif; font-size:14px; font-weight:600;
+  color:var(--vk-c); margin-bottom:20px; display:flex; align-items:center; gap:8px;
+  position:relative;
+}
+.vk-row {
+  display:grid; grid-template-columns:1fr auto;
+  align-items:center; gap:12px;
+  padding: 12px 14px; border-radius: 8px;
+  background: var(--bg3); border:1px solid var(--border);
+  margin-bottom: 8px; position:relative;
+}
+.vk-row:last-child { margin-bottom:0; }
+.vk-key { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--ink2); }
+.vk-val {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--ink3); letter-spacing:.1em;
+}
+.vk-badge {
+  padding:2px 8px; border-radius:4px;
+  font-size:10px; font-weight:600; letter-spacing:.04em; text-transform:uppercase;
+  background:rgba(245,166,35,.12); color:var(--vk-c);
+}
+
+/* ─── COURSES ─── */
+.courses-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 24px; margin-top: 56px;
+}
+.course-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--r2); overflow:hidden;
+  transition: transform .25s, border-color .25s;
+}
+.course-card:hover { transform:translateY(-4px); border-color:var(--border2); }
+.course-thumb {
+  height: 160px; display:flex; align-items:center; justify-content:center;
+  position:relative; overflow:hidden;
+}
+.course-thumb-icon { font-size:44px; z-index:1; }
+.course-card:nth-child(1) .course-thumb { background: linear-gradient(135deg, #0d1f1a, #0a2a1a); }
+.course-card:nth-child(2) .course-thumb { background: linear-gradient(135deg, #1a1000, #1c1400); }
+.course-card:nth-child(3) .course-thumb { background: linear-gradient(135deg, #110d1f, #16102a); }
+.course-thumb::after {
+  content:''; position:absolute; inset:0;
+  background: inherit; opacity:.5;
+  filter: blur(40px); transform:scale(1.2);
+}
+.course-body { padding:24px; }
+.course-category {
+  font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+  margin-bottom:10px;
+}
+.cat-infra  { color:var(--dal-c); }
+.cat-sec    { color:var(--vk-c); }
+.cat-aidev  { color:var(--lrn-c); }
+.course-title {
+  font-family:'Syne',sans-serif; font-size:17px; font-weight:700;
+  letter-spacing:-0.02em; margin-bottom:10px; line-height:1.3;
+}
+.course-desc { font-size:13px; color:var(--ink2); line-height:1.6; margin-bottom:16px; }
+.course-meta {
+  display:flex; align-items:center; gap:12px;
+  font-size:12px; color:var(--ink3);
+}
+.course-meta span { display:flex; align-items:center; gap:4px; }
+.course-price {
+  font-family:'Syne',sans-serif; font-size:20px; font-weight:700;
+  color: var(--ink); margin-top:16px; padding-top:16px;
+  border-top: 1px solid var(--border);
+  display:flex; align-items:baseline; gap:6px;
+}
+.price-orig { font-size:13px; color:var(--ink3); text-decoration:line-through; font-weight:400; font-family:'DM Sans',sans-serif; }
+
+/* ─── PRICING ─── */
+.pricing-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 24px; margin-top: 60px;
+}
+.pricing-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 36px; position:relative;
+  transition: transform .25s, border-color .25s;
+}
+.pricing-card:hover { transform:translateY(-4px); }
+.pricing-card.featured {
+  border-color: var(--brand);
+  background: linear-gradient(180deg, rgba(99,102,241,.07) 0%, var(--bg2) 100%);
+  box-shadow: 0 0 0 1px var(--brand), 0 20px 60px rgba(99,102,241,.12);
+}
+.pricing-badge {
+  position:absolute; top:-12px; left:50%; transform:translateX(-50%);
+  background: linear-gradient(135deg, var(--brand), #4f46e5);
+  color:white; font-size:11px; font-weight:600; letter-spacing:.04em;
+  padding: 4px 14px; border-radius:20px; white-space:nowrap;
+}
+.plan-name {
+  font-family:'Syne',sans-serif; font-size:18px; font-weight:700;
+  letter-spacing:-0.02em; margin-bottom:8px;
+}
+.plan-price {
+  font-family:'Syne',sans-serif; font-size:42px; font-weight:800;
+  letter-spacing:-0.04em; margin-bottom:4px; line-height:1;
+}
+.plan-price sup { font-size:20px; vertical-align:top; margin-top:8px; display:inline-block; }
+.plan-price sub { font-size:14px; font-weight:400; font-family:'DM Sans',sans-serif; color:var(--ink2); }
+.plan-desc { font-size:13px; color:var(--ink2); margin-bottom:28px; padding-bottom:28px; border-bottom:1px solid var(--border); }
+.plan-features { list-style:none; margin-bottom:32px; }
+.plan-features li {
+  padding:8px 0; font-size:14px; color:var(--ink2);
+  display:flex; align-items:center; gap:10px;
+  border-bottom:1px solid var(--border);
+}
+.plan-features li:last-child { border-bottom:none; }
+.check { color:var(--dal-c); font-size:13px; }
+.cross { color:var(--ink3); font-size:11px; }
+.plan-btn {
+  width:100%; padding:12px; border-radius:var(--r);
+  font-size:14px; font-weight:600; font-family:'DM Sans',sans-serif;
+  cursor:pointer; transition:all .2s; border:none;
+}
+.plan-btn-outline {
+  background:transparent; border:1px solid var(--border2); color:var(--ink2);
+}
+.plan-btn-outline:hover { color:var(--ink); border-color:var(--ink2); }
+.plan-btn-brand {
+  background:linear-gradient(135deg,var(--brand),#4f46e5);
+  color:white; box-shadow:0 0 20px var(--brand-glow);
+}
+.plan-btn-brand:hover { transform:translateY(-1px); box-shadow:0 4px 24px var(--brand-glow); }
+
+/* ─── CTA BANNER ─── */
+.cta-banner {
+  padding: 100px 0; background: var(--bg2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  text-align:center; position:relative; overflow:hidden;
+}
+.cta-banner::before {
+  content:''; position:absolute; inset:0;
+  background: radial-gradient(ellipse 70% 80% at 50% 50%, rgba(99,102,241,.08), transparent);
+}
+.cta-banner-title {
+  font-family:'Syne',sans-serif; font-size:clamp(36px,5vw,60px); font-weight:800;
+  letter-spacing:-0.03em; line-height:1.1; margin-bottom:20px; position:relative;
+}
+.cta-banner-sub { font-size:17px; color:var(--ink2); max-width:480px; margin:0 auto 40px; position:relative; }
+.cta-actions { display:flex; align-items:center; justify-content:center; gap:12px; position:relative; }
+
+/* ─── FOOTER ─── */
+footer {
+  padding: 64px 0 40px;
+  border-top: 1px solid var(--border);
+}
+.footer-inner {
+  max-width:1200px; margin:0 auto; padding:0 32px;
+}
+.footer-top {
+  display:grid; grid-template-columns: 280px repeat(4, 1fr);
+  gap:48px; margin-bottom:64px;
+}
+.footer-brand-desc {
+  font-size:13px; color:var(--ink3); line-height:1.7; margin-top:12px; margin-bottom:20px;
+}
+.footer-social { display:flex; gap:10px; }
+.social-btn {
+  width:34px; height:34px; border-radius:8px;
+  background:var(--bg2); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px; color:var(--ink3); transition:all .2s; cursor:pointer;
+}
+.social-btn:hover { color:var(--ink); border-color:var(--border2); background:var(--bg3); }
+.footer-col-title {
+  font-family:'Syne',sans-serif; font-size:13px; font-weight:700;
+  text-transform:uppercase; letter-spacing:.06em; color:var(--ink); margin-bottom:16px;
+}
+.footer-links { list-style:none; }
+.footer-links li { margin-bottom:10px; }
+.footer-links a { font-size:13px; color:var(--ink3); transition:color .15s; }
+.footer-links a:hover { color:var(--ink2); }
+.footer-bottom {
+  padding-top:28px; border-top:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+  font-size:12px; color:var(--ink3);
+}
+
+/* ─── SCROLL ANIMATIONS ─── */
+.reveal { opacity:0; transform:translateY(24px); transition:opacity .6s ease, transform .6s ease; }
+.reveal.visible { opacity:1; transform:none; }
+.reveal-delay-1 { transition-delay:.1s; }
+.reveal-delay-2 { transition-delay:.2s; }
+.reveal-delay-3 { transition-delay:.3s; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-mark">P</div>
+    Prelik
+  </a>
+  <div class="nav-links">
+    <a class="nav-link has-badge">Products</a>
+    <a class="nav-link">Learning</a>
+    <a class="nav-link">Pricing</a>
+    <a class="nav-link">Docs</a>
+    <a class="nav-link">Blog</a>
+  </div>
+  <div class="nav-sep"></div>
+  <div class="nav-right">
+    <button class="btn btn-ghost">Sign in</button>
+    <button class="btn btn-primary">Get started free →</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg">
+    <div class="hero-mesh"></div>
+    <div class="hero-grid"></div>
+  </div>
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-eyebrow"><span></span> Now in Public Beta</div>
+      <h1 class="hero-title">
+        AI 개발자를 위한<br>
+        <span class="grad">통합 플랫폼</span>
+      </h1>
+      <p class="hero-desc">
+        인프라 툴링부터 보안 자격증명 관리, 전문 교육까지 —
+        AI 네이티브 소프트웨어를 만드는 팀에 필요한 모든 것.
+      </p>
+      <div class="hero-actions">
+        <button class="btn btn-primary btn-lg">무료로 시작하기 →</button>
+        <button class="btn btn-ghost btn-lg">데모 보기</button>
+      </div>
+      <div class="hero-products-strip">
+        <div class="product-pill"><span class="dot" style="background:var(--dal-c)"></span> dalforge</div>
+        <div class="product-pill"><span class="dot" style="background:var(--vk-c)"></span> VeilKey</div>
+        <div class="product-pill"><span class="dot" style="background:var(--lrn-c)"></span> Prelik Academy</div>
+      </div>
+    </div>
+    <div class="hero-cards">
+      <div class="hero-card dalforge">
+        <div class="hero-card-badge" style="color:var(--dal-c)">
+          <span style="width:6px;height:6px;border-radius:50%;background:var(--dal-c);display:inline-block"></span>
+          dalforge
+        </div>
+        <div class="hero-card-title">AI Agent Container</div>
+        <div class="hero-card-desc">CLI · SKILL · HOOK · PLAYER · VAULT를 하나의 달(dal)로 패키징</div>
+        <div style="margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink3)">
+          DAL:CLI:a3f82c1d &nbsp;·&nbsp; DAL:SKILL:b9e01f4a
+        </div>
+      </div>
+      <div class="hero-card veilkey">
+        <div class="hero-card-badge" style="color:var(--vk-c)">
+          <span style="width:6px;height:6px;border-radius:50%;background:var(--vk-c);display:inline-block"></span>
+          VeilKey
+        </div>
+        <div class="hero-card-title">Credential Vault</div>
+        <div class="hero-card-desc">AES-256-GCM 암호화. 프로비전 시 자동 주입. 제로 노출.</div>
+        <div style="margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink3)">
+          ●●●●●●●●●●● encrypted
+        </div>
+      </div>
+      <div class="hero-card learning">
+        <div class="hero-card-badge" style="color:var(--lrn-c)">
+          <span style="width:6px;height:6px;border-radius:50%;background:var(--lrn-c);display:inline-block"></span>
+          Academy
+        </div>
+        <div class="hero-card-title">Expert Courses</div>
+        <div class="hero-card-desc">AI 인프라 엔지니어링 전문 강의. 실습 중심 커리큘럼.</div>
+        <div style="margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink3)">
+          12 courses &nbsp;·&nbsp; 240+ lessons
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stats-grid">
+    <div class="stat-item reveal">
+      <div class="stat-num">4,200+</div>
+      <div class="stat-label">활성 개발자</div>
+    </div>
+    <div class="stat-item reveal reveal-delay-1">
+      <div class="stat-num">18,000+</div>
+      <div class="stat-label">배포된 dal 컨테이너</div>
+    </div>
+    <div class="stat-item reveal reveal-delay-2">
+      <div class="stat-num">99.97%</div>
+      <div class="stat-label">VeilKey 가동률</div>
+    </div>
+    <div class="stat-item reveal reveal-delay-3">
+      <div class="stat-num">1,200+</div>
+      <div class="stat-label">수강생</div>
+    </div>
+  </div>
+</div>
+
+<!-- PRODUCTS -->
+<section class="section">
+  <div class="section-inner">
+    <div class="section-label reveal">Our Products</div>
+    <h2 class="section-title reveal">세 가지 제품, 하나의 생태계</h2>
+    <p class="section-sub reveal">각 도구는 독립적으로 작동하지만, 함께 사용할 때 진가를 발휘합니다.</p>
+
+    <div class="products-grid">
+      <!-- dalforge -->
+      <div class="product-card dalforge reveal">
+        <div class="product-icon">⚙️</div>
+        <div class="product-name">dalforge</div>
+        <div class="product-tagline">AI 에이전트 컨테이너 인프라. CLI부터 스킬, 훅, 플레이어, 시크릿까지 하나의 dal로.</div>
+        <ul class="product-features">
+          <li>DAL:CLI · SKILL · HOOK · PLAYER · VAULT</li>
+          <li>CUE 기반 선언형 템플릿 (.dalfactory)</li>
+          <li>Proxmox LXC 자동 프로비저닝</li>
+          <li>~/.claude/ & ~/.codex/ 심링크 자동 export</li>
+          <li>60초 주기 drift 감지 데몬</li>
+        </ul>
+        <a href="#" class="product-cta">자세히 보기 →</a>
+      </div>
+
+      <!-- VeilKey -->
+      <div class="product-card veilkey reveal reveal-delay-1">
+        <div class="product-icon">🔐</div>
+        <div class="product-name">VeilKey</div>
+        <div class="product-tagline">엔터프라이즈급 시크릿 관리. 개발자가 쓰기 쉬운 단순함.</div>
+        <ul class="product-features">
+          <li>AES-256-GCM 암호화 SQLite 저장소</li>
+          <li>프로비전 시 환경변수 자동 주입</li>
+          <li>프로젝트별 격리된 Vault</li>
+          <li>CLI & Web UI 지원</li>
+          <li>팀 협업 권한 관리</li>
+        </ul>
+        <a href="#" class="product-cta">자세히 보기 →</a>
+      </div>
+
+      <!-- Academy -->
+      <div class="product-card learning reveal reveal-delay-2">
+        <div class="product-icon">🎓</div>
+        <div class="product-name">Prelik Academy</div>
+        <div class="product-tagline">AI 인프라 엔지니어링 전문 강의. 기초부터 프로덕션 배포까지.</div>
+        <ul class="product-features">
+          <li>dalforge 심화 실습 과정</li>
+          <li>LXC 컨테이너 인프라 운영</li>
+          <li>AI 에이전트 설계 패턴</li>
+          <li>CUE 언어 & 선언형 인프라</li>
+          <li>Proxmox / 홈랩 운영</li>
+        </ul>
+        <a href="#" class="product-cta">강의 보기 →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DALFORGE DEEP DIVE -->
+<section class="feature-section">
+  <div class="feature-inner">
+    <div class="feature-text reveal">
+      <div class="feature-tag tag-dal">⚙️ dalforge</div>
+      <h2 class="feature-title">하나의 dal이<br>모든 것을 담는다</h2>
+      <p class="feature-desc">
+        dalforge의 핵심은 <strong>dal</strong>이라는 단위입니다.
+        CLI 도구, 스킬 파일, 훅 스크립트, AI 플레이어, 시크릿 볼트가
+        각각 고유한 DAL ID를 가지고 하나의 컨테이너에서 동작합니다.
+      </p>
+      <ul class="feature-bullets">
+        <li>
+          <div class="bullet-icon bi-dal">⚡</div>
+          <div><strong style="color:var(--ink)">DAL:CLI</strong><br>dalcenter join 시 발급. 클라우드 허브의 CLI 패키지도 관리.</div>
+        </li>
+        <li>
+          <div class="bullet-icon bi-dal">🧩</div>
+          <div><strong style="color:var(--ink)">DAL:SKILL</strong><br>.dalfactory/skills/ → ~/.claude/skills/ 심링크 자동 export.</div>
+        </li>
+        <li>
+          <div class="bullet-icon bi-dal">🪝</div>
+          <div><strong style="color:var(--ink)">DAL:HOOK</strong><br>훅 스크립트 → settings.json 자동 머지. AI 런타임에 즉시 반영.</div>
+        </li>
+        <li>
+          <div class="bullet-icon bi-dal">🤖</div>
+          <div><strong style="color:var(--ink)">DAL:PLAYER</strong><br>claude_sdk / codex_appserver / gemini_cli — LXC 내부 실행 에이전트.</div>
+        </li>
+      </ul>
+    </div>
+    <div class="code-panel reveal reveal-delay-1">
+      <div class="code-panel-header">
+        <div class="code-panel-dots"><span></span><span></span><span></span></div>
+        <div class="code-panel-title">backend.cue — DalTemplate</div>
+      </div>
+      <div class="code-content"><span class="c-brand">package</span> <span class="c-white">dalfactory</span>
+
+<span class="c-white">backend</span>: <span class="c-brand">#DalTemplate</span> & {
+  <span class="c-dim">// ── Container ─────────────────</span>
+  container: {
+    image:  <span class="c-green">"ubuntu-24.04"</span>
+    memory: <span class="c-amber">2048</span>
+    cpus:   <span class="c-amber">2</span>
+  }
+
+  <span class="c-dim">// ── Skills ────────────────────</span>
+  skills: [
+    <span class="c-green">"skills/code-review.md"</span>,
+    <span class="c-green">"skills/deploy.md"</span>,
+  ]
+
+  <span class="c-dim">// ── Hooks ─────────────────────</span>
+  hooks: [
+    <span class="c-green">"hooks/pre-commit.sh"</span>,
+  ]
+
+  <span class="c-dim">// ── Exports ───────────────────</span>
+  exports: {
+    claude_sdk: {
+      skills: skills
+      hooks:  hooks
+    }
+  }
+
+  <span class="c-dim">// ── Secrets ───────────────────</span>
+  secrets: [
+    <span class="c-green">"GITHUB_TOKEN"</span>,
+    <span class="c-green">"DATABASE_URL"</span>,
+  ]
+}
+</div>
+    </div>
+  </div>
+</section>
+
+<!-- VEILKEY DEEP DIVE -->
+<section class="feature-section">
+  <div class="feature-inner reverse">
+    <div class="feature-text reveal">
+      <div class="feature-tag tag-vk">🔐 VeilKey</div>
+      <h2 class="feature-title">시크릿은 절대<br>평문으로 남지 않는다</h2>
+      <p class="feature-desc">
+        VeilKey는 AES-256-GCM으로 암호화된 SQLite에 자격증명을 저장합니다.
+        dal 프로비전 시 자동으로 환경변수에 주입되어,
+        개발자는 시크릿을 직접 다룰 필요가 없습니다.
+      </p>
+      <ul class="feature-bullets">
+        <li>
+          <div class="bullet-icon bi-vk">🔒</div>
+          <div><strong style="color:var(--ink)">AES-256-GCM 암호화</strong><br>모든 자격증명은 저장 즉시 암호화. 복호화는 런타임에만.</div>
+        </li>
+        <li>
+          <div class="bullet-icon bi-vk">💉</div>
+          <div><strong style="color:var(--ink)">자동 환경변수 주입</strong><br>dalcenter provision 시 컨테이너에 env로 자동 주입.</div>
+        </li>
+        <li>
+          <div class="bullet-icon bi-vk">🏰</div>
+          <div><strong style="color:var(--ink)">프로젝트별 격리</strong><br>각 dal은 독립된 Vault를 가집니다. 교차 접근 불가.</div>
+        </li>
+      </ul>
+    </div>
+    <div class="vk-panel reveal reveal-delay-1">
+      <div class="vk-panel-title">🔐 VeilKey — secret vault</div>
+      <div class="vk-row">
+        <div class="vk-key">GITHUB_TOKEN</div>
+        <div class="vk-val">ghp_●●●●●●●●●●●●●●●●●●●●</div>
+      </div>
+      <div class="vk-row">
+        <div class="vk-key">DATABASE_URL</div>
+        <div class="vk-val">postgres://●●●●●●●@●●●●●●:5432/●●</div>
+      </div>
+      <div class="vk-row">
+        <div class="vk-key">OPENAI_API_KEY</div>
+        <div class="vk-val">sk-proj-●●●●●●●●●●●●●●●●●●●●●●●</div>
+      </div>
+      <div class="vk-row">
+        <div class="vk-key">AWS_SECRET_ACCESS_KEY</div>
+        <div class="vk-val">●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●●</div>
+      </div>
+      <div style="margin-top:20px;padding:14px;background:var(--bg3);border-radius:8px;border:1px solid var(--border)">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink3);line-height:1.7">
+          <span style="color:var(--ink2)">$</span> dalcenter secret set GITHUB_TOKEN<br>
+          <span style="color:var(--vk-c)">✔</span> Stored in vault (AES-256-GCM)<br>
+          <span style="color:var(--vk-c)">✔</span> Injected on next provision<br>
+          <span style="color:var(--ink3)">  DAL:VAULT:d2c49ab1</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COURSES -->
+<section class="section" style="background:var(--bg2);border-top:1px solid var(--border)">
+  <div class="section-inner">
+    <div class="section-label reveal">Prelik Academy</div>
+    <h2 class="section-title reveal">배우고, 만들고, 배포하라</h2>
+    <p class="section-sub reveal">AI 인프라 엔지니어링의 핵심을 가르치는 전문 강의. 이론이 아닌 실제 프로덕션 환경 중심.</p>
+
+    <div class="courses-grid">
+      <div class="course-card reveal">
+        <div class="course-thumb">
+          <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(0,200,150,.3),transparent 60%)"></div>
+          <div class="course-thumb-icon">⚙️</div>
+        </div>
+        <div class="course-body">
+          <div class="course-category cat-infra">Infrastructure</div>
+          <div class="course-title">dalforge 완전 정복: AI 컨테이너 인프라 구축</div>
+          <div class="course-desc">dal 아키텍처부터 프로비저닝, export 파이프라인, drift 감지까지. 실습 중심 심화 과정.</div>
+          <div class="course-meta">
+            <span>📹 28시간</span>
+            <span>🎯 심화</span>
+            <span>👥 340명 수강</span>
+          </div>
+          <div class="course-price">
+            ₩89,000
+            <span class="price-orig">₩149,000</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="course-card reveal reveal-delay-1">
+        <div class="course-thumb">
+          <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(245,166,35,.25),transparent 60%)"></div>
+          <div class="course-thumb-icon">🔐</div>
+        </div>
+        <div class="course-body">
+          <div class="course-category cat-sec">Security</div>
+          <div class="course-title">VeilKey와 시크릿 관리: 제로 노출 아키텍처</div>
+          <div class="course-desc">암호화 이론부터 VeilKey 실전 활용, 팀 워크플로우 설계까지. 보안 엔지니어링 필수 과정.</div>
+          <div class="course-meta">
+            <span>📹 14시간</span>
+            <span>🎯 중급</span>
+            <span>👥 180명 수강</span>
+          </div>
+          <div class="course-price">
+            ₩59,000
+            <span class="price-orig">₩99,000</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="course-card reveal reveal-delay-2">
+        <div class="course-thumb">
+          <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(167,139,250,.25),transparent 60%)"></div>
+          <div class="course-thumb-icon">🤖</div>
+        </div>
+        <div class="course-body">
+          <div class="course-category cat-aidev">AI Engineering</div>
+          <div class="course-title">AI 에이전트 설계 패턴: 프로덕션 배포 전략</div>
+          <div class="course-desc">Claude SDK, Codex, Gemini CLI를 LXC에서 운영하는 법. 멀티 플레이어 orchestration 설계.</div>
+          <div class="course-meta">
+            <span>📹 20시간</span>
+            <span>🎯 고급</span>
+            <span>👥 520명 수강</span>
+          </div>
+          <div class="course-price">
+            ₩79,000
+            <span class="price-orig">₩129,000</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:48px">
+      <button class="btn btn-ghost btn-lg">전체 강의 보기 →</button>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section">
+  <div class="section-inner">
+    <div class="section-label reveal">Pricing</div>
+    <div style="text-align:center;margin-bottom:0">
+      <h2 class="section-title reveal" style="max-width:none">단순한 요금제</h2>
+      <p class="section-sub reveal" style="margin:0 auto 0;max-width:420px">숨겨진 요금 없이. 필요한 만큼만.</p>
+    </div>
+    <div class="pricing-grid">
+      <!-- Free -->
+      <div class="pricing-card reveal">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price"><sup>₩</sup>0<sub>/월</sub></div>
+        <div class="plan-desc">개인 프로젝트, 학습, 소규모 실험에 적합.</div>
+        <ul class="plan-features">
+          <li><span class="check">✓</span> dalforge — dal 3개</li>
+          <li><span class="check">✓</span> VeilKey — vault 1개, secret 10개</li>
+          <li><span class="check">✓</span> Academy — 무료 강의 접근</li>
+          <li><span class="check">✓</span> Community 지원</li>
+          <li><span class="cross">✗</span> Proxmox 자동 프로비저닝</li>
+          <li><span class="cross">✗</span> 팀 협업</li>
+        </ul>
+        <button class="plan-btn plan-btn-outline">무료 시작</button>
+      </div>
+
+      <!-- Pro -->
+      <div class="pricing-card featured reveal reveal-delay-1">
+        <div class="pricing-badge">Most Popular</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price"><sup>₩</sup>29,000<sub>/월</sub></div>
+        <div class="plan-desc">전문 개발자와 소규모 팀을 위한 완전한 기능.</div>
+        <ul class="plan-features">
+          <li><span class="check">✓</span> dalforge — dal 무제한</li>
+          <li><span class="check">✓</span> VeilKey — vault 무제한</li>
+          <li><span class="check">✓</span> Academy — 전체 강의 접근</li>
+          <li><span class="check">✓</span> Proxmox LXC 자동 프로비저닝</li>
+          <li><span class="check">✓</span> 팀 멤버 5명</li>
+          <li><span class="check">✓</span> 이메일 지원</li>
+        </ul>
+        <button class="plan-btn plan-btn-brand">Pro 시작하기</button>
+      </div>
+
+      <!-- Enterprise -->
+      <div class="pricing-card reveal reveal-delay-2">
+        <div class="plan-name">Enterprise</div>
+        <div class="plan-price" style="font-size:28px;padding-top:8px">문의</div>
+        <div class="plan-desc">대규모 팀, 온프레미스 배포, 커스텀 계약.</div>
+        <ul class="plan-features">
+          <li><span class="check">✓</span> Pro의 모든 기능</li>
+          <li><span class="check">✓</span> 팀 멤버 무제한</li>
+          <li><span class="check">✓</span> 온프레미스 배포 지원</li>
+          <li><span class="check">✓</span> SSO / LDAP 연동</li>
+          <li><span class="check">✓</span> SLA 보장</li>
+          <li><span class="check">✓</span> 전담 기술 지원</li>
+        </ul>
+        <button class="plan-btn plan-btn-outline">영업팀 문의</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<section class="cta-banner">
+  <div style="position:relative;max-width:700px;margin:0 auto;padding:0 32px">
+    <h2 class="cta-banner-title">
+      지금 바로<br>
+      <span style="background:linear-gradient(135deg,var(--brand2),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent">
+        AI 인프라를 구축하세요
+      </span>
+    </h2>
+    <p class="cta-banner-sub">
+      dalforge로 첫 번째 달을 5분 안에 만들 수 있습니다. 신용카드 없이 무료로 시작하세요.
+    </p>
+    <div class="cta-actions">
+      <button class="btn btn-primary btn-lg">무료로 시작하기 →</button>
+      <button class="btn btn-ghost btn-lg">문서 보기</button>
+    </div>
+    <div style="margin-top:32px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink3);background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 20px;text-align:left;display:inline-block">
+      <span style="color:var(--ink2)">$</span> brew install prelik/tap/dalcenter<br>
+      <span style="color:var(--ink2)">$</span> dalcenter join<br>
+      <span style="color:var(--dal-c)">✔</span> DAL:CLI:a3f82c1d issued
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="nav-logo" style="margin-right:0">
+          <div class="nav-logo-mark">P</div>
+          Prelik
+        </div>
+        <div class="footer-brand-desc">
+          AI 네이티브 개발자를 위한 인프라 툴링, 보안 자격증명 관리, 전문 교육 플랫폼.
+        </div>
+        <div class="footer-social">
+          <div class="social-btn">𝕏</div>
+          <div class="social-btn">in</div>
+          <div class="social-btn">⌥</div>
+          <div class="social-btn">▶</div>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Products</div>
+        <ul class="footer-links">
+          <li><a href="#">dalforge</a></li>
+          <li><a href="#">VeilKey</a></li>
+          <li><a href="#">Prelik Academy</a></li>
+          <li><a href="#">Changelog</a></li>
+          <li><a href="#">Roadmap</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Developers</div>
+        <ul class="footer-links">
+          <li><a href="#">Documentation</a></li>
+          <li><a href="#">API Reference</a></li>
+          <li><a href="#">CLI Reference</a></li>
+          <li><a href="#">GitHub</a></li>
+          <li><a href="#">Community</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Company</div>
+        <ul class="footer-links">
+          <li><a href="#">About</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Press</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Legal</div>
+        <ul class="footer-links">
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Security</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2025 Prelik Inc. All rights reserved.</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div class="product-pill" style="font-size:11px;padding:4px 10px">
+          <span class="dot" style="background:var(--dal-c);width:6px;height:6px"></span> dalforge
+        </div>
+        <div class="product-pill" style="font-size:11px;padding:4px 10px">
+          <span class="dot" style="background:var(--vk-c);width:6px;height:6px"></span> VeilKey
+        </div>
+        <div class="product-pill" style="font-size:11px;padding:4px 10px">
+          <span class="dot" style="background:var(--lrn-c);width:6px;height:6px"></span> Academy
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Counter animation
+function animateCounter(el, target, suffix='') {
+  let current = 0;
+  const isFloat = target.toString().includes('.');
+  const step = target / 60;
+  const timer = setInterval(() => {
+    current += step;
+    if (current >= target) { current = target; clearInterval(timer); }
+    if (isFloat) el.textContent = current.toFixed(2) + suffix;
+    else el.textContent = Math.floor(current).toLocaleString() + suffix;
+  }, 16);
+}
+const statsObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const nums = e.target.querySelectorAll('.stat-num');
+      const data = [4200, 18000, 99.97, 1200];
+      const suffix = ['', '', '%', ''];
+      const postfix = ['+', '+', '', '+'];
+      nums.forEach((el, i) => {
+        setTimeout(() => animateCounter(el, data[i], suffix[i]), i * 120);
+      });
+      statsObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.5 });
+const statsGrid = document.querySelector('.stats-grid');
+if (statsGrid) statsObs.observe(statsGrid);
+</script>
+</body>
+</html>

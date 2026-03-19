@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dalforge — 레포마다 AI. 컨테이너로.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+:root {
+  --bg:    #080c08;
+  --bg2:   #0d120d;
+  --bg3:   #121a12;
+  --bg4:   #171f17;
+  --b:     #1e281e;
+  --b2:    #263326;
+  --b3:    #2e3d2e;
+  --green: #4dff7c;
+  --green2:#1e7a38;
+  --green3:rgba(77,255,124,.07);
+  --green4:rgba(77,255,124,.03);
+  --blue:  #5ba3ff;
+  --blue2: rgba(91,163,255,.08);
+  --amber: #ffb347;
+  --amber2:rgba(255,179,71,.08);
+  --red:   #ff6b6b;
+  --white: #eef0ec;
+  --g1:    #7a8a78;
+  --g2:    #4a5a48;
+  --g3:    #2a3628;
+  --f:     'IBM Plex Sans', sans-serif;
+  --m:     'IBM Plex Mono', monospace;
+}
+html { scroll-behavior:smooth; }
+body { background:var(--bg); color:var(--white); font-family:var(--f); font-size:15px; line-height:1.6; overflow-x:hidden; }
+::selection { background:var(--green); color:#000; }
+::-webkit-scrollbar { width:2px; }
+::-webkit-scrollbar-track { background:var(--bg); }
+::-webkit-scrollbar-thumb { background:var(--b2); }
+a { text-decoration:none; color:inherit; }
+
+/* ── NAV ── */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:200;
+  height:48px; display:flex; align-items:center; justify-content:space-between;
+  padding:0 28px; border-bottom:1px solid var(--b);
+  background:rgba(8,12,8,.92); backdrop-filter:blur(20px);
+}
+.nl { display:flex; align-items:center; gap:0; }
+.logo {
+  font-family:var(--m); font-size:13px; color:var(--green);
+  display:flex; align-items:center; gap:8px; padding-right:28px;
+  border-right:1px solid var(--b); margin-right:20px;
+}
+.logo-sq { width:16px; height:16px; border:1.5px solid var(--green2); position:relative; }
+.logo-sq::after { content:''; position:absolute; inset:3px; background:var(--green); animation:breathe 3s ease-in-out infinite; }
+.nav-links { display:flex; }
+.nav-a { padding:0 14px; height:48px; display:flex; align-items:center; font-size:13px; color:var(--g2); border-right:1px solid var(--b); transition:color .15s, background .15s; }
+.nav-a:hover { color:var(--white); background:var(--bg2); }
+.nr { display:flex; align-items:center; gap:8px; }
+.gh-a { display:flex; align-items:center; gap:6px; padding:5px 12px; border:1px solid var(--b2); border-radius:3px; font-family:var(--m); font-size:11px; color:var(--g2); transition:all .15s; }
+.gh-a:hover { color:var(--white); border-color:var(--b3); }
+.cta-a { padding:6px 16px; background:var(--green); color:#000; border-radius:3px; font-size:13px; font-weight:600; font-family:var(--m); transition:opacity .15s; }
+.cta-a:hover { opacity:.85; }
+
+/* ── HERO ── */
+#hero { padding:100px 28px 72px; max-width:1280px; margin:0 auto; }
+
+.hero-top { margin-bottom:64px; }
+.hero-eye {
+  font-family:var(--m); font-size:10px; letter-spacing:.25em; color:var(--green2);
+  text-transform:uppercase; margin-bottom:20px;
+  opacity:0; animation:rise .5s .1s ease forwards;
+}
+.hero-h {
+  font-size:clamp(40px,6vw,80px); font-weight:700; letter-spacing:-3px; line-height:.95;
+  margin-bottom:20px; opacity:0; animation:rise .6s .2s ease forwards;
+}
+.hero-h .dim  { color:var(--g3); }
+.hero-h .lite { color:var(--g2); }
+.hero-desc {
+  font-size:clamp(15px,1.5vw,18px); color:var(--g1); font-weight:300;
+  max-width:520px; line-height:1.8; margin-bottom:32px;
+  opacity:0; animation:rise .6s .35s ease forwards;
+}
+.hero-desc strong { color:var(--white); font-weight:500; }
+.hero-btns {
+  display:flex; gap:8px; flex-wrap:wrap;
+  opacity:0; animation:rise .5s .5s ease forwards;
+}
+.btn-g { display:flex; align-items:center; gap:8px; padding:9px 20px; background:var(--green); color:#000; border-radius:3px; font-size:13px; font-weight:600; font-family:var(--m); transition:opacity .15s; }
+.btn-g:hover { opacity:.85; }
+.btn-o { display:flex; align-items:center; gap:8px; padding:9px 18px; border:1px solid var(--b2); border-radius:3px; font-size:13px; color:var(--g1); font-family:var(--m); transition:all .15s; }
+.btn-o:hover { border-color:var(--b3); color:var(--white); background:var(--bg2); }
+
+/* ── REPO DASHBOARD ── */
+.dash-label {
+  font-family:var(--m); font-size:10px; letter-spacing:.2em; color:var(--g2);
+  text-transform:uppercase; margin-bottom:12px; display:flex; align-items:center; gap:10px;
+  opacity:0; animation:rise .5s .6s ease forwards;
+}
+.dash-label::after { content:''; flex:1; height:1px; background:var(--b); }
+
+.repo-grid {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:1px;
+  background:var(--b); border:1px solid var(--b);
+  opacity:0; animation:rise .7s .7s ease forwards;
+}
+
+/* repo card */
+.rc {
+  background:var(--bg); padding:0; overflow:hidden;
+  display:flex; flex-direction:column; transition:background .2s; cursor:default;
+}
+.rc:hover { background:var(--bg2); }
+
+.rc-head {
+  padding:14px 18px; border-bottom:1px solid var(--b);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.rc-name-row { display:flex; align-items:center; gap:8px; }
+.rc-folder { font-size:14px; }
+.rc-name { font-family:var(--m); font-size:12px; color:var(--white); font-weight:500; }
+.rc-status { display:flex; align-items:center; gap:5px; font-family:var(--m); font-size:10px; }
+.status-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.s-active { background:var(--green); animation:breathe 2.5s ease-in-out infinite; }
+.s-idle   { background:var(--amber); }
+.s-off    { background:var(--g3); }
+.s-text.active { color:var(--green); }
+.s-text.idle   { color:var(--amber); }
+.s-text.off    { color:var(--g2); }
+
+.rc-body { padding:14px 18px; flex:1; }
+
+.rc-dal-id { font-family:var(--m); font-size:10px; color:var(--g2); margin-bottom:10px; }
+
+.rc-agents { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
+.agent-tag {
+  font-family:var(--m); font-size:10px; padding:3px 9px; border-radius:2px;
+  display:flex; align-items:center; gap:4px;
+}
+.ag-claude { background:rgba(77,255,124,.08); border:1px solid rgba(77,255,124,.15); color:var(--green); }
+.ag-codex  { background:var(--blue2); border:1px solid rgba(91,163,255,.15); color:var(--blue); }
+.ag-gemini { background:var(--amber2); border:1px solid rgba(255,179,71,.15); color:var(--amber); }
+.ag-dot { width:4px; height:4px; border-radius:50%; background:currentColor; }
+
+.rc-meta { display:flex; flex-direction:column; gap:4px; }
+.rc-row { display:flex; justify-content:space-between; font-family:var(--m); font-size:10px; }
+.rc-row-k { color:var(--g2); }
+.rc-row-v { color:var(--g1); }
+.rc-row-v.ok  { color:var(--green); }
+.rc-row-v.idle{ color:var(--amber); }
+
+.rc-foot {
+  padding:10px 18px; border-top:1px solid var(--b);
+  display:flex; gap:6px;
+}
+.rc-cmd {
+  font-family:var(--m); font-size:10px; padding:3px 9px;
+  border:1px solid var(--b2); border-radius:2px; color:var(--g2);
+  transition:all .15s; cursor:default;
+}
+.rc:hover .rc-cmd:hover { border-color:var(--b3); color:var(--white); }
+
+/* off card */
+.rc.off .rc-body { opacity:.4; }
+.rc.off .rc-head { opacity:.6; }
+
+/* add card */
+.rc.add {
+  background:var(--bg); border:none;
+  align-items:center; justify-content:center; min-height:160px;
+  cursor:default; transition:background .2s;
+}
+.rc.add:hover { background:var(--bg2); }
+.add-inner { text-align:center; display:flex; flex-direction:column; align-items:center; gap:8px; }
+.add-plus { width:32px; height:32px; border:1px dashed var(--b3); border-radius:2px; display:flex; align-items:center; justify-content:center; font-size:18px; color:var(--g3); }
+.add-label { font-family:var(--m); font-size:11px; color:var(--g3); }
+
+/* ── CONCEPT ── */
+#concept { padding:96px 28px; border-top:1px solid var(--b); }
+.concept-inner { max-width:1280px; margin:0 auto; }
+
+.concept-grid { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--b); border:1px solid var(--b); }
+.concept-half { background:var(--bg); padding:48px 44px; }
+.ch-eye { font-family:var(--m); font-size:10px; letter-spacing:.2em; color:var(--green2); text-transform:uppercase; margin-bottom:16px; }
+.ch-title { font-size:clamp(22px,3vw,34px); font-weight:700; letter-spacing:-1px; line-height:1.1; margin-bottom:16px; }
+.ch-desc { font-size:14px; color:var(--g1); line-height:1.85; font-weight:300; max-width:420px; }
+.ch-desc strong { color:var(--white); font-weight:500; }
+
+/* before / after repos */
+.before-after { margin-top:36px; display:flex; flex-direction:column; gap:6px; }
+.ba-repo {
+  display:flex; align-items:center; gap:12px; padding:10px 14px;
+  border:1px solid var(--b); font-family:var(--m); font-size:12px;
+  transition:border-color .2s;
+}
+.ba-repo:hover { border-color:var(--b2); }
+.ba-repo-name { flex:1; color:var(--g1); }
+.ba-right { display:flex; align-items:center; gap:8px; }
+.ba-q { color:var(--g3); font-style:italic; font-size:11px; }
+.ba-ai { display:flex; align-items:center; gap:5px; font-size:11px; }
+
+/* after state */
+.after-repos { margin-top:36px; display:flex; flex-direction:column; gap:6px; }
+.ar {
+  display:flex; align-items:center; gap:0;
+  border:1px solid var(--b); overflow:hidden;
+  transition:border-color .2s;
+}
+.ar:hover { border-color:var(--b2); }
+.ar-name { flex:1; padding:10px 14px; font-family:var(--m); font-size:12px; color:var(--g1); border-right:1px solid var(--b); }
+.ar-agent { padding:10px 14px; display:flex; align-items:center; gap:6px; font-family:var(--m); font-size:11px; border-right:1px solid var(--b); }
+.ar-health { padding:10px 14px; font-family:var(--m); font-size:11px; color:var(--green); }
+
+/* ── HOW ── */
+#how { padding:96px 28px; border-top:1px solid var(--b); background:var(--bg2); }
+.how-inner { max-width:1280px; margin:0 auto; }
+.how-top { display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:end; margin-bottom:56px; }
+.sec-eye { font-family:var(--m); font-size:10px; letter-spacing:.22em; color:var(--green2); text-transform:uppercase; margin-bottom:12px; }
+.sec-h { font-size:clamp(24px,3.5vw,40px); font-weight:700; letter-spacing:-1.5px; line-height:1.05; }
+.sec-p { font-size:14px; color:var(--g1); line-height:1.85; font-weight:300; }
+
+.how-steps { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--b); border:1px solid var(--b); }
+.hs {
+  background:var(--bg2); padding:32px 24px; position:relative;
+  overflow:hidden; transition:background .2s;
+}
+.hs:hover { background:var(--bg3); }
+.hs::after {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  transform:scaleX(0); transform-origin:left; transition:transform .3s;
+}
+.hs1::after { background:var(--blue); }
+.hs2::after { background:var(--amber); }
+.hs3::after { background:var(--green); }
+.hs4::after { background:var(--g2); }
+.hs:hover::after { transform:scaleX(1); }
+.hs-num { font-family:var(--m); font-size:10px; color:var(--g3); letter-spacing:.15em; margin-bottom:20px; }
+.hs-title { font-size:17px; font-weight:700; letter-spacing:-.4px; margin-bottom:8px; }
+.hs-desc { font-size:13px; color:var(--g1); line-height:1.8; font-weight:300; }
+.hs-cmd { margin-top:14px; font-family:var(--m); font-size:11px; padding:7px 10px; background:var(--bg); border:1px solid var(--b); color:var(--g2); }
+.hs-cmd .k { color:var(--green); }
+
+/* ── LIFECYCLE ── */
+#lifecycle { padding:96px 28px; border-top:1px solid var(--b); }
+.lc-inner { max-width:1280px; margin:0 auto; }
+.lc-top { margin-bottom:56px; }
+
+.lc-grid { display:grid; grid-template-columns:340px 1fr; gap:1px; background:var(--b); border:1px solid var(--b); }
+
+.lc-left { background:var(--bg); }
+.lc-section { border-bottom:1px solid var(--b); }
+.lc-section:last-child { border-bottom:none; }
+.lc-sec-head {
+  padding:14px 20px; display:flex; align-items:center; gap:10px;
+  font-family:var(--m); font-size:11px; color:var(--g2); cursor:pointer;
+  transition:background .15s;
+}
+.lc-sec-head:hover { background:var(--bg2); }
+.lc-sec-head.active { background:var(--bg3); color:var(--white); }
+.lc-sec-dot { width:7px; height:7px; border-radius:50%; background:var(--b3); flex-shrink:0; }
+.lc-sec-head.active .lc-sec-dot { background:var(--green); }
+.lc-sec-label { flex:1; }
+.lc-sec-badge { font-size:10px; padding:2px 7px; border-radius:2px; background:var(--b); }
+.lc-sec-head.active .lc-sec-badge { background:var(--green3); color:var(--green2); }
+
+.lc-right { background:var(--bg); }
+.lc-panel { display:none; padding:32px 36px; }
+.lc-panel.active { display:block; }
+.lc-panel-eye { font-family:var(--m); font-size:10px; letter-spacing:.2em; color:var(--green2); text-transform:uppercase; margin-bottom:12px; }
+.lc-panel-h { font-size:22px; font-weight:700; letter-spacing:-.5px; margin-bottom:10px; }
+.lc-panel-p { font-size:14px; color:var(--g1); line-height:1.85; font-weight:300; margin-bottom:24px; }
+.lc-cblock { background:var(--bg2); border:1px solid var(--b); overflow:hidden; }
+.lc-cbar { padding:7px 14px; border-bottom:1px solid var(--b); display:flex; justify-content:space-between; }
+.lc-clang { font-family:var(--m); font-size:10px; color:var(--g3); letter-spacing:.1em; }
+.cp-btn { font-family:var(--m); font-size:10px; color:var(--g3); background:none; border:1px solid transparent; border-radius:2px; padding:1px 8px; cursor:pointer; transition:all .15s; }
+.cp-btn:hover { border-color:var(--b2); color:var(--g2); }
+.lc-code { padding:16px 18px; font-family:var(--m); font-size:12px; line-height:2; }
+.lp { color:var(--g3); } .lc2 { color:var(--white); } .lf { color:var(--blue); }
+.ls { color:var(--amber); } .lk { color:var(--green); } .lmt { color:var(--b3); font-style:italic; }
+.lc-note { margin-top:16px; padding:12px 16px; background:var(--green3); border:1px solid rgba(77,255,124,.1); display:flex; gap:10px; align-items:flex-start; }
+.lc-note-icon { font-size:14px; flex-shrink:0; margin-top:1px; }
+.lc-note-text { font-size:13px; color:var(--g1); line-height:1.7; font-weight:300; }
+.lc-note-text strong { color:var(--green); font-weight:500; }
+
+/* ── GITHUB ── */
+#gh { padding:96px 28px; border-top:1px solid var(--b); background:var(--bg2); }
+.gh-inner { max-width:1280px; margin:0 auto; display:grid; grid-template-columns:1fr 360px; gap:80px; align-items:center; }
+.gh-l .g-eye { font-family:var(--m); font-size:10px; letter-spacing:.22em; color:var(--green2); text-transform:uppercase; margin-bottom:16px; }
+.g-h { font-size:clamp(28px,4vw,52px); font-weight:700; letter-spacing:-2px; line-height:1.0; margin-bottom:18px; }
+.g-p { font-size:15px; color:var(--g1); line-height:1.8; font-weight:300; max-width:400px; margin-bottom:32px; }
+.g-btns { display:flex; gap:8px; flex-wrap:wrap; }
+.g-primary { display:flex; align-items:center; gap:8px; padding:10px 22px; background:var(--white); color:#000; border-radius:3px; font-size:14px; font-weight:600; transition:opacity .15s; }
+.g-primary:hover { opacity:.88; }
+.g-sec { display:flex; align-items:center; gap:8px; padding:10px 18px; border:1px solid var(--b2); border-radius:3px; font-size:14px; color:var(--g1); transition:all .15s; }
+.g-sec:hover { border-color:var(--b3); color:var(--white); background:var(--bg3); }
+
+.repo-card { background:var(--bg); border:1px solid var(--b); overflow:hidden; }
+.rca-head { padding:14px 18px; border-bottom:1px solid var(--b); display:flex; align-items:center; gap:12px; background:var(--bg2); }
+.rca-av { width:30px; height:30px; background:linear-gradient(135deg,var(--green2),var(--green)); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; color:#000; font-family:var(--m); }
+.rca-info { }
+.rca-name { font-family:var(--m); font-size:12px; color:var(--white); }
+.rca-path { font-family:var(--m); font-size:10px; color:var(--g2); }
+.rca-body { padding:16px 18px; }
+.rca-tags { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
+.rca-tag { font-family:var(--m); font-size:10px; padding:3px 9px; border-radius:100px; background:var(--green3); border:1px solid rgba(77,255,124,.12); color:var(--green2); }
+.rca-stack { display:flex; gap:6px; }
+.rca-s { font-family:var(--m); font-size:10px; padding:3px 9px; border:1px solid var(--b); color:var(--g2); border-radius:2px; }
+.rca-foot { padding:12px 18px; border-top:1px solid var(--b); font-family:var(--m); font-size:10px; color:var(--g3); display:flex; justify-content:space-between; }
+
+/* ── FOOTER ── */
+footer { border-top:1px solid var(--b); padding:40px 28px 32px; }
+.fi { max-width:1280px; margin:0 auto; display:grid; grid-template-columns:1fr auto auto auto; gap:60px; align-items:start; }
+.flogo { font-family:var(--m); font-size:13px; color:var(--green); margin-bottom:6px; }
+.ftag { font-size:13px; color:var(--g2); line-height:1.7; max-width:200px; font-weight:300; }
+.fc-t { font-size:12px; font-weight:600; color:var(--g2); margin-bottom:12px; }
+.fc-ls { display:flex; flex-direction:column; gap:9px; }
+.fc-ls a { font-family:var(--m); font-size:11px; color:var(--g3); transition:color .15s; }
+.fc-ls a:hover { color:var(--g1); }
+.fcopy { max-width:1280px; margin:28px auto 0; padding-top:20px; border-top:1px solid var(--b); display:flex; justify-content:space-between; font-family:var(--m); font-size:10px; color:var(--g3); }
+
+/* ── ANIMATIONS ── */
+@keyframes rise { from{opacity:0;transform:translateY(12px);} to{opacity:1;transform:none;} }
+@keyframes breathe { 0%,100%{opacity:1;} 50%{opacity:.3;} }
+.ri { opacity:0; transform:translateY(12px); transition:opacity .5s ease, transform .5s ease; }
+.ri.in { opacity:1; transform:none; }
+
+@media(max-width:960px){
+  .repo-grid { grid-template-columns:1fr 1fr; }
+  .concept-grid { grid-template-columns:1fr; }
+  .how-steps { grid-template-columns:1fr 1fr; }
+  .lc-grid { grid-template-columns:1fr; }
+  .gh-inner { grid-template-columns:1fr; }
+  .fi { grid-template-columns:1fr 1fr; gap:32px; }
+  nav { padding:0 16px; }
+  .nav-a { display:none; }
+}
+@media(max-width:640px){
+  .repo-grid { grid-template-columns:1fr; }
+  .how-steps { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nl">
+    <div class="logo"><div class="logo-sq"></div>dalforge</div>
+    <div class="nav-links">
+      <a href="#concept" class="nav-a">개념</a>
+      <a href="#how" class="nav-a">작동 방식</a>
+      <a href="#lifecycle" class="nav-a">라이프사이클</a>
+      <a href="#gh" class="nav-a">GitHub</a>
+    </div>
+  </div>
+  <div class="nr">
+    <a href="https://github.com/dalsoop/dalforge" class="gh-a">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+      GitHub
+    </a>
+    <a href="#lifecycle" class="cta-a">Quick Start →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div id="hero">
+  <div class="hero-top">
+    <div class="hero-eye">dalforge · agent container infrastructure</div>
+    <h1 class="hero-h">
+      레포마다 AI.<br>
+      <span class="lite">컨테이너로.</span>
+    </h1>
+    <p class="hero-desc">
+      레포 안에 <strong>.dalfactory</strong>를 선언하면, 그 레포 전용 AI 에이전트가 Proxmox LXC 컨테이너 위에서 살아난다. 시작하고, 감시하고, 필요하면 제거한다.
+    </p>
+    <div class="hero-btns">
+      <a href="#lifecycle" class="btn-g">Quick Start <span>→</span></a>
+      <a href="https://github.com/dalsoop/dalforge" class="btn-o">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        dalsoop/dalforge
+      </a>
+      <a href="#concept" class="btn-o">개념 보기</a>
+    </div>
+  </div>
+
+  <div class="dash-label">dalcenter list — 등록된 레포와 AI 인스턴스</div>
+
+  <div class="repo-grid">
+    <!-- repo 1 -->
+    <div class="rc">
+      <div class="rc-head">
+        <div class="rc-name-row">
+          <span class="rc-folder">📁</span>
+          <span class="rc-name">my-api-repo</span>
+        </div>
+        <div class="rc-status">
+          <div class="status-dot s-active"></div>
+          <span class="s-text active">active</span>
+        </div>
+      </div>
+      <div class="rc-body">
+        <div class="rc-dal-id">DAL:CONTAINER:3a8c1f02</div>
+        <div class="rc-agents">
+          <span class="agent-tag ag-claude"><span class="ag-dot"></span>claude</span>
+        </div>
+        <div class="rc-meta">
+          <div class="rc-row"><span class="rc-row-k">health</span><span class="rc-row-v ok">ok(3s)</span></div>
+          <div class="rc-row"><span class="rc-row-k">skills</span><span class="rc-row-v">4</span></div>
+          <div class="rc-row"><span class="rc-row-k">vmid</span><span class="rc-row-v">219</span></div>
+          <div class="rc-row"><span class="rc-row-k">watch</span><span class="rc-row-v ok">running</span></div>
+        </div>
+      </div>
+      <div class="rc-foot">
+        <span class="rc-cmd">status</span>
+        <span class="rc-cmd">stop</span>
+        <span class="rc-cmd">reconcile</span>
+      </div>
+    </div>
+
+    <!-- repo 2 -->
+    <div class="rc">
+      <div class="rc-head">
+        <div class="rc-name-row">
+          <span class="rc-folder">📁</span>
+          <span class="rc-name">frontend-repo</span>
+        </div>
+        <div class="rc-status">
+          <div class="status-dot s-active"></div>
+          <span class="s-text active">active</span>
+        </div>
+      </div>
+      <div class="rc-body">
+        <div class="rc-dal-id">DAL:CONTAINER:7e4b9d15</div>
+        <div class="rc-agents">
+          <span class="agent-tag ag-claude"><span class="ag-dot"></span>claude</span>
+          <span class="agent-tag ag-codex"><span class="ag-dot"></span>codex</span>
+        </div>
+        <div class="rc-meta">
+          <div class="rc-row"><span class="rc-row-k">health</span><span class="rc-row-v ok">ok(8s)</span></div>
+          <div class="rc-row"><span class="rc-row-k">skills</span><span class="rc-row-v">6</span></div>
+          <div class="rc-row"><span class="rc-row-k">vmid</span><span class="rc-row-v">220</span></div>
+          <div class="rc-row"><span class="rc-row-k">watch</span><span class="rc-row-v ok">running</span></div>
+        </div>
+      </div>
+      <div class="rc-foot">
+        <span class="rc-cmd">status</span>
+        <span class="rc-cmd">stop</span>
+        <span class="rc-cmd">reconcile</span>
+      </div>
+    </div>
+
+    <!-- repo 3 -->
+    <div class="rc">
+      <div class="rc-head">
+        <div class="rc-name-row">
+          <span class="rc-folder">📁</span>
+          <span class="rc-name">data-pipeline</span>
+        </div>
+        <div class="rc-status">
+          <div class="status-dot s-idle"></div>
+          <span class="s-text idle">idle</span>
+        </div>
+      </div>
+      <div class="rc-body">
+        <div class="rc-dal-id">DAL:CONTAINER:c9d0e1f2</div>
+        <div class="rc-agents">
+          <span class="agent-tag ag-gemini"><span class="ag-dot"></span>gemini</span>
+        </div>
+        <div class="rc-meta">
+          <div class="rc-row"><span class="rc-row-k">health</span><span class="rc-row-v idle">idle(2m)</span></div>
+          <div class="rc-row"><span class="rc-row-k">skills</span><span class="rc-row-v">2</span></div>
+          <div class="rc-row"><span class="rc-row-k">vmid</span><span class="rc-row-v">221</span></div>
+          <div class="rc-row"><span class="rc-row-k">watch</span><span class="rc-row-v ok">running</span></div>
+        </div>
+      </div>
+      <div class="rc-foot">
+        <span class="rc-cmd">status</span>
+        <span class="rc-cmd">start</span>
+        <span class="rc-cmd">reconcile</span>
+      </div>
+    </div>
+
+    <!-- repo 4 -->
+    <div class="rc">
+      <div class="rc-head">
+        <div class="rc-name-row">
+          <span class="rc-folder">📁</span>
+          <span class="rc-name">auth-service</span>
+        </div>
+        <div class="rc-status">
+          <div class="status-dot s-active"></div>
+          <span class="s-text active">active</span>
+        </div>
+      </div>
+      <div class="rc-body">
+        <div class="rc-dal-id">DAL:CONTAINER:f1d24e83</div>
+        <div class="rc-agents">
+          <span class="agent-tag ag-claude"><span class="ag-dot"></span>claude</span>
+          <span class="agent-tag ag-codex"><span class="ag-dot"></span>codex</span>
+        </div>
+        <div class="rc-meta">
+          <div class="rc-row"><span class="rc-row-k">health</span><span class="rc-row-v ok">ok(1s)</span></div>
+          <div class="rc-row"><span class="rc-row-k">skills</span><span class="rc-row-v">3</span></div>
+          <div class="rc-row"><span class="rc-row-k">vmid</span><span class="rc-row-v">222</span></div>
+          <div class="rc-row"><span class="rc-row-k">watch</span><span class="rc-row-v ok">running</span></div>
+        </div>
+      </div>
+      <div class="rc-foot">
+        <span class="rc-cmd">status</span>
+        <span class="rc-cmd">stop</span>
+        <span class="rc-cmd">reconcile</span>
+      </div>
+    </div>
+
+    <!-- repo 5 - off -->
+    <div class="rc off">
+      <div class="rc-head">
+        <div class="rc-name-row">
+          <span class="rc-folder">📁</span>
+          <span class="rc-name">legacy-monolith</span>
+        </div>
+        <div class="rc-status">
+          <div class="status-dot s-off"></div>
+          <span class="s-text off">stopped</span>
+        </div>
+      </div>
+      <div class="rc-body">
+        <div class="rc-dal-id">DAL:CONTAINER:b8a71c30</div>
+        <div class="rc-agents">
+          <span class="agent-tag ag-claude" style="opacity:.3"><span class="ag-dot"></span>claude</span>
+        </div>
+        <div class="rc-meta">
+          <div class="rc-row"><span class="rc-row-k">health</span><span class="rc-row-v" style="color:var(--g2)">stopped</span></div>
+          <div class="rc-row"><span class="rc-row-k">skills</span><span class="rc-row-v">2</span></div>
+          <div class="rc-row"><span class="rc-row-k">vmid</span><span class="rc-row-v">—</span></div>
+          <div class="rc-row"><span class="rc-row-k">watch</span><span class="rc-row-v" style="color:var(--g3)">off</span></div>
+        </div>
+      </div>
+      <div class="rc-foot">
+        <span class="rc-cmd">status</span>
+        <span class="rc-cmd">provision</span>
+        <span class="rc-cmd">destroy</span>
+      </div>
+    </div>
+
+    <!-- add new -->
+    <div class="rc add">
+      <div class="add-inner">
+        <div class="add-plus">+</div>
+        <div class="add-label">새 레포 등록</div>
+        <div style="font-family:var(--m);font-size:10px;color:var(--g3);margin-top:2px">dalcenter join /path/to/repo</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONCEPT -->
+<section id="concept">
+  <div class="concept-inner">
+    <div class="concept-grid ri">
+      <div class="concept-half" style="border-right:1px solid var(--b)">
+        <div class="ch-eye">Before</div>
+        <div class="ch-title" style="color:var(--g2)">레포와 AI가<br>따로 논다</div>
+        <div class="ch-desc">AI를 쓰고 싶으면 매번 수동으로 연결하고, 설정을 복붙하고, 키를 관리한다. 어느 레포에 어떤 AI가 붙어있는지 추적할 수 없다.</div>
+        <div class="before-after">
+          <div class="ba-repo">
+            <span style="font-size:13px">📁</span>
+            <span class="ba-repo-name">my-api-repo/</span>
+            <div class="ba-right"><span class="ba-q">AI? 어디에…?</span></div>
+          </div>
+          <div class="ba-repo">
+            <span style="font-size:13px">📁</span>
+            <span class="ba-repo-name">frontend-repo/</span>
+            <div class="ba-right"><span class="ba-q">매번 수동 설정</span></div>
+          </div>
+          <div class="ba-repo">
+            <span style="font-size:13px">📁</span>
+            <span class="ba-repo-name">data-pipeline/</span>
+            <div class="ba-right"><span class="ba-q">키 어디 뒀더라…</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="concept-half">
+        <div class="ch-eye">After · dalforge</div>
+        <div class="ch-title">레포마다 AI가<br><strong style="color:var(--green)">붙어있다</strong></div>
+        <div class="ch-desc">각 레포 안의 <strong>.dalfactory</strong>가 전용 AI를 선언한다. dalcenter가 컨테이너를 만들고, 상태를 추적하고, 영구 ID로 관리한다.</div>
+        <div class="after-repos">
+          <div class="ar">
+            <div class="ar-name">📁 my-api-repo/</div>
+            <div class="ar-agent ag-claude" style="border-right:1px solid var(--b)"><span class="ag-dot" style="background:var(--green)"></span>claude</div>
+            <div class="ar-health">ok(3s) ●</div>
+          </div>
+          <div class="ar">
+            <div class="ar-name">📁 frontend-repo/</div>
+            <div class="ar-agent" style="border-right:1px solid var(--b);gap:8px">
+              <span class="agent-tag ag-claude" style="padding:2px 7px"><span class="ag-dot"></span>claude</span>
+              <span class="agent-tag ag-codex" style="padding:2px 7px"><span class="ag-dot"></span>codex</span>
+            </div>
+            <div class="ar-health">ok(8s) ●</div>
+          </div>
+          <div class="ar">
+            <div class="ar-name">📁 data-pipeline/</div>
+            <div class="ar-agent ag-gemini" style="border-right:1px solid var(--b);color:var(--amber)"><span class="ag-dot" style="background:var(--amber)"></span>gemini</div>
+            <div class="ar-health" style="color:var(--amber)">idle ◌</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section id="how">
+  <div class="how-inner">
+    <div class="how-top ri">
+      <div>
+        <div class="sec-eye">How it works</div>
+        <div class="sec-h">레포에 .dalfactory 하나.<br>나머지는 dalcenter가 한다.</div>
+      </div>
+      <div class="sec-p">AI 설정, 컨테이너 생성, 에이전트 설치, 상태 감시까지 — 레포 안의 선언 파일 하나로 전부 처리된다.</div>
+    </div>
+    <div class="how-steps ri">
+      <div class="hs hs1">
+        <div class="hs-num">01 · DECLARE</div>
+        <div class="hs-title">선언</div>
+        <div class="hs-desc">레포 루트에 .dalfactory/dal.cue를 만든다. 어떤 AI가, 어떤 환경에서 살지 CUE로 선언.</div>
+        <div class="hs-cmd"><span class="k">name</span>: "my-agent"<br><span class="k">agents</span>: { claude: true }</div>
+      </div>
+      <div class="hs hs2">
+        <div class="hs-num">02 · JOIN</div>
+        <div class="hs-title">등록</div>
+        <div class="hs-desc">dalcenter join으로 레포를 등록한다. 영구 ID 발급, skills export, hooks 적용.</div>
+        <div class="hs-cmd"><span class="k">$</span> dalcenter join .<br><span class="k">✓</span> DAL:CONTAINER:a1b2c3d4</div>
+      </div>
+      <div class="hs hs3">
+        <div class="hs-num">03 · PROVISION</div>
+        <div class="hs-title">배포</div>
+        <div class="hs-desc">Proxmox LXC 컨테이너를 생성한다. 패키지 설치, API 키 주입, 에이전트 시작.</div>
+        <div class="hs-cmd"><span class="k">$</span> dalcenter provision my-agent<br><span class="k">✓</span> provisioned (vmid=219)</div>
+      </div>
+      <div class="hs hs4">
+        <div class="hs-num">04 · WATCH</div>
+        <div class="hs-title">감시</div>
+        <div class="hs-desc">60초마다 선언과 현실의 drift를 자동 수복. 에이전트는 선언한 상태로 영원히 유지.</div>
+        <div class="hs-cmd"><span class="k">$</span> dalcenter watch<br><span class="k">✓</span> all instances: ok</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LIFECYCLE -->
+<section id="lifecycle">
+  <div class="lc-inner">
+    <div class="lc-top ri">
+      <div class="sec-eye">Lifecycle</div>
+      <div class="sec-h">에이전트의 일생</div>
+    </div>
+    <div class="lc-grid ri">
+      <div class="lc-left">
+        <div class="lc-section">
+          <div class="lc-sec-head active" onclick="switchPanel('install')">
+            <div class="lc-sec-dot"></div>
+            <div class="lc-sec-label">설치 & 등록</div>
+            <div class="lc-sec-badge">join</div>
+          </div>
+        </div>
+        <div class="lc-section">
+          <div class="lc-sec-head" onclick="switchPanel('provision')">
+            <div class="lc-sec-dot"></div>
+            <div class="lc-sec-label">컨테이너 배포</div>
+            <div class="lc-sec-badge">provision</div>
+          </div>
+        </div>
+        <div class="lc-section">
+          <div class="lc-sec-head" onclick="switchPanel('watch')">
+            <div class="lc-sec-dot"></div>
+            <div class="lc-sec-label">상태 감시</div>
+            <div class="lc-sec-badge">watch</div>
+          </div>
+        </div>
+        <div class="lc-section">
+          <div class="lc-sec-head" onclick="switchPanel('secret')">
+            <div class="lc-sec-dot"></div>
+            <div class="lc-sec-label">시크릿 관리</div>
+            <div class="lc-sec-badge">vault</div>
+          </div>
+        </div>
+        <div class="lc-section">
+          <div class="lc-sec-head" onclick="switchPanel('destroy')">
+            <div class="lc-sec-dot"></div>
+            <div class="lc-sec-label">제거</div>
+            <div class="lc-sec-badge">destroy</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lc-right">
+
+        <div class="lc-panel active" id="panel-install">
+          <div class="lc-panel-eye">01 · Join</div>
+          <div class="lc-panel-h">레포를 등록하면 AI가 붙는다</div>
+          <div class="lc-panel-p">dalcenter join이 .dalfactory/dal.cue를 읽고 인스턴스를 레지스트리에 등록한다. 영구 ID가 발급되고, Claude 스킬과 훅이 .claude/로 export된다.</div>
+          <div class="lc-cblock">
+            <div class="lc-cbar"><span class="lc-clang">SHELL</span><button class="cp-btn" onclick="cp(this)">copy</button></div>
+            <div class="lc-code">
+<span class="lmt"># manifest 검증 후 등록</span><br>
+<span class="lp">$ </span><span class="lc2">dalcenter validate . && dalcenter join .</span><br>
+<span class="lk">instance created: DAL:CONTAINER:a1b2c3d4</span><br>
+<span style="color:var(--g1)">template=claude-dev  skills=3  hooks=1</span>
+            </div>
+          </div>
+          <div class="lc-note">
+            <div class="lc-note-icon">💡</div>
+            <div class="lc-note-text">클라우드 패키지도 동일하게 등록된다. <strong>dalcenter join agent-coach</strong> — dalforge 허브에서 자동으로 가져온다.</div>
+          </div>
+        </div>
+
+        <div class="lc-panel" id="panel-provision">
+          <div class="lc-panel-eye">02 · Provision</div>
+          <div class="lc-panel-h">컨테이너가 생성되고 AI가 깨어난다</div>
+          <div class="lc-panel-p">Proxmox LXC 컨테이너를 자동 생성하고, 선언된 packages와 agents를 설치한다. API 키는 SecretVault에서 자동 주입된다.</div>
+          <div class="lc-cblock">
+            <div class="lc-cbar"><span class="lc-clang">SHELL</span><button class="cp-btn" onclick="cp(this)">copy</button></div>
+            <div class="lc-code">
+<span class="lp">$ </span><span class="lc2">dalcenter provision my-agent <span class="lf">--vmid</span> <span class="ls">219</span> <span class="lf">--storage</span> <span class="ls">local-lvm</span></span><br>
+<span class="lk">✓ ubuntu-24.04 container created</span><br>
+<span class="lk">✓ bash, python3, tmux installed</span><br>
+<span class="lk">✓ claude installed · API keys injected</span><br>
+<span class="lk">✓ provisioned (vmid=219)</span>
+            </div>
+          </div>
+          <div class="lc-note">
+            <div class="lc-note-icon">💡</div>
+            <div class="lc-note-text"><strong>--dry-run</strong> 플래그로 실행 전 명령어를 미리 확인할 수 있다.</div>
+          </div>
+        </div>
+
+        <div class="lc-panel" id="panel-watch">
+          <div class="lc-panel-eye">03 · Watch</div>
+          <div class="lc-panel-h">선언이 현실이 된다, 계속</div>
+          <div class="lc-panel-p">watch 데몬이 interval마다 모든 인스턴스를 점검한다. .dalfactory 선언과 실제 상태 사이의 drift를 발견하면 자동으로 수복한다.</div>
+          <div class="lc-cblock">
+            <div class="lc-cbar"><span class="lc-clang">SHELL</span><button class="cp-btn" onclick="cp(this)">copy</button></div>
+            <div class="lc-code">
+<span class="lp">$ </span><span class="lc2">dalcenter watch <span class="lf">--interval</span> <span class="ls">60</span></span><br>
+<span class="lk">watch started (interval=60s, pid=48291)</span><br>
+<span style="color:var(--g1)">  DAL:CONTAINER:a1b2c3d4: ok</span><br>
+<span style="color:var(--g1)">  DAL:CONTAINER:7e4b9d15: ok</span><br>
+<span style="color:var(--g1)">  DAL:CONTAINER:c9d0e1f2: repaired</span><br>
+<span style="color:var(--g1)">    - skill agent-coach: re-exported</span>
+            </div>
+          </div>
+          <div class="lc-note">
+            <div class="lc-note-icon">💡</div>
+            <div class="lc-note-text">싱글톤 PID 락으로 동시에 하나의 watch만 실행된다. <strong>dalcenter reconcile</strong>로 즉시 1회 점검도 가능.</div>
+          </div>
+        </div>
+
+        <div class="lc-panel" id="panel-secret">
+          <div class="lc-panel-eye">04 · SecretVault</div>
+          <div class="lc-panel-h">키는 자동으로 주입된다</div>
+          <div class="lc-panel-p">API 키를 AES-256-GCM으로 암호화해서 보관한다. 컨테이너 배포 시 자동으로 복호화하여 에이전트에 주입한다. 사람 손을 거치지 않는다.</div>
+          <div class="lc-cblock">
+            <div class="lc-cbar"><span class="lc-clang">SHELL</span><button class="cp-btn" onclick="cp(this)">copy</button></div>
+            <div class="lc-code">
+<span class="lmt"># 저장</span><br>
+<span class="lp">$ </span><span class="lc2">dalcenter secret set anthropic_api_key</span><br>
+<span class="lk">secret "anthropic_api_key" saved</span><br><br>
+<span class="lmt"># 목록</span><br>
+<span class="lp">$ </span><span class="lc2">dalcenter secret list</span><br>
+<span style="color:var(--g1)">anthropic_api_key    2026-03-17</span><br>
+<span style="color:var(--g1)">openai_api_key       2026-03-17</span>
+            </div>
+          </div>
+          <div class="lc-note">
+            <div class="lc-note-icon">💡</div>
+            <div class="lc-note-text">.dalfactory의 <strong>secret_keys</strong> 필드에 키 이름을 선언하면 배포 시 자동으로 컨테이너에 주입된다.</div>
+          </div>
+        </div>
+
+        <div class="lc-panel" id="panel-destroy">
+          <div class="lc-panel-eye">05 · Destroy</div>
+          <div class="lc-panel-h">필요없으면 제거한다</div>
+          <div class="lc-panel-p">컨테이너를 중지하고 제거한다. 레지스트리의 인스턴스 기록은 남는다. ID는 영원히 고정이다.</div>
+          <div class="lc-cblock">
+            <div class="lc-cbar"><span class="lc-clang">SHELL</span><button class="cp-btn" onclick="cp(this)">copy</button></div>
+            <div class="lc-code">
+<span class="lmt"># 먼저 dry-run으로 확인</span><br>
+<span class="lp">$ </span><span class="lc2">dalcenter destroy my-agent <span class="lf">--dry-run</span></span><br>
+<span style="color:var(--g1)">dry-run: pct stop 219</span><br>
+<span style="color:var(--g1)">dry-run: pct destroy 219</span><br><br>
+<span class="lmt"># 실제 제거</span><br>
+<span class="lp">$ </span><span class="lc2">dalcenter destroy my-agent</span><br>
+<span class="lk">destroyed</span>
+            </div>
+          </div>
+          <div class="lc-note">
+            <div class="lc-note-icon">💡</div>
+            <div class="lc-note-text">제거해도 <strong>dalcenter join</strong>으로 다시 등록하고 <strong>provision</strong>으로 즉시 복원할 수 있다.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GITHUB -->
+<section id="gh">
+  <div class="gh-inner">
+    <div class="gh-l ri">
+      <div class="g-eye">Open Source · GitHub</div>
+      <div class="g-h">소스코드는<br>여기 있다</div>
+      <p class="g-p">Go 1.25 + CUE + SQLite + Cobra. 이슈를 열고 PR을 보내라.</p>
+      <div class="g-btns">
+        <a href="https://github.com/dalsoop/dalforge" class="g-primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          dalsoop/dalforge
+        </a>
+        <a href="https://github.com/dalsoop/dalforge/issues" class="g-sec">Issues →</a>
+        <a href="https://github.com/dalsoop/dalforge/blob/main/README.md" class="g-sec">README →</a>
+      </div>
+    </div>
+    <div class="ri">
+      <div class="repo-card">
+        <div class="rca-head">
+          <div class="rca-av">D</div>
+          <div class="rca-info">
+            <div class="rca-name">dalsoop / dalforge</div>
+            <div class="rca-path">github.com/dalsoop/dalforge</div>
+          </div>
+        </div>
+        <div class="rca-body">
+          <div class="rca-tags">
+            <span class="rca-tag">ai-agents</span><span class="rca-tag">proxmox-lxc</span>
+            <span class="rca-tag">cue-lang</span><span class="rca-tag">claude</span>
+            <span class="rca-tag">per-repo-ai</span><span class="rca-tag">MIT</span>
+          </div>
+          <div class="rca-stack">
+            <span class="rca-s">Go 1.25</span><span class="rca-s">CUE 0.16</span>
+            <span class="rca-s">SQLite</span><span class="rca-s">Cobra</span>
+          </div>
+        </div>
+        <div class="rca-foot">
+          <span>활성 · MIT License</span>
+          <span style="color:var(--green)">● live</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="fi">
+    <div>
+      <div class="flogo">dalforge</div>
+      <div class="ftag">레포마다 AI. 컨테이너로.</div>
+    </div>
+    <div>
+      <div class="fc-t">Docs</div>
+      <div class="fc-ls">
+        <a href="#lifecycle">Quick Start</a>
+        <a href="#how">How it works</a>
+        <a href="#lifecycle">Lifecycle</a>
+        <a href="#">CLI Reference</a>
+      </div>
+    </div>
+    <div>
+      <div class="fc-t">GitHub</div>
+      <div class="fc-ls">
+        <a href="https://github.com/dalsoop/dalforge">Repository</a>
+        <a href="https://github.com/dalsoop/dalforge/issues">Issues</a>
+        <a href="https://github.com/dalsoop/dalforge/blob/main/README.md">README</a>
+      </div>
+    </div>
+    <div>
+      <div class="fc-t">Stack</div>
+      <div class="fc-ls">
+        <a href="#">Go 1.25</a>
+        <a href="#">CUE 0.16</a>
+        <a href="#">SQLite</a>
+        <a href="#">Proxmox LXC</a>
+      </div>
+    </div>
+  </div>
+  <div class="fcopy">
+    <span>dalforge · dalsoop/dalforge · MIT</span>
+    <span>IBM Plex Sans + IBM Plex Mono</span>
+  </div>
+</footer>
+
+<script>
+/* ── LIFECYCLE TABS ── */
+function switchPanel(id) {
+  document.querySelectorAll('.lc-sec-head').forEach(h => h.classList.remove('active'));
+  document.querySelectorAll('.lc-panel').forEach(p => p.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('panel-' + id).classList.add('active');
+}
+
+/* ── SCROLL REVEAL ── */
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); obs.unobserve(e.target); } });
+}, { threshold: 0.08 });
+document.querySelectorAll('.ri').forEach(el => obs.observe(el));
+
+/* ── COPY ── */
+function cp(btn) {
+  const txt = btn.closest('.lc-cblock').querySelector('.lc-code').innerText
+    .replace(/^\$ /gm,'').replace(/^✓ /gm,'').trim();
+  navigator.clipboard.writeText(txt).then(() => {
+    btn.textContent = '✓'; setTimeout(() => btn.textContent = 'copy', 1400);
+  });
+}
+
+/* ── REPO CARD PULSE ── */
+// Animate health tick on active cards
+setInterval(() => {
+  document.querySelectorAll('.rc-row-v.ok').forEach(el => {
+    const match = el.textContent.match(/ok\((\d+)s\)/);
+    if (match) {
+      let s = parseInt(match[1]) + 1;
+      if (s > 30) s = 1;
+      el.textContent = `ok(${s}s)`;
+    }
+  });
+}, 1000);
+</script>
+</body>
+</html>

@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prelik — AI 개발자의 편</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=Manrope:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+@property --ang  { syntax:'<angle>'; initial-value:0deg;   inherits:false; }
+@property --ang2 { syntax:'<angle>'; initial-value:120deg; inherits:false; }
+@property --ang3 { syntax:'<angle>'; initial-value:240deg; inherits:false; }
+@property --gp   { syntax:'<percentage>'; initial-value:0%; inherits:false; }
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:    #020208;
+  --bg2:   #07070f;
+  --bg3:   #0c0c18;
+  --b:     #141428;
+  --b2:    #1e1e38;
+  --ink:   #f0f0fc;
+  --ink2:  #7070a0;
+  --ink3:  #32324a;
+  --g:     #00e896;  /* green  */
+  --a:     #ffaa33;  /* amber  */
+  --p:     #a87eff;  /* purple */
+  --br:    #6060ff;  /* brand  */
+  --cy:    #00d4ff;  /* cyan   NEW */
+  --ro:    #ff3d6e;  /* rose   NEW */
+}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:'Manrope',sans-serif; font-size:15px; line-height:1.6;
+  overflow-x:hidden; cursor:none;
+}
+a{color:inherit;text-decoration:none;}
+
+/* ── CURSOR ── */
+#cur{pointer-events:none;position:fixed;z-index:9999;top:0;left:0;}
+.cd{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--ink);transform:translate(-50%,-50%);transition:width .25s,height .25s;mix-blend-mode:difference;}
+.cd.big{width:52px;height:52px;}
+.cr{position:absolute;width:38px;height:38px;border-radius:50%;border:1.5px solid rgba(255,255,255,.2);transform:translate(-50%,-50%);}
+
+/* spotlight follows cursor */
+#sp{position:fixed;inset:0;pointer-events:none;z-index:1;transition:background .08s;}
+
+/* ── ANIMATED MESH BG ── */
+.mesh-bg{
+  position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;
+}
+.mesh-orb{position:absolute;border-radius:50%;filter:blur(100px);opacity:.18;}
+.m1{width:900px;height:900px;top:-300px;left:-200px;background:var(--br);animation:drift1 18s ease-in-out infinite alternate;}
+.m2{width:700px;height:700px;top:200px;right:-100px;background:var(--cy);animation:drift2 22s ease-in-out infinite alternate;}
+.m3{width:600px;height:600px;bottom:-100px;left:20%;background:var(--ro);animation:drift3 16s ease-in-out infinite alternate;}
+.m4{width:500px;height:500px;bottom:100px;right:10%;background:var(--g);animation:drift4 20s ease-in-out infinite alternate;}
+@keyframes drift1{from{transform:translate(0,0) scale(1)}to{transform:translate(80px,60px) scale(1.2)}}
+@keyframes drift2{from{transform:translate(0,0) scale(1)}to{transform:translate(-60px,80px) scale(1.15)}}
+@keyframes drift3{from{transform:translate(0,0) scale(1)}to{transform:translate(40px,-70px) scale(1.1)}}
+@keyframes drift4{from{transform:translate(0,0) scale(1)}to{transform:translate(-50px,-40px) scale(1.25)}}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:300;
+  height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;
+  background:rgba(2,2,8,.7);backdrop-filter:blur(28px);
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.logo{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;letter-spacing:-.04em;display:flex;align-items:center;gap:10px;position:relative;z-index:1;}
+.lm{
+  width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:15px;font-weight:800;position:relative;
+  background:linear-gradient(135deg,var(--br),var(--cy));
+  box-shadow:0 0 28px rgba(96,96,255,.55),0 0 60px rgba(0,212,255,.15);
+}
+.lm::after{content:'';position:absolute;inset:-2px;border-radius:11px;background:linear-gradient(135deg,var(--br),var(--cy),var(--ro));z-index:-1;opacity:.4;animation:logoRing 4s ease-in-out infinite alternate;}
+@keyframes logoRing{from{opacity:.3;transform:scale(1)}to{opacity:.7;transform:scale(1.08)}}
+.nc{display:flex;align-items:center;gap:2px;}
+.nl{padding:6px 14px;font-size:13.5px;font-weight:500;color:var(--ink2);border-radius:7px;transition:color .15s,background .15s;}
+.nl:hover{color:var(--ink);background:rgba(255,255,255,.05);}
+.nbtn{
+  padding:10px 24px;border-radius:9px;font-size:13.5px;font-weight:600;
+  font-family:'Manrope',sans-serif;border:none;
+  background:linear-gradient(135deg,var(--br),var(--cy));
+  color:#fff;box-shadow:0 0 24px rgba(96,96,255,.4);
+  transition:transform .2s,box-shadow .2s;
+  animation:btnPulse 3s ease-in-out infinite;
+}
+@keyframes btnPulse{0%,100%{box-shadow:0 0 24px rgba(96,96,255,.4)}50%{box-shadow:0 0 36px rgba(96,96,255,.65),0 0 60px rgba(0,212,255,.2)}}
+.nbtn:hover{transform:translateY(-2px) scale(1.02);}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;position:relative;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:0 56px 88px;overflow:hidden;
+}
+#cvs{position:absolute;inset:0;z-index:0;}
+
+/* Floating 3D shapes */
+.geo{position:absolute;pointer-events:none;z-index:1;}
+.geo-inner{transform-style:preserve-3d;}
+.hex{
+  width:80px;height:80px;position:relative;
+  background:linear-gradient(135deg,rgba(96,96,255,.15),rgba(0,212,255,.08));
+  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  border:1px solid rgba(96,96,255,.25);
+  box-shadow:0 0 30px rgba(96,96,255,.15),inset 0 0 20px rgba(96,96,255,.05);
+}
+.dia{
+  width:60px;height:60px;
+  background:linear-gradient(135deg,rgba(255,61,110,.12),rgba(168,126,255,.08));
+  transform:rotate(45deg);
+  border:1px solid rgba(255,61,110,.2);
+  box-shadow:0 0 25px rgba(255,61,110,.12);
+}
+.tri{
+  width:0;height:0;
+  border-left:35px solid transparent;border-right:35px solid transparent;
+  border-bottom:60px solid rgba(0,232,150,.1);
+  filter:drop-shadow(0 0 20px rgba(0,232,150,.25));
+}
+.ring-shape{
+  width:100px;height:100px;border-radius:50%;
+  border:2px solid rgba(0,212,255,.2);
+  box-shadow:0 0 30px rgba(0,212,255,.1),inset 0 0 30px rgba(0,212,255,.05);
+}
+.g1{top:180px;right:12%;animation:geoFloat1 9s ease-in-out infinite;}
+.g2{top:55%;right:22%;animation:geoFloat2 12s ease-in-out infinite;}
+.g3{top:28%;right:30%;animation:geoFloat3 10s ease-in-out infinite;}
+.g4{top:65%;right:8%;animation:geoFloat4 14s ease-in-out infinite;}
+.g5{top:40%;right:40%;animation:geoFloat1 11s ease-in-out infinite reverse;}
+@keyframes geoFloat1{0%,100%{transform:translateY(0)rotateX(0)rotateY(0)rotateZ(0)}50%{transform:translateY(-28px)rotateX(25deg)rotateY(40deg)rotateZ(10deg)}}
+@keyframes geoFloat2{0%,100%{transform:translateY(0)rotateX(10deg)rotateY(0)rotateZ(5deg)}50%{transform:translateY(-20px)rotateX(45deg)rotateY(30deg)rotateZ(25deg)}}
+@keyframes geoFloat3{0%,100%{transform:translateY(0)rotateZ(0)scale(1)}50%{transform:translateY(-35px)rotateZ(180deg)scale(1.1)}}
+@keyframes geoFloat4{0%,100%{transform:translateY(0)rotateZ(45deg)rotateX(0)}50%{transform:translateY(-22px)rotateZ(135deg)rotateX(30deg)}}
+
+.hero-label{
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink3);
+  letter-spacing:.14em;text-transform:uppercase;margin-bottom:40px;
+  display:flex;align-items:center;gap:12px;position:relative;z-index:2;
+}
+.pd{
+  width:8px;height:8px;border-radius:50%;background:var(--g);
+  box-shadow:0 0 10px var(--g),0 0 20px rgba(0,232,150,.4);
+  animation:pd 2s ease-in-out infinite;
+}
+@keyframes pd{0%,100%{transform:scale(1);box-shadow:0 0 10px var(--g),0 0 20px rgba(0,232,150,.4)}50%{transform:scale(1.5);box-shadow:0 0 20px var(--g),0 0 40px rgba(0,232,150,.3)}}
+
+.hero-title{
+  font-family:'Syne',sans-serif;
+  font-size:clamp(50px,8vw,108px);
+  font-weight:800;letter-spacing:-.045em;line-height:1.0;
+  position:relative;z-index:2;
+}
+.ht-line{overflow:hidden;display:block;}
+.ht-inner{
+  display:block;
+  animation:slideUp .9s cubic-bezier(.16,1,.3,1) both;
+}
+.ht-line:nth-child(1) .ht-inner{animation-delay:.15s;}
+.ht-line:nth-child(2) .ht-inner{animation-delay:.3s;}
+.ht-line:nth-child(3) .ht-inner{animation-delay:.45s;}
+@keyframes slideUp{from{transform:translateY(110%);opacity:0}to{transform:translateY(0);opacity:1}}
+
+.grad-sweep{
+  background:linear-gradient(90deg,var(--g),var(--cy),var(--br),var(--ro),var(--a),var(--g));
+  background-size:300%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  animation:sweep 5s linear infinite;
+}
+@keyframes sweep{from{background-position:0%}to{background-position:300%}}
+.dim-h{color:var(--ink3);}
+
+/* Ticker */
+.ticker-wrap{overflow:hidden;border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05);padding:14px 0;background:rgba(7,7,15,.9);position:relative;z-index:2;margin-top:56px;}
+.ticker{display:flex;gap:0;white-space:nowrap;animation:tick 22s linear infinite;}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.ti{display:inline-flex;align-items:center;gap:20px;padding:0 36px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink3);flex-shrink:0;}
+.ti .tag{font-weight:500;padding:2px 8px;border-radius:4px;font-size:11px;}
+.tag-g{color:var(--g);background:rgba(0,232,150,.1);}
+.tag-a{color:var(--a);background:rgba(255,170,51,.1);}
+.tag-p{color:var(--p);background:rgba(168,126,255,.1);}
+.tag-c{color:var(--cy);background:rgba(0,212,255,.1);}
+.ti-sep{width:4px;height:4px;border-radius:50%;background:var(--b2);}
+
+.hero-bottom{
+  display:grid;grid-template-columns:1fr auto;gap:60px;align-items:flex-end;
+  padding-top:56px;margin-top:0;border-top:1px solid rgba(255,255,255,.06);
+  position:relative;z-index:2;
+}
+.hero-desc{font-size:16px;color:var(--ink2);line-height:1.85;max-width:560px;}
+
+/* Stats with SVG rings */
+.stats-group{display:flex;gap:32px;}
+.stat-ring-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;}
+.ring-svg{transform:rotate(-90deg);}
+.ring-track{fill:none;stroke:var(--b2);stroke-width:3;}
+.ring-fill{fill:none;stroke-width:3;stroke-linecap:round;stroke-dasharray:100 100;stroke-dashoffset:100;transition:stroke-dashoffset 1.5s cubic-bezier(.16,1,.3,1);}
+.rf-1{stroke:url(#rg1);}
+.rf-2{stroke:url(#rg2);}
+.rf-3{stroke:url(#rg3);}
+.stat-num{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;letter-spacing:-.03em;}
+.stat-lbl{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase;}
+
+/* ── SECTIONS ── */
+.sec{padding:120px 56px;border-bottom:1px solid rgba(255,255,255,.05);position:relative;}
+.si{max-width:1200px;margin:0 auto;}
+.stag{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:72px;display:flex;align-items:center;gap:14px;}
+.stag::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.06);}
+
+/* colored section divider */
+.sec-div{height:2px;background:linear-gradient(90deg,transparent,var(--br),var(--cy),var(--ro),transparent);opacity:.4;animation:divShift 6s linear infinite;background-size:200%;}
+@keyframes divShift{from{background-position:0%}to{background-position:200%}}
+
+/* ── PRODUCT CARDS ── */
+.ph-h{font-family:'Syne',sans-serif;font-size:clamp(34px,4vw,52px);font-weight:800;letter-spacing:-.04em;line-height:1.1;}
+.ph-p{font-size:16px;color:var(--ink2);line-height:1.8;}
+.ph-row{display:grid;grid-template-columns:1fr 1fr;gap:80px;margin-bottom:80px;align-items:end;}
+.cards-g{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+
+.pcard{
+  position:relative;border-radius:22px;padding:2px;
+  background:linear-gradient(var(--bg2),var(--bg2)) padding-box,
+             conic-gradient(from var(--ang) at 50% 50%, transparent 0deg, var(--g) 60deg, transparent 120deg) border-box;
+  border:2px solid transparent;
+  transition:transform .4s cubic-bezier(.16,1,.3,1),filter .4s;
+  animation:borderSpin 4s linear infinite;
+}
+.pcard.vc{
+  background:linear-gradient(var(--bg2),var(--bg2)) padding-box,
+             conic-gradient(from var(--ang2) at 50% 50%, transparent 0deg, var(--a) 60deg, transparent 120deg) border-box;
+  animation:borderSpin2 4s linear infinite;
+}
+.pcard.lc{
+  background:linear-gradient(var(--bg2),var(--bg2)) padding-box,
+             conic-gradient(from var(--ang3) at 50% 50%, transparent 0deg, var(--p) 60deg, transparent 120deg) border-box;
+  animation:borderSpin3 4s linear infinite;
+}
+@keyframes borderSpin  {to{--ang:360deg;}}
+@keyframes borderSpin2 {to{--ang2:480deg;}}
+@keyframes borderSpin3 {to{--ang3:600deg;}}
+.pcard:hover{transform:translateY(-8px) scale(1.01);}
+.pi{background:var(--bg2);border-radius:20px;padding:34px;overflow:hidden;position:relative;}
+.pi::before{
+  content:'';position:absolute;inset:0;opacity:0;transition:opacity .5s;pointer-events:none;
+}
+.pcard    .pi::before{background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(0,232,150,.07),transparent);}
+.pcard.vc .pi::before{background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(255,170,51,.07),transparent);}
+.pcard.lc .pi::before{background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(168,126,255,.07),transparent);}
+.pcard:hover .pi::before{opacity:1;}
+.pc-ico{
+  width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+  font-size:24px;margin-bottom:22px;position:relative;
+  transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+}
+.pcard:hover .pc-ico{transform:scale(1.15) rotate(-8deg);}
+.pcard    .pc-ico{background:rgba(0,232,150,.1);}
+.pcard.vc .pc-ico{background:rgba(255,170,51,.1);}
+.pcard.lc .pc-ico{background:rgba(168,126,255,.1);}
+.pc-nm{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;letter-spacing:-.03em;margin-bottom:10px;}
+.pc-ds{font-size:14px;color:var(--ink2);line-height:1.65;margin-bottom:26px;}
+.pc-lk{display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;transition:gap .2s,opacity .2s;}
+.pcard:hover .pc-lk{gap:12px;}
+.pcard    .pc-lk{color:var(--g);}
+.pcard.vc .pc-lk{color:var(--a);}
+.pcard.lc .pc-lk{color:var(--p);}
+
+/* ── MISSION ── */
+.mission-sec{background:var(--bg2);}
+.mission-bg{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.mb-orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.12;}
+.mbo1{width:600px;height:600px;top:-100px;left:-100px;background:var(--br);animation:mbo 15s ease-in-out infinite alternate;}
+.mbo2{width:400px;height:400px;top:30%;right:-50px;background:var(--ro);animation:mbo 18s ease-in-out infinite alternate-reverse;}
+.mbo3{width:350px;height:350px;bottom:-50px;left:30%;background:var(--cy);animation:mbo 12s ease-in-out infinite alternate;}
+@keyframes mbo{from{transform:translate(0,0)scale(1)}to{transform:translate(40px,30px)scale(1.15)}}
+
+.mq{
+  font-family:'Syne',sans-serif;
+  font-size:clamp(30px,4vw,56px);font-weight:800;letter-spacing:-.04em;line-height:1.2;
+  max-width:920px;margin-bottom:72px;position:relative;z-index:1;
+}
+.wr{display:inline-block;overflow:hidden;margin-right:.22em;vertical-align:top;}
+.wri{display:inline-block;transform:translateY(110%);opacity:0;transition:transform .7s cubic-bezier(.16,1,.3,1),opacity .5s;}
+.wr.vis .wri{transform:translateY(0);opacity:1;}
+.wc1{color:var(--g);}
+.wc2{color:var(--cy);}
+.wc3{color:var(--ro);}
+.wd{color:var(--ink3);}
+
+.vrow{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.05);border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,.06);position:relative;z-index:1;}
+.vi{
+  background:var(--bg2);padding:44px 40px;position:relative;overflow:hidden;
+  transition:background .25s;
+}
+.vi:hover{background:rgba(255,255,255,.025);}
+.vi-bar{
+  position:absolute;bottom:0;left:0;right:0;height:3px;transform:scaleX(0);
+  transition:transform .4s cubic-bezier(.16,1,.3,1);transform-origin:left;
+}
+.vi:nth-child(1) .vi-bar{background:linear-gradient(90deg,var(--g),var(--cy));box-shadow:0 0 20px var(--g);}
+.vi:nth-child(2) .vi-bar{background:linear-gradient(90deg,var(--a),var(--ro));box-shadow:0 0 20px var(--a);}
+.vi:nth-child(3) .vi-bar{background:linear-gradient(90deg,var(--p),var(--br));box-shadow:0 0 20px var(--p);}
+.vi:hover .vi-bar{transform:scaleX(1);}
+.vi-glow{position:absolute;inset:0;opacity:0;transition:opacity .4s;pointer-events:none;}
+.vi:nth-child(1):hover .vi-glow{opacity:1;background:radial-gradient(ellipse 80% 60% at 50% 100%,rgba(0,232,150,.04),transparent);}
+.vi:nth-child(2):hover .vi-glow{opacity:1;background:radial-gradient(ellipse 80% 60% at 50% 100%,rgba(255,170,51,.04),transparent);}
+.vi:nth-child(3):hover .vi-glow{opacity:1;background:radial-gradient(ellipse 80% 60% at 50% 100%,rgba(168,126,255,.04),transparent);}
+.vi-n{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink3);letter-spacing:.08em;margin-bottom:18px;}
+.vi-t{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;letter-spacing:-.03em;margin-bottom:10px;}
+.vi-d{font-size:13.5px;color:var(--ink2);line-height:1.7;}
+
+/* ── STORY ── */
+.sg-h{font-family:'Syne',sans-serif;font-size:clamp(30px,3.5vw,46px);font-weight:800;letter-spacing:-.04em;line-height:1.1;margin-bottom:24px;}
+.sg-p{font-size:15.5px;color:var(--ink2);line-height:1.85;margin-bottom:18px;}
+.sg-sig{font-family:'Syne',sans-serif;font-size:14px;color:var(--ink3);margin-top:16px;font-style:italic;}
+.story-l{display:grid;grid-template-columns:1fr 1fr;gap:80px;}
+.tl-row{display:grid;grid-template-columns:72px 1fr;gap:20px;padding:26px 0;border-bottom:1px solid rgba(255,255,255,.06);transition:background .2s,padding .2s;}
+.tl-row:hover{background:rgba(255,255,255,.02);margin:0 -16px;padding-left:16px;padding-right:16px;border-radius:10px;}
+.tl-yr{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink3);padding-top:3px;letter-spacing:.04em;}
+.tl-b{padding-left:22px;position:relative;}
+.tl-b::before{content:'';position:absolute;left:0;top:6px;width:9px;height:9px;border-radius:50%;background:var(--b2);border:2px solid var(--b2);transition:background .3s,box-shadow .3s;}
+.tl-row:hover .tl-b::before{background:var(--cy);border-color:var(--cy);box-shadow:0 0 16px var(--cy),0 0 30px rgba(0,212,255,.3);}
+.tl-t{font-size:15px;font-weight:600;margin-bottom:4px;}
+.tl-d{font-size:13px;color:var(--ink2);line-height:1.6;}
+
+/* ── TEAM ── */
+.tm-h{font-family:'Syne',sans-serif;font-size:clamp(36px,5vw,64px);font-weight:800;letter-spacing:-.04em;line-height:1.0;}
+.tm-p{font-size:16px;color:var(--ink2);line-height:1.8;}
+.th-row{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;margin-bottom:72px;}
+.tg{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.mc{
+  background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:28px;
+  text-align:center;position:relative;overflow:hidden;
+  transition:transform .4s cubic-bezier(.16,1,.3,1),border-color .3s,box-shadow .3s;
+}
+.mc:hover{transform:translateY(-10px) scale(1.02);}
+.mc-glo{position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:160px;height:160px;border-radius:50%;opacity:0;transition:opacity .5s;pointer-events:none;filter:blur(50px);}
+.mc.c1:hover .mc-glo{opacity:.55;background:var(--g);}
+.mc.c2:hover .mc-glo{opacity:.55;background:var(--a);}
+.mc.c3:hover .mc-glo{opacity:.55;background:var(--p);}
+.mc.c1:hover{border-color:rgba(0,232,150,.3);box-shadow:0 20px 60px rgba(0,232,150,.08),0 0 0 1px rgba(0,232,150,.1);}
+.mc.c2:hover{border-color:rgba(255,170,51,.3);box-shadow:0 20px 60px rgba(255,170,51,.08),0 0 0 1px rgba(255,170,51,.1);}
+.mc.c3:hover{border-color:rgba(168,126,255,.3);box-shadow:0 20px 60px rgba(168,126,255,.08),0 0 0 1px rgba(168,126,255,.1);}
+.mc-av{font-size:40px;margin-bottom:14px;position:relative;z-index:1;display:block;transition:transform .4s cubic-bezier(.34,1.56,.64,1);}
+.mc:hover .mc-av{transform:scale(1.2) translateY(-4px);}
+.mc-nm{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;letter-spacing:-.02em;margin-bottom:4px;position:relative;z-index:1;}
+.mc-rl{font-size:12.5px;color:var(--ink2);margin-bottom:12px;position:relative;z-index:1;}
+.mc-bd{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 10px;border-radius:5px;position:relative;z-index:1;}
+.mc.c1 .mc-bd{background:rgba(0,232,150,.1);color:var(--g);}
+.mc.c2 .mc-bd{background:rgba(255,170,51,.1);color:var(--a);}
+.mc.c3 .mc-bd{background:rgba(168,126,255,.1);color:var(--p);}
+.mc.hire{border-style:dashed;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:190px;gap:6px;transition:border-color .3s,transform .3s;}
+.mc.hire:hover{border-color:rgba(0,212,255,.3);box-shadow:0 0 30px rgba(0,212,255,.06);transform:translateY(-6px);}
+.hire-i{font-size:28px;color:var(--ink3);}
+.hire-t{font-size:14px;font-weight:600;}
+.hire-s{font-size:12px;color:var(--ink3);}
+.hire-l{font-size:13px;font-weight:600;color:var(--cy);margin-top:4px;}
+
+/* ── CONTACT ── */
+.cw{background:var(--bg2);border:1px solid rgba(255,255,255,.07);border-radius:24px;overflow:hidden;position:relative;}
+.cw::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(135deg,rgba(96,96,255,.03),rgba(0,212,255,.02),rgba(255,61,110,.02));
+}
+.ctg{display:grid;grid-template-columns:1fr 1fr;}
+.ctl{padding:72px 64px;border-right:1px solid rgba(255,255,255,.07);position:relative;z-index:1;}
+.ct-h{font-family:'Syne',sans-serif;font-size:clamp(32px,4vw,52px);font-weight:800;letter-spacing:-.04em;line-height:1.1;margin-bottom:20px;}
+.ct-g{
+  background:linear-gradient(90deg,var(--br),var(--cy),var(--g));
+  background-size:200%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  animation:sweep 4s linear infinite;
+}
+.ct-sub{font-size:16px;color:var(--ink2);line-height:1.75;margin-bottom:44px;}
+.cil{display:flex;flex-direction:column;gap:12px;}
+.ci{
+  display:flex;align-items:center;gap:16px;padding:18px 20px;border-radius:13px;
+  border:1px solid rgba(255,255,255,.07);background:var(--bg);
+  transition:all .3s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden;
+}
+.ci::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;transform:scaleY(0);transition:transform .35s cubic-bezier(.16,1,.3,1);transform-origin:bottom;}
+.ci:nth-child(1)::before{background:linear-gradient(to top,var(--g),var(--cy));box-shadow:0 0 12px var(--g);}
+.ci:nth-child(2)::before{background:linear-gradient(to top,var(--a),var(--ro));box-shadow:0 0 12px var(--a);}
+.ci:nth-child(3)::before{background:linear-gradient(to top,var(--p),var(--br));box-shadow:0 0 12px var(--p);}
+.ci:hover{border-color:rgba(255,255,255,.14);transform:translateX(10px);background:rgba(255,255,255,.025);}
+.ci:hover::before{transform:scaleY(1);}
+.ci-i{font-size:20px;flex-shrink:0;}
+.ci-t{font-size:15px;font-weight:600;}
+.ci-s{font-size:12px;color:var(--ink2);margin-top:1px;}
+.ci-a{margin-left:auto;color:var(--ink3);transition:transform .25s,color .25s;}
+.ci:hover .ci-a{transform:translateX(6px);color:var(--ink2);}
+.ctr{padding:72px 64px;position:relative;z-index:1;}
+.cr-l{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:20px;}
+.cr-h{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;letter-spacing:-.03em;margin-bottom:12px;}
+.cr-p{font-size:14px;color:var(--ink2);line-height:1.7;margin-bottom:28px;}
+.perks{list-style:none;margin-bottom:32px;}
+.perks li{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--ink2);padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06);}
+.perks li:last-child{border-bottom:none;}
+.perks li::before{content:'';width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.perks li:nth-child(1)::before{background:var(--g);box-shadow:0 0 10px var(--g);}
+.perks li:nth-child(2)::before{background:var(--cy);box-shadow:0 0 10px var(--cy);}
+.perks li:nth-child(3)::before{background:var(--ro);box-shadow:0 0 10px var(--ro);}
+.perks li:nth-child(4)::before{background:var(--a);box-shadow:0 0 10px var(--a);}
+.cr-btn{
+  display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:10px;
+  font-size:14px;font-weight:700;font-family:'Manrope',sans-serif;
+  background:linear-gradient(135deg,var(--br),var(--cy));
+  color:#fff;box-shadow:0 0 28px rgba(96,96,255,.35);
+  transition:transform .2s,box-shadow .2s;
+}
+.cr-btn:hover{transform:translateY(-3px);box-shadow:0 4px 40px rgba(96,96,255,.5),0 0 60px rgba(0,212,255,.2);}
+
+/* ── FOOTER ── */
+footer{padding:72px 56px 48px;border-top:1px solid rgba(255,255,255,.05);}
+.fi{max-width:1200px;margin:0 auto;}
+.fg{display:grid;grid-template-columns:280px repeat(4,1fr);gap:48px;margin-bottom:60px;}
+.fbd{font-size:13px;color:var(--ink3);line-height:1.7;margin-top:12px;}
+.fch{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink);margin-bottom:14px;}
+.fl{list-style:none;}
+.fl li{margin-bottom:9px;}
+.fl a{font-size:13.5px;color:var(--ink2);transition:color .12s;}
+.fl a:hover{color:var(--ink);}
+.fb{padding-top:32px;border-top:1px solid rgba(255,255,255,.05);display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--ink3);}
+.fps{display:flex;gap:8px;}
+.fp{padding:3px 10px;border-radius:5px;font-size:11px;font-weight:600;}
+
+/* ── REVEAL ── */
+.r{opacity:0;transform:translateY(28px);transition:opacity .75s cubic-bezier(.16,1,.3,1),transform .75s cubic-bezier(.16,1,.3,1);}
+.r.in{opacity:1;transform:none;}
+.si-r{opacity:0;transform:scale(.95) translateY(24px);transition:opacity .75s cubic-bezier(.16,1,.3,1),transform .75s cubic-bezier(.16,1,.3,1);}
+.si-r.in{opacity:1;transform:none;}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}
+</style>
+</head>
+<body>
+
+<!-- MESH BG -->
+<div class="mesh-bg" aria-hidden="true">
+  <div class="mesh-orb m1"></div>
+  <div class="mesh-orb m2"></div>
+  <div class="mesh-orb m3"></div>
+  <div class="mesh-orb m4"></div>
+</div>
+
+<div id="cur"><div class="cd" id="dot"></div><div class="cr" id="ring"></div></div>
+<div id="sp"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo"><div class="lm">P</div>Prelik</div>
+  <div class="nc">
+    <a class="nl">Products</a><a class="nl">Company</a><a class="nl">Blog</a>
+    <a class="nl">Careers</a><a class="nl">Docs</a>
+  </div>
+  <button class="nbtn mag">문의하기</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <canvas id="cvs"></canvas>
+  <!-- Floating shapes -->
+  <div class="geo g1"><div class="hex"></div></div>
+  <div class="geo g2"><div class="dia"></div></div>
+  <div class="geo g3"><div class="ring-shape"></div></div>
+  <div class="geo g4"><div class="tri"></div></div>
+  <div class="geo g5"><div class="hex" style="width:50px;height:50px;opacity:.6"></div></div>
+
+  <div class="hero-label" style="position:relative;z-index:2">
+    <div class="pd"></div>Prelik · Seoul · Est. 2024
+  </div>
+
+  <h1 class="hero-title" style="position:relative;z-index:2">
+    <span class="ht-line"><span class="ht-inner dim-h">우리는 AI와 함께</span></span>
+    <span class="ht-line"><span class="ht-inner dim-h">일하는</span></span>
+    <span class="ht-line"><span class="ht-inner"><span class="grad-sweep">개발자의 편입니다.</span></span></span>
+  </h1>
+
+  <div class="ticker-wrap">
+    <div class="ticker">
+      <span class="ti"><span class="tag tag-g">dalforge</span>AI 에이전트 컨테이너 인프라<div class="ti-sep"></div></span>
+      <span class="ti"><span class="tag tag-a">VeilKey</span>AES-256-GCM 시크릿 볼트<div class="ti-sep"></div></span>
+      <span class="ti"><span class="tag tag-p">Academy</span>AI 인프라 전문 교육<div class="ti-sep"></div></span>
+      <span class="ti"><span class="tag tag-c">Proxmox</span>LXC 자동 프로비저닝<div class="ti-sep"></div></span>
+      <span class="ti"><span class="tag tag-g">dalforge</span>AI 에이전트 컨테이너 인프라<div class="ti-sep"></div></span>
+      <span class="ti"><span class="tag tag-a">VeilKey</span>AES-256-GCM 시크릿 볼트<div class="ti-sep"></div></span>
+      <span class="ti"><span class="tag tag-p">Academy</span>AI 인프라 전문 교육<div class="ti-sep"></div></span>
+      <span class="ti"><span class="tag tag-c">Proxmox</span>LXC 자동 프로비저닝<div class="ti-sep"></div></span>
+    </div>
+  </div>
+
+  <div class="hero-bottom">
+    <p class="hero-desc r">
+      dalforge로 AI 에이전트 인프라를 구축하고, VeilKey로 자격증명을 보호하세요.<br>
+      Prelik Academy에서 함께 배웁니다. AI 네이티브 개발자를 위한 소프트웨어 회사.
+    </p>
+    <div class="stats-group r d1" id="statsGroup">
+      <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0">
+        <defs>
+          <linearGradient id="rg1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00e896"/><stop offset="100%" stop-color="#00d4ff"/></linearGradient>
+          <linearGradient id="rg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#6060ff"/><stop offset="100%" stop-color="#a87eff"/></linearGradient>
+          <linearGradient id="rg3" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#ff3d6e"/><stop offset="100%" stop-color="#ffaa33"/></linearGradient>
+        </defs>
+      </svg>
+      <div class="stat-ring-wrap">
+        <svg class="ring-svg" width="72" height="72" viewBox="0 0 72 72">
+          <circle class="ring-track" cx="36" cy="36" r="30" pathLength="100"/>
+          <circle class="ring-fill rf-1" id="rf1" cx="36" cy="36" r="30" pathLength="100"/>
+        </svg>
+        <div class="stat-num" id="cn1" style="color:var(--g)">0</div>
+        <div class="stat-lbl">제품</div>
+      </div>
+      <div class="stat-ring-wrap">
+        <svg class="ring-svg" width="72" height="72" viewBox="0 0 72 72">
+          <circle class="ring-track" cx="36" cy="36" r="30" pathLength="100"/>
+          <circle class="ring-fill rf-2" id="rf2" cx="36" cy="36" r="30" pathLength="100"/>
+        </svg>
+        <div class="stat-num" id="cn2" style="color:var(--br)">0</div>
+        <div class="stat-lbl">개발자</div>
+      </div>
+      <div class="stat-ring-wrap">
+        <svg class="ring-svg" width="72" height="72" viewBox="0 0 72 72">
+          <circle class="ring-track" cx="36" cy="36" r="30" pathLength="100"/>
+          <circle class="ring-fill rf-3" id="rf3" cx="36" cy="36" r="30" pathLength="100"/>
+        </svg>
+        <div class="stat-num" id="cn3" style="color:var(--ro)">0</div>
+        <div class="stat-lbl">컨테이너</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sec-div"></div>
+
+<!-- PRODUCTS -->
+<section class="sec" style="position:relative;z-index:2">
+  <div class="si">
+    <div class="stag r">01 — 제품</div>
+    <div class="ph-row">
+      <h2 class="ph-h r">세 가지 제품,<br>하나의 생태계</h2>
+      <p class="ph-p r d1">각 도구는 독립적으로 강력하지만, 함께 사용할 때 진가를 발휘합니다.</p>
+    </div>
+    <div class="cards-g">
+      <div class="pcard si-r"><div class="pi">
+        <div class="pc-ico">⚙️</div>
+        <div class="pc-nm">dalforge</div>
+        <div class="pc-ds">AI 에이전트 컨테이너 인프라. CLI, 스킬, 훅, 플레이어, 시크릿을 하나의 dal로. Proxmox LXC 자동 프로비저닝.</div>
+        <div class="pc-lk">자세히 보기 <span>→</span></div>
+      </div></div>
+      <div class="pcard vc si-r d1"><div class="pi">
+        <div class="pc-ico">🔐</div>
+        <div class="pc-nm">VeilKey</div>
+        <div class="pc-ds">AES-256-GCM 암호화 시크릿 볼트. 프로비전 시 env 자동 주입. 제로 노출 아키텍처.</div>
+        <div class="pc-lk">자세히 보기 <span>→</span></div>
+      </div></div>
+      <div class="pcard lc si-r d2"><div class="pi">
+        <div class="pc-ico">🎓</div>
+        <div class="pc-nm">Prelik Academy</div>
+        <div class="pc-ds">AI 인프라 엔지니어링 전문 교육. dalforge 실습, LXC 운영, 에이전트 설계 패턴.</div>
+        <div class="pc-lk">강의 보기 <span>→</span></div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<div class="sec-div"></div>
+
+<!-- MISSION -->
+<section class="sec mission-sec" style="position:relative;z-index:2">
+  <div class="mission-bg">
+    <div class="mb-orb mbo1"></div><div class="mb-orb mbo2"></div><div class="mb-orb mbo3"></div>
+  </div>
+  <div class="si">
+    <div class="stag r">02 — 사명</div>
+    <div class="mq r" id="mq">
+      <span class="wr"><span class="wri">AI는</span></span>
+      <span class="wr"><span class="wri">개발</span></span>
+      <span class="wr"><span class="wri">방식을</span></span>
+      <span class="wr wc1"><span class="wri">바꿉니다.</span></span>
+      <br>
+      <span class="wr wd"><span class="wri">그</span></span>
+      <span class="wr wd"><span class="wri">변화</span></span>
+      <span class="wr wd"><span class="wri">속에서</span></span>
+      <span class="wr"><span class="wri">개발자</span></span>
+      <span class="wr wc2"><span class="wri">편에</span></span>
+      <span class="wr wc3"><span class="wri">서겠습니다.</span></span>
+    </div>
+    <div class="vrow r">
+      <div class="vi"><div class="vi-glow"></div><div class="vi-bar"></div>
+        <div class="vi-n">01</div><div class="vi-t">개발자 우선</div>
+        <div class="vi-d">모든 제품 결정은 개발자의 실제 워크플로우에서 시작합니다. 화려한 기능보다 실제로 쓰이는 도구.</div>
+      </div>
+      <div class="vi"><div class="vi-glow"></div><div class="vi-bar"></div>
+        <div class="vi-n">02</div><div class="vi-t">투명한 인프라</div>
+        <div class="vi-d">블랙박스 없이. CUE 선언형 설정으로 인프라가 무엇을 하는지 개발자가 정확히 알 수 있습니다.</div>
+      </div>
+      <div class="vi"><div class="vi-glow"></div><div class="vi-bar"></div>
+        <div class="vi-n">03</div><div class="vi-t">보안은 기본값</div>
+        <div class="vi-d">자격증명 보호, 시크릿 주입, 접근 제어는 추가 기능이 아니라 기본값이어야 합니다.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sec-div"></div>
+
+<!-- STORY -->
+<section class="sec" style="position:relative;z-index:2">
+  <div class="si">
+    <div class="stag r">03 — 스토리</div>
+    <div class="story-l">
+      <div class="r">
+        <h2 class="sg-h">문제를 먼저<br>경험했습니다.</h2>
+        <p class="sg-p">팀마다 다른 폴더 구조, 산재한 스크립트, 평문으로 남겨진 API 키. AI 도구는 빠르게 발전했지만 그것을 안전하고 일관되게 운영하는 방법은 여전히 각자의 몫이었습니다.</p>
+        <p class="sg-p">dalforge는 그 문제를 해결하기 위해 만들었습니다. 스킬, 훅, 자격증명, 플레이어를 하나의 선언형 단위로 묶고, 버전 관리하고, 자동으로 배포합니다.</p>
+        <div class="sg-sig">— Prelik 팀, 서울</div>
+      </div>
+      <div class="r d1">
+        <div class="tl-row"><div class="tl-yr">2024 Q1</div><div class="tl-b"><div class="tl-t">첫 번째 프로토타입</div><div class="tl-d">Go + CUE 조합으로 dalforge 최초 프로토타입 개발. 내부 팀에서 검증 시작.</div></div></div>
+        <div class="tl-row"><div class="tl-yr">2024 Q2</div><div class="tl-b"><div class="tl-t">VeilKey 분리</div><div class="tl-d">시크릿 관리 기능을 독립 제품으로 분리. AES-256-GCM 암호화 체계 도입.</div></div></div>
+        <div class="tl-row"><div class="tl-yr">2024 Q4</div><div class="tl-b"><div class="tl-t">Prelik Academy 오픈</div><div class="tl-d">AI 인프라 교육 과정 출시. 3개월 만에 수강생 1,000명 돌파.</div></div></div>
+        <div class="tl-row"><div class="tl-yr">2025</div><div class="tl-b"><div class="tl-t">Public Beta</div><div class="tl-d">dalforge v0.9 공개 베타. 4,200+ 개발자, 18,000+ 컨테이너 배포.</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="sec-div"></div>
+
+<!-- TEAM -->
+<section class="sec" style="background:var(--bg2);position:relative;z-index:2">
+  <div class="si">
+    <div class="stag r">04 — 팀</div>
+    <div class="th-row">
+      <h2 class="tm-h r">작은 팀,<br>큰 제품.</h2>
+      <p class="tm-p r d1">인프라, 보안, 교육 전문가들이 AI 개발자를 위한 도구를 만들고 있습니다.</p>
+    </div>
+    <div class="tg">
+      <div class="mc c1 si-r"><div class="mc-glo"></div><span class="mc-av">👨‍💻</span><div class="mc-nm">김정한</div><div class="mc-rl">CEO & Co-founder</div><span class="mc-bd">Infrastructure</span></div>
+      <div class="mc c2 si-r d1"><div class="mc-glo"></div><span class="mc-av">👩‍🔒</span><div class="mc-nm">이수연</div><div class="mc-rl">CTO & Co-founder</div><span class="mc-bd">Security</span></div>
+      <div class="mc c3 si-r d2"><div class="mc-glo"></div><span class="mc-av">👨‍🎓</span><div class="mc-nm">박도준</div><div class="mc-rl">Head of Education</div><span class="mc-bd" style="background:rgba(168,126,255,.1);color:var(--p)">Academy</span></div>
+      <div class="mc hire si-r d3"><div class="hire-i">✦</div><div class="hire-t">함께하실 분</div><div class="hire-s">채용 진행 중</div><a href="#" class="hire-l">채용 보기 →</a></div>
+    </div>
+  </div>
+</section>
+
+<div class="sec-div"></div>
+
+<!-- CONTACT -->
+<section class="sec" style="border-bottom:none;position:relative;z-index:2">
+  <div class="si">
+    <div class="stag r">05 — 연락</div>
+    <div class="cw si-r">
+      <div class="ctg">
+        <div class="ctl">
+          <h2 class="ct-h">이야기<br><span class="ct-g">나눠봐요.</span></h2>
+          <p class="ct-sub">제품 문의, 파트너십, 강의 협업 등 어떤 주제로든 환영합니다.</p>
+          <div class="cil">
+            <a href="mailto:hello@prelik.io" class="ci"><span class="ci-i">✉️</span><div><div class="ci-t">hello@prelik.io</div><div class="ci-s">일반 문의 · 파트너십</div></div><span class="ci-a">→</span></a>
+            <a href="#" class="ci"><span class="ci-i">💼</span><div><div class="ci-t">채용 문의</div><div class="ci-s">careers@prelik.io</div></div><span class="ci-a">→</span></a>
+            <a href="#" class="ci"><span class="ci-i">📚</span><div><div class="ci-t">강의 & 교육 협업</div><div class="ci-s">academy@prelik.io</div></div><span class="ci-a">→</span></a>
+          </div>
+        </div>
+        <div class="ctr">
+          <div class="cr-l">We're hiring</div>
+          <div class="cr-h">팀에 합류하세요</div>
+          <div class="cr-p">AI 인프라 엔지니어링에 관심 있는 분들과 함께 일하고 싶습니다. 경험보다 문제를 보는 시각이 중요합니다.</div>
+          <ul class="perks">
+            <li>풀 리모트 근무 (서울 기반)</li>
+            <li>자율적인 업무 환경</li>
+            <li>Prelik Academy 무제한 수강</li>
+            <li>인프라 장비 지원</li>
+          </ul>
+          <a href="#" class="cr-btn mag">채용 공고 보기 →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer style="position:relative;z-index:2">
+  <div class="fi">
+    <div class="fg">
+      <div>
+        <div class="logo"><div class="lm">P</div>Prelik</div>
+        <div class="fbd">AI 네이티브 개발자를 위한 인프라, 보안, 교육. 서울에 기반한 소프트웨어 회사.</div>
+      </div>
+      <div><div class="fch">Products</div><ul class="fl"><li><a>dalforge</a></li><li><a>VeilKey</a></li><li><a>Academy</a></li><li><a>Docs</a></li></ul></div>
+      <div><div class="fch">Company</div><ul class="fl"><li><a>About</a></li><li><a>Blog</a></li><li><a>Careers</a></li><li><a>Press</a></li></ul></div>
+      <div><div class="fch">Connect</div><ul class="fl"><li><a>GitHub</a></li><li><a>Twitter</a></li><li><a>LinkedIn</a></li><li><a>YouTube</a></li></ul></div>
+      <div><div class="fch">Legal</div><ul class="fl"><li><a>Terms</a></li><li><a>Privacy</a></li><li><a>Security</a></li></ul></div>
+    </div>
+    <div class="fb">
+      <div>© 2025 Prelik Inc. Seoul, Korea</div>
+      <div class="fps">
+        <span class="fp" style="background:rgba(0,232,150,.1);color:var(--g)">dalforge</span>
+        <span class="fp" style="background:rgba(255,170,51,.1);color:var(--a)">VeilKey</span>
+        <span class="fp" style="background:rgba(168,126,255,.1);color:var(--p)">Academy</span>
+        <span class="fp" style="background:rgba(0,212,255,.1);color:var(--cy)">Proxmox</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ══ CURSOR ══ */
+const dot=document.getElementById('dot'), ring=document.getElementById('ring'), sp=document.getElementById('sp');
+let mx=innerWidth/2, my=innerHeight/2, rx=mx, ry=my;
+const trails=[];
+for(let i=0;i<8;i++){const t=document.createElement('div');t.className='cd';t.style.cssText='position:absolute;mix-blend-mode:normal;background:rgba(107,107,255,.3);';document.getElementById('cur').appendChild(t);trails.push({el:t,x:mx,y:my});}
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  dot.style.left=mx+'px';dot.style.top=my+'px';
+  sp.style.background=`radial-gradient(circle 300px at ${mx}px ${my}px,rgba(96,96,255,.06) 0%,transparent 100%)`;
+});
+(function loop(){
+  rx+=(mx-rx)*.09;ry+=(my-ry)*.09;
+  ring.style.left=rx+'px';ring.style.top=ry+'px';
+  trails.forEach((t,i)=>{
+    const prev=i===0?{x:rx,y:ry}:trails[i-1];
+    t.x+=(prev.x-t.x)*(0.25-i*.02);t.y+=(prev.y-t.y)*(0.25-i*.02);
+    t.el.style.left=t.x+'px';t.el.style.top=t.y+'px';
+    const s=Math.max(2,8-i);t.el.style.width=s+'px';t.el.style.height=s+'px';
+    t.el.style.opacity=(0.35-i*.04)+'';
+  });
+  requestAnimationFrame(loop);
+})();
+document.querySelectorAll('a,button,.pcard,.mc,.ci,.nl,.tl-row').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{dot.classList.add('big');ring.style.width='60px';ring.style.height='60px';ring.style.borderColor='rgba(107,107,255,.6)';});
+  el.addEventListener('mouseleave',()=>{dot.classList.remove('big');ring.style.width='38px';ring.style.height='38px';ring.style.borderColor='rgba(255,255,255,.2)';});
+});
+
+/* ══ MAGNETIC BUTTONS ══ */
+document.querySelectorAll('.mag').forEach(el=>{
+  el.addEventListener('mousemove',e=>{
+    const r=el.getBoundingClientRect();
+    const x=(e.clientX-r.left-r.width/2)*.35, y=(e.clientY-r.top-r.height/2)*.35;
+    el.style.transform=`translate(${x}px,${y}px)`;
+  });
+  el.addEventListener('mouseleave',()=>{el.style.transform='translate(0,0)';});
+});
+
+/* ══ CANVAS PARTICLES ══ */
+const cvs=document.getElementById('cvs'),ctx=cvs.getContext('2d');
+let W,H,pts=[];
+const PC=['rgba(0,232,150,','rgba(96,96,255,','rgba(168,126,255,','rgba(255,170,51,','rgba(0,212,255,','rgba(255,61,110,'];
+function resize(){W=cvs.width=innerWidth;H=cvs.height=innerHeight;}
+resize();window.addEventListener('resize',()=>{resize();init();});
+function init(){
+  pts=[];const N=Math.min(Math.floor(W*H/12000),130);
+  for(let i=0;i<N;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.5,vy:(Math.random()-.5)*.5,r:Math.random()*2+.5,c:PC[Math.floor(Math.random()*PC.length)],o:Math.random()*.5+.2});
+}
+init();
+let pmx=W/2,pmy=H/2;
+document.addEventListener('mousemove',e=>{pmx=e.clientX;pmy=e.clientY;});
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  pts.forEach(p=>{
+    const dx=pmx-p.x,dy=pmy-p.y,d=Math.sqrt(dx*dx+dy*dy);
+    if(d<180){p.vx+=dx/d*.015;p.vy+=dy/d*.015;}
+    p.vx*=.994;p.vy*=.994;
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0||p.x>W)p.vx*=-1;
+    if(p.y<0||p.y>H)p.vy*=-1;
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=p.c+p.o+')';ctx.fill();
+  });
+  for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+    const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
+    if(d<120){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle=`rgba(107,107,255,${(1-d/120)*.1})`;ctx.lineWidth=.6;ctx.stroke();}
+  }
+  requestAnimationFrame(draw);
+}
+draw();
+
+/* ══ SCRAMBLE HERO ══ */
+const SC='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz가나다라마바사아자차';
+function scramble(el,delay=0){
+  const orig=el.innerHTML,txt=el.textContent;let f=0,T=28;
+  setTimeout(()=>{
+    const t=setInterval(()=>{
+      el.textContent=txt.split('').map((c,i)=>(i<f/T*txt.length||c===' ')?c:SC[Math.floor(Math.random()*SC.length)]).join('');
+      f++;if(f>T){el.innerHTML=orig;clearInterval(t);}
+    },28);
+  },delay);
+}
+setTimeout(()=>{document.querySelectorAll('.ht-inner').forEach((el,i)=>scramble(el,i*200));},500);
+
+/* ══ SCROLL REVEAL ══ */
+const rO=new IntersectionObserver(e=>{e.forEach(en=>{if(en.isIntersecting){en.target.classList.add('in');rO.unobserve(en.target);}});},{threshold:.07,rootMargin:'0px 0px -20px 0px'});
+document.querySelectorAll('.r,.si-r').forEach(el=>rO.observe(el));
+
+/* ══ MISSION WORD REVEAL ══ */
+const wO=new IntersectionObserver(e=>{e.forEach(en=>{if(en.isIntersecting){en.target.querySelectorAll('.wr').forEach((w,i)=>setTimeout(()=>w.classList.add('vis'),i*70));wO.unobserve(en.target);}});},{threshold:.25});
+document.querySelectorAll('.mq').forEach(el=>wO.observe(el));
+
+/* ══ STATS WITH SVG RINGS ══ */
+function animStat(numEl,ringEl,target,plus,pct,delay=0){
+  const dur=1600;const start=performance.now()+delay;
+  function step(now){
+    if(now<start){requestAnimationFrame(step);return;}
+    const p=Math.min((now-start)/dur,1),e=1-Math.pow(1-p,4);
+    const v=Math.floor(target*e);
+    if(pct) numEl.textContent=(v/100).toFixed(2)+'%';
+    else if(plus) numEl.textContent=v>=1000?(v/1000).toFixed(1)+'k+':v+'+';
+    else numEl.textContent=v;
+    ringEl.style.strokeDashoffset=(100-e*100)+'';
+    if(p<1)requestAnimationFrame(step);
+    else{
+      if(pct) numEl.textContent='99.97%';
+      else if(plus) numEl.textContent=target>=1000?(target/1000).toFixed(1)+'k+':target+'+';
+      else numEl.textContent=target;
+      ringEl.style.strokeDashoffset='0';
+    }
+  }
+  requestAnimationFrame(step);
+}
+const sO=new IntersectionObserver(e=>{e.forEach(en=>{if(en.isIntersecting){
+  animStat(document.getElementById('cn1'),document.getElementById('rf1'),3,false,false,0);
+  animStat(document.getElementById('cn2'),document.getElementById('rf2'),4200,true,false,150);
+  animStat(document.getElementById('cn3'),document.getElementById('rf3'),18000,true,false,300);
+  sO.unobserve(en.target);
+}});},{threshold:.4});
+sO.observe(document.getElementById('statsGroup'));
+
+/* ══ PARALLAX ══ */
+window.addEventListener('scroll',()=>{
+  const s=window.scrollY;
+  const ht=document.querySelector('.hero-title');
+  if(ht)ht.style.transform=`translateY(${s*.08}px)`;
+  document.querySelectorAll('.geo').forEach((g,i)=>{
+    g.style.transform=`translateY(${s*(0.06+i*.015)}px)`;
+  });
+  document.querySelectorAll('.mesh-orb').forEach((o,i)=>{
+    o.style.transform=`translateY(${s*(0.04+i*.01)}px)`;
+  });
+});
+</script>
+</body>
+</html>

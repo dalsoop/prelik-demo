@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VeilKey — Secrets Under Glass</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,700;12..96,800&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Commit+Mono&display=swap');
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --ink:#18181b;
+  --ink2:#3f3f46;
+  --ink3:#71717a;
+  --ink4:#a1a1aa;
+  --ink5:#d4d4d8;
+  --ink6:#e4e4e7;
+  --bg:#fafaf9;
+  --white:#ffffff;
+  --paper:#f5f5f0;
+  --indigo:#4f46e5;
+  --indigo-soft:rgba(79,70,229,0.06);
+  --indigo-line:rgba(79,70,229,0.15);
+  --indigo-glow:rgba(79,70,229,0.08);
+  --rose:#e11d48;
+  --rose-soft:rgba(225,29,72,0.06);
+  --emerald:#059669;
+  --emerald-soft:rgba(5,150,105,0.06);
+  --display:'Libre Baskerville',Georgia,serif;
+  --sans:'Bricolage Grotesque',system-ui,sans-serif;
+  --code:'Commit Mono','SF Mono',monospace;
+}
+
+html{scroll-behavior:smooth;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;-webkit-font-smoothing:antialiased}
+body{overflow-x:hidden}
+::selection{background:var(--indigo);color:white}
+a{color:inherit;text-decoration:none}
+
+.w{max-width:1100px;margin:0 auto;padding:0 clamp(1.5rem,4vw,3.5rem)}
+
+/* ═══ NAV ═══ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:300;
+  background:rgba(250,250,249,0.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  transition:border-color 0.3s;
+  border-bottom:1px solid transparent;
+}
+nav.scrolled{border-bottom-color:var(--ink6)}
+.ni{
+  max-width:1100px;margin:0 auto;padding:0 clamp(1.5rem,4vw,3.5rem);
+  display:flex;align-items:center;justify-content:space-between;height:56px;
+}
+.logo{font-family:var(--sans);font-weight:800;font-size:0.95rem;letter-spacing:-0.01em;display:flex;align-items:center;gap:0.5rem}
+.logo-sq{
+  width:24px;height:24px;background:var(--indigo);border-radius:5px;
+  display:grid;place-items:center;color:white;
+  font-family:var(--code);font-size:0.6rem;font-weight:700;
+}
+.nk{display:flex;align-items:center;gap:2rem}
+.nk a{font-size:0.82rem;color:var(--ink3);font-weight:500;transition:color 0.15s}
+.nk a:hover{color:var(--ink)}
+.nk .ng{
+  font-size:0.82rem;font-weight:600;padding:0.45rem 1.1rem;
+  background:var(--indigo);color:white;border-radius:8px;
+  transition:all 0.2s;
+}
+.nk .ng:hover{background:#4338ca;transform:translateY(-1px);box-shadow:0 4px 12px rgba(79,70,229,0.25)}
+
+/* ═══ HERO ═══ */
+.hero{padding:10rem 0 4rem;position:relative}
+
+.hero-center{text-align:center;position:relative;z-index:1}
+
+/* floating glass orb */
+.orb-wrap{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:600px;height:600px;pointer-events:none;z-index:0;
+}
+.orb{
+  width:100%;height:100%;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,var(--indigo-glow),transparent 55%);
+  filter:blur(80px);
+  animation:orbFloat 8s ease-in-out infinite;
+}
+
+.hero-badge{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  font-size:0.72rem;font-weight:600;letter-spacing:0.04em;
+  color:var(--indigo);padding:0.3rem 0.9rem;
+  background:var(--indigo-soft);border:1px solid var(--indigo-line);
+  border-radius:100px;margin-bottom:2rem;
+  animation:up .6s ease both;
+}
+
+.hero h1{
+  font-family:var(--display);
+  font-size:clamp(2.8rem,5.5vw,4.2rem);
+  font-weight:400;line-height:1.15;
+  margin-bottom:1.5rem;
+  animation:up .6s ease .06s both;
+}
+.hero h1 .hi{color:var(--indigo);font-style:italic}
+
+.hero-p{
+  font-size:1.1rem;color:var(--ink3);max-width:520px;
+  margin:0 auto 2.5rem;line-height:1.85;font-weight:400;
+  animation:up .6s ease .12s both;
+}
+
+.hero-btns{
+  display:flex;justify-content:center;gap:0.6rem;flex-wrap:wrap;
+  animation:up .6s ease .18s both;
+}
+.btn{
+  font-family:var(--sans);font-size:0.88rem;font-weight:600;
+  padding:0.8rem 1.9rem;border:none;cursor:pointer;
+  display:inline-flex;align-items:center;gap:0.4rem;
+  transition:all 0.2s;border-radius:10px;
+}
+.btn-indigo{background:var(--indigo);color:white}
+.btn-indigo:hover{background:#4338ca;transform:translateY(-1px);box-shadow:0 6px 20px rgba(79,70,229,0.2)}
+.btn-muted{background:var(--white);color:var(--ink2);border:1.5px solid var(--ink6)}
+.btn-muted:hover{border-color:var(--ink5);background:var(--paper)}
+
+/* ═══ THE GLASS CARD — main hero animation ═══ */
+.glass-stage{
+  margin:4.5rem auto 0;max-width:680px;
+  animation:up .7s ease .26s both;
+  perspective:800px;
+}
+
+.glass-card{
+  background:var(--white);
+  border:1px solid var(--ink6);
+  border-radius:16px;
+  box-shadow:
+    0 1px 2px rgba(0,0,0,0.04),
+    0 8px 24px rgba(0,0,0,0.04),
+    0 24px 60px rgba(0,0,0,0.03);
+  overflow:hidden;
+  transition:transform 0.4s,box-shadow 0.4s;
+}
+.glass-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 1px 2px rgba(0,0,0,0.04),0 16px 40px rgba(0,0,0,0.06),0 32px 80px rgba(0,0,0,0.04);
+}
+
+.gc-bar{
+  padding:0.55rem 1rem;display:flex;align-items:center;gap:0.5rem;
+  border-bottom:1px solid var(--ink6);
+}
+.gc-dots{display:flex;gap:5px}
+.gc-dots span{width:10px;height:10px;border-radius:50%}
+.gc-dots span:nth-child(1){background:#ff5f57}
+.gc-dots span:nth-child(2){background:#ffbd2e}
+.gc-dots span:nth-child(3){background:#28c840}
+.gc-title{margin-left:auto;font-family:var(--code);font-size:0.68rem;color:var(--ink4)}
+
+.gc-body{padding:1.6rem 1.8rem;font-family:var(--code);font-size:0.82rem;line-height:2.2;min-height:260px}
+
+/* individual secret rows — the star of the show */
+.secret-row{
+  display:flex;align-items:center;gap:0;
+  margin:0.15rem 0;padding:0.1rem 0.5rem;
+  border-radius:6px;transition:background 0.3s;
+}
+.secret-row:hover{background:var(--paper)}
+
+.sr-key{color:var(--ink3);white-space:nowrap}
+.sr-eq{color:var(--ink5);margin:0 0.1rem}
+
+.sr-value{
+  position:relative;display:inline-flex;overflow:hidden;height:1.4em;
+  flex:1;
+}
+.sr-plain,.sr-sealed{
+  white-space:nowrap;
+  transition:all 0.5s cubic-bezier(0.4,0,0.2,1);
+  position:absolute;left:0;
+}
+.sr-plain{color:var(--rose)}
+.sr-sealed{color:var(--indigo);font-weight:500;opacity:0;transform:translateY(110%)}
+
+.secret-row.done .sr-plain{opacity:0;transform:translateY(-110%);filter:blur(4px)}
+.secret-row.done .sr-sealed{opacity:1;transform:translateY(0)}
+
+.sr-status{
+  margin-left:auto;flex-shrink:0;
+  width:20px;height:20px;border-radius:50%;
+  border:1.5px solid var(--ink6);
+  display:grid;place-items:center;
+  font-size:0.55rem;transition:all 0.3s;
+  color:transparent;
+}
+.secret-row.done .sr-status{
+  background:var(--emerald-soft);border-color:var(--emerald);color:var(--emerald);
+}
+
+.gc-footer{
+  padding:0.6rem 1.2rem;border-top:1px solid var(--ink6);
+  display:flex;align-items:center;justify-content:space-between;
+  font-family:var(--code);font-size:0.68rem;color:var(--ink4);
+}
+.gc-footer .gc-counter{
+  display:flex;align-items:center;gap:0.4rem;
+  transition:color 0.3s;
+}
+.gc-footer .gc-counter.complete{color:var(--emerald)}
+.gc-footer button{
+  background:none;border:1px solid var(--ink6);
+  font-family:var(--code);font-size:0.62rem;color:var(--ink4);
+  padding:0.15rem 0.5rem;border-radius:4px;cursor:pointer;
+  transition:all 0.2s;
+}
+.gc-footer button:hover{border-color:var(--indigo-line);color:var(--indigo)}
+
+/* ═══ RIBBON ═══ */
+.ribbon{
+  margin:5rem 0 0;
+  padding:2.5rem 0;
+  border-top:1px solid var(--ink6);border-bottom:1px solid var(--ink6);
+  background:var(--paper);
+}
+.ribbon-inner{
+  display:flex;align-items:center;justify-content:center;
+  gap:clamp(1.5rem,4vw,3.5rem);flex-wrap:wrap;
+}
+.ribbon-stat{text-align:center}
+.ribbon-stat .rs-num{
+  font-family:var(--display);font-size:1.8rem;font-style:italic;
+  color:var(--indigo);line-height:1;
+}
+.ribbon-stat .rs-label{
+  font-size:0.7rem;color:var(--ink4);margin-top:0.3rem;
+  letter-spacing:0.04em;
+}
+
+/* ═══ SECTIONS ═══ */
+section{padding:6rem 0}
+.sey{font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--indigo);margin-bottom:0.6rem}
+.sh{font-family:var(--display);font-size:clamp(1.8rem,3vw,2.5rem);font-weight:400;line-height:1.2;margin-bottom:0.6rem}
+.sh .hi{color:var(--indigo);font-style:italic}
+.sp{font-size:0.95rem;color:var(--ink3);line-height:1.8;max-width:460px}
+
+/* ═══ CONCEPT — SIDE BY SIDE ═══ */
+.concept{background:var(--white);border-top:1px solid var(--ink6);border-bottom:1px solid var(--ink6)}
+
+.concept-pair{
+  margin-top:3rem;
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:2rem;
+}
+
+.concept-card{
+  border:1px solid var(--ink6);border-radius:14px;overflow:hidden;
+  transition:all 0.3s;
+}
+.concept-card:hover{box-shadow:0 8px 30px rgba(0,0,0,0.04);transform:translateY(-2px)}
+
+.cc-header{
+  padding:1rem 1.5rem;
+  display:flex;align-items:center;gap:0.5rem;
+  font-family:var(--code);font-size:0.7rem;font-weight:600;
+  letter-spacing:0.06em;text-transform:uppercase;
+}
+.cc-header.danger{background:var(--rose-soft);color:var(--rose);border-bottom:1px solid rgba(225,29,72,0.1)}
+.cc-header.safe{background:var(--emerald-soft);color:var(--emerald);border-bottom:1px solid rgba(5,150,105,0.1)}
+.cc-header .cc-dot{width:7px;height:7px;border-radius:50%}
+.cc-header.danger .cc-dot{background:var(--rose)}
+.cc-header.safe .cc-dot{background:var(--emerald)}
+
+.cc-body{
+  padding:1.2rem 1.5rem;
+  font-family:var(--code);font-size:0.78rem;line-height:2.1;
+  background:var(--white);
+}
+.cc-line{display:flex}
+.cc-ln{width:18px;flex-shrink:0;color:var(--ink5);font-size:0.68rem;text-align:right;margin-right:0.8rem;user-select:none}
+.cc-cm{color:var(--ink4);font-style:italic}
+.cc-k{color:var(--ink3)}
+.cc-d{color:var(--rose)}
+.cc-s{color:var(--indigo);font-weight:500}
+
+/* ═══ WORKFLOW — PILL STEPS ═══ */
+.wf-section{padding:6rem 0}
+
+.wf-pills{
+  margin-top:3rem;
+  display:flex;flex-direction:column;gap:0;
+  max-width:600px;
+}
+
+.wf-pill{
+  display:grid;grid-template-columns:56px 1fr;gap:1.2rem;
+  padding:1.8rem 0;
+  border-bottom:1px solid var(--ink6);
+  position:relative;
+}
+.wf-pill:last-child{border-bottom:none}
+
+/* vertical connector */
+.wf-pill::before{
+  content:'';position:absolute;left:27px;top:0;bottom:0;width:1px;
+  background:var(--ink6);
+}
+.wf-pill:first-child::before{top:50%}
+.wf-pill:last-child::before{bottom:50%}
+
+.wf-pill-num{
+  width:56px;height:56px;
+  border:1.5px solid var(--ink6);border-radius:14px;
+  display:grid;place-items:center;
+  font-family:var(--display);font-size:1.3rem;font-style:italic;
+  color:var(--indigo);background:var(--bg);
+  position:relative;z-index:1;
+  transition:all 0.2s;
+}
+.wf-pill:hover .wf-pill-num{
+  border-color:var(--indigo-line);
+  box-shadow:0 0 0 4px var(--indigo-soft);
+}
+.wf-pill-body h3{font-size:0.95rem;font-weight:700;margin-bottom:0.2rem}
+.wf-pill-body p{font-size:0.88rem;color:var(--ink3);line-height:1.6}
+.wf-pill-body .wf-cmd{
+  display:inline-block;margin-top:0.5rem;
+  font-family:var(--code);font-size:0.72rem;
+  color:var(--indigo);background:var(--indigo-soft);
+  padding:0.25rem 0.7rem;border-radius:6px;
+}
+
+/* ═══ FEATURES — MAGAZINE GRID ═══ */
+.mag-section{
+  padding:6rem 0;
+  background:var(--paper);
+  border-top:1px solid var(--ink6);border-bottom:1px solid var(--ink6);
+}
+
+.mag-grid{
+  margin-top:3rem;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1.2rem;
+}
+
+.mag-card{
+  background:var(--white);
+  border:1px solid var(--ink6);
+  border-radius:12px;
+  padding:1.8rem;
+  transition:all 0.25s;
+  position:relative;
+}
+.mag-card:hover{
+  border-color:var(--indigo-line);
+  transform:translateY(-3px);
+  box-shadow:0 8px 24px rgba(0,0,0,0.04);
+}
+.mag-card::before{
+  content:'';position:absolute;top:0;left:1.5rem;right:1.5rem;
+  height:3px;border-radius:0 0 3px 3px;
+  background:var(--indigo);opacity:0;
+  transition:opacity 0.25s;
+}
+.mag-card:hover::before{opacity:1}
+
+.mag-card .mc-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:var(--indigo-soft);
+  display:grid;place-items:center;
+  margin-bottom:1rem;
+  font-size:1rem;
+}
+.mag-card h3{font-size:0.95rem;font-weight:700;margin-bottom:0.4rem}
+.mag-card p{font-size:0.85rem;color:var(--ink3);line-height:1.65}
+
+/* ═══ AI PROOF ═══ */
+.ai-section{padding:6rem 0}
+
+.ai-layout{
+  margin-top:3rem;
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:3rem;align-items:center;
+}
+
+.ai-window{
+  background:var(--white);border:1px solid var(--ink6);border-radius:14px;
+  overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.04);
+}
+.ai-bar{
+  padding:0.5rem 1rem;display:flex;align-items:center;gap:0.4rem;
+  border-bottom:1px solid var(--ink6);background:var(--paper);
+}
+.ai-bar .abd{width:8px;height:8px;border-radius:50%;background:var(--ink6)}
+.ai-bar span{margin-left:auto;font-family:var(--code);font-size:0.62rem;color:var(--ink4)}
+
+.ai-chat{padding:1.2rem;display:flex;flex-direction:column;gap:0.8rem}
+.ai-msg{
+  max-width:88%;padding:0.7rem 1rem;
+  border-radius:12px;font-size:0.85rem;line-height:1.6;
+}
+.ai-msg.u{
+  align-self:flex-end;background:var(--indigo);color:white;
+  border-bottom-right-radius:4px;
+}
+.ai-msg.a{
+  align-self:flex-start;background:var(--paper);
+  border:1px solid var(--ink6);color:var(--ink2);
+  border-bottom-left-radius:4px;
+}
+.ai-msg code{
+  font-family:var(--code);font-size:0.78rem;
+  background:var(--indigo-soft);color:var(--indigo);
+  padding:0.1rem 0.3rem;border-radius:3px;
+}
+
+.ai-info ul{
+  list-style:none;margin-top:1.2rem;
+  display:flex;flex-direction:column;gap:0.5rem;
+}
+.ai-info li{
+  font-size:0.9rem;color:var(--ink2);line-height:1.5;
+  padding-left:1.2rem;position:relative;
+}
+.ai-info li::before{
+  content:'';position:absolute;left:0;top:0.55em;
+  width:6px;height:6px;border-radius:50%;
+  background:var(--indigo-soft);border:1.5px solid var(--indigo);
+}
+
+/* ═══ INSTALL ═══ */
+.install-section{
+  padding:6rem 0;
+  background:var(--ink);color:white;
+  position:relative;
+}
+.install-section .sey{color:rgba(255,255,255,0.3)}
+.install-section .sh{color:white}
+.install-section .sh .hi{color:var(--indigo);filter:brightness(1.5)}
+
+.install-block{
+  margin-top:2.5rem;max-width:600px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:12px;overflow:hidden;
+}
+.ib-bar{
+  padding:0.55rem 1rem;display:flex;align-items:center;gap:0.4rem;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.ib-bar .ibd{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.08)}
+.ib-bar span{margin-left:auto;font-family:var(--code);font-size:0.62rem;color:rgba(255,255,255,0.2)}
+.ib-body{
+  padding:1.5rem 1.8rem;font-family:var(--code);font-size:0.8rem;line-height:2.2;
+  color:rgba(255,255,255,0.5);
+}
+.ib-body .ic-p{color:rgba(255,255,255,0.2)}
+.ib-body .ic-c{color:rgba(255,255,255,0.8)}
+.ib-body .ic-f{color:#818cf8}
+.ib-body .ic-g{color:#4ade80}
+.ib-body .ic-d{color:rgba(255,255,255,0.2)}
+
+/* ═══ CTA ═══ */
+.cta{padding:8rem 0;text-align:center}
+.cta h2{
+  font-family:var(--display);
+  font-size:clamp(2rem,4.5vw,3.4rem);
+  font-weight:400;line-height:1.1;margin-bottom:1rem;
+}
+.cta h2 .hi{color:var(--indigo);font-style:italic}
+.cta p{color:var(--ink3);max-width:420px;margin:0 auto 2.5rem;font-size:1.05rem;line-height:1.8}
+.cta-btns{display:flex;justify-content:center;gap:0.6rem;flex-wrap:wrap}
+.cta-meta{
+  margin-top:3rem;display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;
+}
+.cta-meta span{font-size:0.78rem;color:var(--ink4)}
+
+/* ═══ FOOTER ═══ */
+footer{border-top:1px solid var(--ink6);padding:1.8rem 0}
+.ft{display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;color:var(--ink4)}
+.ft a{color:var(--ink3);transition:color 0.2s}
+.ft a:hover{color:var(--indigo)}
+
+/* ═══ ANIM ═══ */
+@keyframes up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes orbFloat{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-52%) scale(1.05)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+.rv{opacity:0;transform:translateY(20px);transition:opacity 0.6s,transform 0.6s}
+.rv.vis{opacity:1;transform:translateY(0)}
+
+@media(max-width:900px){
+  .concept-pair{grid-template-columns:1fr}
+  .mag-grid{grid-template-columns:1fr}
+  .ai-layout{grid-template-columns:1fr}
+  .nk a:not(.ng){display:none}
+  .hero-layout{grid-template-columns:1fr}
+  .ribbon-inner{gap:1.5rem}
+}
+</style>
+</head>
+<body>
+
+<nav id="topNav"><div class="ni">
+  <a href="#" class="logo"><div class="logo-sq">VK</div>VeilKey</a>
+  <div class="nk">
+    <a href="#workflow">Workflow</a>
+    <a href="#features">Features</a>
+    <a href="#ai">AI Safety</a>
+    <a href="https://github.com/veilkey/veilkey-selfhosted" class="ng">GitHub →</a>
+  </div>
+</div></nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="orb-wrap"><div class="orb"></div></div>
+  <div class="w">
+    <div class="hero-center">
+      <div class="hero-badge">Self-Hosted · AGPL-3.0</div>
+      <h1>Your secrets,<br>under <span class="hi">glass.</span></h1>
+      <p class="hero-p">
+        VeilKey seals every secret at the moment of creation.
+        What remains is an encrypted reference — visible, auditable,
+        but permanently unreadable without the key.
+      </p>
+      <div class="hero-btns">
+        <a href="https://github.com/veilkey/veilkey-selfhosted" class="btn btn-indigo">Get Started →</a>
+        <a href="https://github.com/veilkey/veilkey-selfhosted/blob/main/docs/architecture.md" class="btn btn-muted">Documentation</a>
+      </div>
+
+      <!-- THE GLASS CARD -->
+      <div class="glass-stage">
+        <div class="glass-card" id="glassCard">
+          <div class="gc-bar">
+            <div class="gc-dots"><span></span><span></span><span></span></div>
+            <span class="gc-title">.env.production</span>
+          </div>
+          <div class="gc-body" id="gcBody"></div>
+          <div class="gc-footer">
+            <span class="gc-counter" id="gcCounter">0 / 6 sealed</span>
+            <button id="gcReplay">↻ replay</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ RIBBON ═══ -->
+<div class="ribbon">
+  <div class="w"><div class="ribbon-inner">
+    <div class="ribbon-stat"><div class="rs-num">222+</div><div class="rs-label">Patterns</div></div>
+    <div class="ribbon-stat"><div class="rs-num">AES-256</div><div class="rs-label">Encryption</div></div>
+    <div class="ribbon-stat"><div class="rs-num">0</div><div class="rs-label">Plaintext at rest</div></div>
+    <div class="ribbon-stat"><div class="rs-num">3-layer</div><div class="rs-label">Key hierarchy</div></div>
+    <div class="ribbon-stat"><div class="rs-num">∞</div><div class="rs-label">Rotation</div></div>
+  </div></div>
+</div>
+
+<!-- ═══ BEFORE / AFTER ═══ -->
+<section class="concept">
+  <div class="w">
+    <div style="text-align:center" class="rv">
+      <div class="sey">The Difference</div>
+      <h2 class="sh">Before and <span class="hi">after.</span></h2>
+      <p class="sp" style="margin:0 auto">Same file. One has secrets exposed. The other has them sealed forever.</p>
+    </div>
+    <div class="concept-pair rv">
+      <div class="concept-card">
+        <div class="cc-header danger"><span class="cc-dot"></span>Before — plaintext exposed</div>
+        <div class="cc-body">
+          <div class="cc-line"><span class="cc-ln">1</span><span class="cc-cm"># ⚠ secrets in the clear</span></div>
+          <div class="cc-line"><span class="cc-ln">2</span><span class="cc-k">DATABASE_URL</span>=<span class="cc-d">postgres://admin:s3cret@db:5432</span></div>
+          <div class="cc-line"><span class="cc-ln">3</span><span class="cc-k">AWS_SECRET</span>=<span class="cc-d">wJalrXUtnFEMI/K7MDENG</span></div>
+          <div class="cc-line"><span class="cc-ln">4</span><span class="cc-k">GITHUB_TOKEN</span>=<span class="cc-d">ghp_abc123def456ghi789</span></div>
+          <div class="cc-line"><span class="cc-ln">5</span><span class="cc-k">STRIPE_SK</span>=<span class="cc-d">sk_live_51HG8axYzKlMn</span></div>
+          <div class="cc-line"><span class="cc-ln">6</span><span class="cc-k">JWT_SECRET</span>=<span class="cc-d">my-super-secret-2024!</span></div>
+        </div>
+      </div>
+      <div class="concept-card">
+        <div class="cc-header safe"><span class="cc-dot"></span>After — sealed with VeilKey</div>
+        <div class="cc-body">
+          <div class="cc-line"><span class="cc-ln">1</span><span class="cc-cm"># ✓ encrypted references</span></div>
+          <div class="cc-line"><span class="cc-ln">2</span><span class="cc-k">DATABASE_URL</span>=<span class="cc-s">VK:LOCAL:db01a2b3</span></div>
+          <div class="cc-line"><span class="cc-ln">3</span><span class="cc-k">AWS_SECRET</span>=<span class="cc-s">VK:LOCAL:aws4c5d6</span></div>
+          <div class="cc-line"><span class="cc-ln">4</span><span class="cc-k">GITHUB_TOKEN</span>=<span class="cc-s">VK:LOCAL:gh7e8f9a</span></div>
+          <div class="cc-line"><span class="cc-ln">5</span><span class="cc-k">STRIPE_SK</span>=<span class="cc-s">VK:LOCAL:st0b1c2d</span></div>
+          <div class="cc-line"><span class="cc-ln">6</span><span class="cc-k">JWT_SECRET</span>=<span class="cc-s">VK:LOCAL:jw3e4f5a</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ WORKFLOW ═══ -->
+<section id="workflow" class="wf-section">
+  <div class="w">
+    <div class="rv">
+      <div class="sey">Workflow</div>
+      <h2 class="sh">Four steps to <span class="hi">sealed.</span></h2>
+      <p class="sp">Every secret follows the same path. Detect, encrypt, mask, resolve.</p>
+    </div>
+    <div class="wf-pills rv">
+      <div class="wf-pill"><div class="wf-pill-num">1</div><div class="wf-pill-body"><h3>Scan</h3><p>222+ patterns. AWS, GitHub, Stripe, private keys, JWTs. Fully offline.</p><span class="wf-cmd">vk scan .env</span></div></div>
+      <div class="wf-pill"><div class="wf-pill-num">2</div><div class="wf-pill-body"><h3>Filter</h3><p>Replace every detected secret with an AES-256-GCM encrypted VK: reference.</p><span class="wf-cmd">vk filter .env</span></div></div>
+      <div class="wf-pill"><div class="wf-pill-num">3</div><div class="wf-pill-body"><h3>Wrap</h3><p>Execute commands with output masking. Secrets can't leak to logs or terminals.</p><span class="wf-cmd">vk wrap ./deploy.sh</span></div></div>
+      <div class="wf-pill"><div class="wf-pill-num">4</div><div class="wf-pill-body"><h3>Exec</h3><p>Resolve VK: tokens at launch. Decrypted in process memory, never disk.</p><span class="wf-cmd">vk exec ./app</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FEATURES ═══ -->
+<section id="features" class="mag-section">
+  <div class="w">
+    <div style="text-align:center" class="rv">
+      <div class="sey">Features</div>
+      <h2 class="sh">Everything operators <span class="hi">need.</span></h2>
+    </div>
+    <div class="mag-grid rv">
+      <div class="mag-card"><div class="mc-icon">🔐</div><h3>Zero plaintext at rest</h3><p>Encrypted at entry. Configs, git, logs — only VK: references survive.</p></div>
+      <div class="mag-card"><div class="mc-icon">↺</div><h3>Seamless rotation</h3><p>KeyCenter schedules, each node re-encrypts independently. No downtime.</p></div>
+      <div class="mag-card"><div class="mc-icon">⬡</div><h3>Node isolation</h3><p>Every node has its own DEK. Breach one — the rest stay sealed.</p></div>
+      <div class="mag-card"><div class="mc-icon">🤖</div><h3>AI-safe references</h3><p>AI agents see VK: tokens. They deploy, test, code — zero secret exposure.</p></div>
+      <div class="mag-card"><div class="mc-icon">🛡</div><h3>Egress enforcement</h3><p>Optional proxy blocks plaintext in outbound HTTP. Shell hooks block curl/wget.</p></div>
+      <div class="mag-card"><div class="mc-icon">📦</div><h3>Self-hosted</h3><p>SQLite, no cloud deps. macOS launchd or Linux systemd. AGPL-3.0.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ AI PROOF ═══ -->
+<section id="ai" class="ai-section">
+  <div class="w">
+    <div class="ai-layout rv">
+      <div class="ai-window">
+        <div class="ai-bar"><span class="abd"></span><span class="abd"></span><span class="abd"></span><span>Claude Code</span></div>
+        <div class="ai-chat">
+          <div class="ai-msg u">Deploy this service. Config is in .env.production</div>
+          <div class="ai-msg a">Reading config. I see:<br><code>DATABASE_URL=VK:LOCAL:db01a2b3</code><br><code>STRIPE_KEY=VK:LOCAL:st4c5d6e</code><br><br>Running <code>vk exec ./deploy.sh</code> — secrets resolve at runtime. I don't need the actual values.</div>
+          <div class="ai-msg u">Did it work?</div>
+          <div class="ai-msg a">✓ Deploy complete. 2 refs resolved. App running with real credentials — but I only ever saw the references.</div>
+        </div>
+      </div>
+      <div class="ai-info">
+        <div class="sey">AI Safety</div>
+        <h2 class="sh">AI never touches<br><span class="hi">real secrets.</span></h2>
+        <p class="sp">Your AI agent works with VK: references throughout. The real credential only exists in process memory at exec time.</p>
+        <ul>
+          <li>AI reads VK:LOCAL:xxxx — works perfectly</li>
+          <li>Real secret injected only at exec time</li>
+          <li>Zero exposure in chat, logs, or history</li>
+          <li>No workflow changes needed</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ INSTALL ═══ -->
+<section class="install-section">
+  <div class="w rv">
+    <div class="sey">Quick Start</div>
+    <h2 class="sh">Sealed in <span class="hi">five minutes.</span></h2>
+    <div class="install-block">
+      <div class="ib-bar"><span class="ibd"></span><span class="ibd"></span><span class="ibd"></span><span>macOS</span></div>
+      <div class="ib-body">
+<span class="ic-p">$</span> <span class="ic-c">git clone</span> <span class="ic-f">https://github.com/veilkey/veilkey-selfhosted.git</span>
+<span class="ic-p">$</span> <span class="ic-c">cd</span> veilkey-selfhosted
+<span class="ic-p">$</span> <span class="ic-c">./installer/scripts/install-mac.sh</span> <span class="ic-f">install</span>
+<span class="ic-d">  [OK] Go · 5 binaries · KeyCenter · LocalVault</span>
+<span class="ic-p">$</span> <span class="ic-c">./installer/scripts/install-mac.sh</span> <span class="ic-f">start</span>
+<span class="ic-g">  ✓ KeyCenter :10181 · LocalVault :10180</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ═══ -->
+<section class="cta">
+  <div class="w rv">
+    <h2>Secrets belong<br>under <span class="hi">glass.</span></h2>
+    <p>Visible. Auditable. Permanently unreadable without the key.</p>
+    <div class="cta-btns">
+      <a href="https://github.com/veilkey/veilkey-selfhosted" class="btn btn-indigo">View on GitHub →</a>
+      <a href="https://github.com/veilkey/veilkey-selfhosted/blob/main/docs/installation.md" class="btn btn-muted">Install Guide</a>
+    </div>
+    <div class="cta-meta">
+      <span>AGPL-3.0</span><span>Go + SQLite</span><span>AES-256-GCM</span><span>macOS + Linux</span>
+    </div>
+  </div>
+</section>
+
+<footer><div class="w"><div class="ft">
+  <span>VeilKey</span>
+  <a href="https://github.com/veilkey/veilkey-selfhosted">github.com/veilkey</a>
+</div></div></footer>
+
+<script>
+// ═══ NAV ═══
+window.addEventListener('scroll',()=>document.getElementById('topNav').classList.toggle('scrolled',scrollY>30));
+
+// ═══ GLASS CARD ANIMATION ═══
+const secrets=[
+  {k:'DATABASE_URL',d:'postgres://admin:s3cret@db',s:'VK:LOCAL:db01a2b3'},
+  {k:'AWS_SECRET',d:'wJalrXUtnFEMI/K7MDENG',s:'VK:LOCAL:aws4c5d6'},
+  {k:'GITHUB_TOKEN',d:'ghp_abc123def456ghi78',s:'VK:LOCAL:gh7e8f9a'},
+  {k:'STRIPE_SK',d:'sk_live_51HG8axYzKlMn',s:'VK:LOCAL:st0b1c2d'},
+  {k:'JWT_SECRET',d:'super-secret-jwt-2024!',s:'VK:LOCAL:jw3e4f5a'},
+  {k:'REDIS_URL',d:'redis://:p4ssw0rd@cache',s:'VK:LOCAL:rd6g7h8i'},
+];
+
+const sl=ms=>new Promise(r=>setTimeout(r,ms));
+
+function buildRows(){
+  const body=document.getElementById('gcBody');
+  body.innerHTML='';
+  secrets.forEach((s,i)=>{
+    const row=document.createElement('div');
+    row.className='secret-row';row.id='sr-'+i;
+    row.innerHTML=`
+      <span class="sr-key">${s.k}</span><span class="sr-eq">=</span>
+      <span class="sr-value">
+        <span class="sr-plain">${s.d}</span>
+        <span class="sr-sealed">${s.s}</span>
+      </span>
+      <span class="sr-status">✓</span>
+    `;
+    body.appendChild(row);
+  });
+}
+
+async function playGlass(){
+  buildRows();
+  const counter=document.getElementById('gcCounter');
+  counter.className='gc-counter';
+  counter.textContent=`0 / ${secrets.length} sealed`;
+
+  await sl(1200);
+
+  for(let i=0;i<secrets.length;i++){
+    const row=document.getElementById('sr-'+i);
+    row.classList.add('done');
+    counter.textContent=`${i+1} / ${secrets.length} sealed`;
+    await sl(400);
+  }
+
+  counter.className='gc-counter complete';
+  counter.textContent=`✓ ${secrets.length} / ${secrets.length} sealed`;
+
+  await sl(5000);
+  playGlass();
+}
+
+document.getElementById('gcReplay').addEventListener('click',playGlass);
+setTimeout(playGlass,700);
+
+// ═══ REVEAL ═══
+const obs=new IntersectionObserver(es=>{
+  es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis')});
+},{threshold:0.06,rootMargin:'0px 0px -20px 0px'});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+</script>
+
+</body>
+</html>

@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prelik</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&family=Fahkwang:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Martian+Mono:wght@400;500;600&display=swap');
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--fg:#0d0d0d;--fg2:#3a3a3a;--fg3:#777;--fg4:#aaa;--fg5:#ccc;--fg6:#e6e6e6;--bg:#fff;--deep:#1a0e2e;--violet:#7c3aed;--violet-soft:rgba(124,58,237,.04);--sans:'Noto Sans KR',sans-serif;--display:'Fahkwang',sans-serif;--mono:'Martian Mono',monospace}
+
+html{scroll-behavior:smooth;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;-webkit-font-smoothing:antialiased}
+body{overflow-x:hidden}
+::selection{background:var(--violet);color:#fff}
+a{color:inherit;text-decoration:none}
+.w{max-width:1160px;margin:0 auto;padding:0 clamp(1.5rem,4vw,3.5rem)}
+
+/* ═══ NAV ═══ */
+nav{position:fixed;top:0;left:0;right:0;z-index:300;transition:background .4s,border-color .4s;border-bottom:1px solid transparent}
+nav.light{background:rgba(255,255,255,.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom-color:var(--fg6)}
+nav.dark{background:rgba(26,14,46,.95);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom-color:rgba(255,255,255,.05)}
+.ni{max-width:1160px;margin:0 auto;padding:0 clamp(1.5rem,4vw,3.5rem);display:flex;align-items:center;justify-content:space-between;height:56px}
+.logo{font-family:var(--display);font-weight:600;font-size:1.05rem;letter-spacing:.08em}
+nav.dark .logo{color:#fff}
+.nk{display:flex;gap:1.5rem;align-items:center}
+.nk a{font-size:.82rem;font-weight:500;color:var(--fg3);transition:color .15s}
+.nk a:hover{color:var(--fg)}
+nav.dark .nk a{color:rgba(255,255,255,.35)}
+nav.dark .nk a:hover{color:#fff}
+.nk .nc{color:var(--violet);font-weight:700}
+nav.dark .nk .nc{color:var(--violet)}
+
+/* ═══ HERO — dark immersive ═══ */
+.hero{
+  min-height:100vh;background:var(--deep);color:#fff;
+  display:flex;align-items:center;position:relative;overflow:hidden;
+}
+
+canvas#heroCanvas{position:absolute;inset:0;z-index:0}
+
+.hero-inner{position:relative;z-index:1;width:100%;text-align:center;padding:4rem 0}
+
+.hero-eyebrow{
+  font-family:var(--mono);font-size:.58rem;letter-spacing:.25em;
+  text-transform:uppercase;color:var(--violet);margin-bottom:2.5rem;
+  overflow:hidden;
+}
+.hero-eyebrow span{display:inline-block;animation:up .6s cubic-bezier(.22,1,.36,1) .2s both}
+
+.hero-title{
+  font-family:var(--display);
+  font-size:clamp(2.6rem,6vw,5rem);
+  font-weight:300;line-height:1.2;letter-spacing:.04em;
+  margin-bottom:2rem;
+}
+.hero-title .tl{overflow:hidden;display:block}
+.hero-title .ti{
+  display:block;transform:translateY(110%);
+  animation:up .8s cubic-bezier(.22,1,.36,1) forwards;
+}
+.hero-title .tl:nth-child(2) .ti{animation-delay:.1s}
+.hero-title .tl:nth-child(3) .ti{animation-delay:.2s}
+.hero-title .ti strong{font-weight:700}
+.hero-title .vi{color:var(--violet)}
+
+.hero-sub{
+  font-size:1.05rem;color:rgba(255,255,255,.4);
+  max-width:480px;margin:0 auto 3rem;line-height:1.9;
+  animation:fade .6s ease .45s both;
+}
+
+.hero-btns{display:flex;justify-content:center;gap:.6rem;flex-wrap:wrap;animation:fade .6s ease .55s both}
+.btn{font-family:var(--sans);font-size:.88rem;font-weight:700;padding:.8rem 2rem;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;transition:all .25s}
+.btn-vi{background:var(--violet);color:#fff;border-radius:6px}
+.btn-vi:hover{box-shadow:0 6px 24px rgba(124,58,237,.3);transform:translateY(-2px)}
+.btn-ghost{background:transparent;border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);border-radius:6px}
+.btn-ghost:hover{border-color:rgba(255,255,255,.25);color:#fff}
+
+/* scroll indicator */
+.hero-scroll{
+  position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:.4rem;
+  animation:fade .6s ease .7s both;
+}
+.hero-scroll span{font-family:var(--mono);font-size:.5rem;color:rgba(255,255,255,.2);letter-spacing:.2em}
+.scroll-bar{width:1px;height:28px;background:rgba(255,255,255,.08);position:relative;overflow:hidden}
+.scroll-bar::after{content:'';position:absolute;top:-100%;width:1px;height:100%;background:var(--violet);animation:drop 2s ease-in-out infinite}
+
+/* ═══ TRANSITION STRIP ═══ */
+.trans-strip{
+  height:120px;
+  background:linear-gradient(180deg,var(--deep),var(--bg));
+}
+
+/* ═══ WHITE SECTIONS ═══ */
+.sect{padding:7rem 0}
+.sect-label{font-family:var(--mono);font-size:.58rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--fg4);margin-bottom:2.5rem}
+
+/* ═══ ABOUT ═══ */
+.about-split{display:grid;grid-template-columns:1fr 1.2fr;gap:6rem;align-items:start}
+.about-left{position:sticky;top:80px}
+.about-big{
+  font-family:var(--display);font-size:clamp(1.8rem,3.5vw,2.6rem);
+  font-weight:300;line-height:1.5;letter-spacing:.02em;margin-bottom:1.5rem;
+}
+.about-big strong{font-weight:700}
+.about-big .vi{color:var(--violet)}
+.about-note{font-family:var(--mono);font-size:.65rem;color:var(--fg4);line-height:2;padding-top:1rem;border-top:1px solid var(--fg6)}
+.about-right p{font-size:.95rem;color:var(--fg2);line-height:2.1;margin-bottom:1.5rem}
+
+/* ═══ BUSINESS — asymmetric cards ═══ */
+.biz-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+
+.biz-card{
+  padding:2.5rem;border:1px solid var(--fg6);
+  position:relative;overflow:hidden;
+  cursor:pointer;transition:all .35s cubic-bezier(.22,1,.36,1);
+}
+.biz-card:nth-child(even){margin-top:2rem}
+.biz-card:hover{border-color:var(--violet);transform:translateY(-4px);box-shadow:0 16px 40px rgba(124,58,237,.06)}
+
+/* violet line reveal */
+.biz-card::after{
+  content:'';position:absolute;bottom:0;left:0;width:100%;height:2px;
+  background:var(--violet);transform:scaleX(0);transform-origin:left;
+  transition:transform .4s cubic-bezier(.22,1,.36,1);
+}
+.biz-card:hover::after{transform:scaleX(1)}
+
+.biz-card .bk-num{
+  font-family:var(--display);font-size:3rem;font-weight:300;
+  color:var(--fg6);line-height:1;margin-bottom:1rem;letter-spacing:.05em;
+  transition:color .3s;
+}
+.biz-card:hover .bk-num{color:rgba(124,58,237,.15)}
+.biz-card .bk-name{font-family:var(--display);font-size:1.15rem;font-weight:600;letter-spacing:.04em;margin-bottom:.15rem;display:flex;align-items:center;gap:.5rem}
+.bk-tag{font-family:var(--mono);font-size:.48rem;font-weight:400;color:var(--fg4);padding:.1rem .4rem;border:1px solid var(--fg6)}
+.biz-card .bk-desc{font-size:.85rem;color:var(--fg3);line-height:1.65;margin-top:.4rem}
+
+/* ═══ MANIFESTO — dark band ═══ */
+.manifesto{
+  padding:6rem 0;background:var(--deep);color:#fff;
+  position:relative;overflow:hidden;
+}
+
+/* floating violet orbs */
+.mf-orb{
+  position:absolute;border-radius:50%;
+  background:var(--violet);filter:blur(80px);pointer-events:none;
+}
+.mf-orb:nth-child(1){width:300px;height:300px;top:-100px;left:-100px;opacity:.03;animation:orbA 15s ease-in-out infinite}
+.mf-orb:nth-child(2){width:200px;height:200px;bottom:-50px;right:-50px;opacity:.04;animation:orbB 12s ease-in-out infinite}
+
+.mf-inner{position:relative;z-index:1;max-width:640px;margin:0 auto}
+.mf-inner h2{
+  font-family:var(--display);font-size:1.4rem;font-weight:300;
+  line-height:1.8;text-align:center;margin-bottom:3rem;
+  color:rgba(255,255,255,.5);letter-spacing:.04em;
+}
+.mf-inner h2 strong{font-weight:700;color:#fff}
+.mf-inner h2 .vi{color:var(--violet)}
+
+.mf-row{
+  padding:1.5rem 0;border-top:1px solid rgba(255,255,255,.05);
+  display:grid;grid-template-columns:36px 1fr;gap:1rem;align-items:baseline;
+  opacity:0;transform:translateY(8px);transition:opacity .5s,transform .5s;
+}
+.mf-row.vis{opacity:1;transform:translateY(0)}
+.mf-n{font-family:var(--mono);font-size:.55rem;color:rgba(255,255,255,.1)}
+.mf-t{font-size:.92rem;color:rgba(255,255,255,.35);line-height:1.75}
+.mf-t strong{color:rgba(255,255,255,.8)}
+.mf-t .vi{color:var(--violet)}
+
+/* ═══ STATS ═══ */
+.stats{padding:0;border-top:1px solid var(--fg6);border-bottom:1px solid var(--fg6)}
+.stats-inner{display:grid;grid-template-columns:repeat(5,1fr)}
+.stat{padding:2.2rem 1rem;text-align:center;border-right:1px solid var(--fg6);position:relative}
+.stat:last-child{border-right:none}
+.stat::before{content:'';position:absolute;inset:0;background:var(--violet-soft);opacity:0;transition:opacity .3s}
+.stat:hover::before{opacity:1}
+.sv{font-family:var(--display);font-size:2rem;font-weight:700;line-height:1;letter-spacing:.03em;position:relative}
+.sl{font-size:.65rem;color:var(--fg4);margin-top:.3rem;position:relative}
+
+/* ═══ TECH ═══ */
+.tech-split{display:grid;grid-template-columns:1fr 1fr;gap:5rem}
+.tech-left h2{font-family:var(--display);font-size:1.6rem;font-weight:300;line-height:1.5;margin-bottom:1.2rem;letter-spacing:.03em}
+.tech-left h2 strong{font-weight:700}
+.tech-left h2 .vi{color:var(--violet)}
+.tech-left p{font-size:.92rem;color:var(--fg3);line-height:1.9}
+.tech-tags{display:flex;flex-wrap:wrap;gap:.4rem;align-content:start}
+.tt{
+  font-family:var(--mono);font-size:.68rem;padding:.4rem .85rem;
+  border:1px solid var(--fg6);color:var(--fg3);
+  transition:all .25s;cursor:default;position:relative;overflow:hidden;
+}
+.tt::before{content:'';position:absolute;inset:0;background:var(--violet);transform:scaleY(0);transform-origin:bottom;transition:transform .25s cubic-bezier(.22,1,.36,1);z-index:0}
+.tt:hover::before{transform:scaleY(1)}
+.tt span{position:relative;z-index:1;transition:color .25s}
+.tt:hover span{color:#fff}
+
+/* ═══ NEWS ═══ */
+.news{border-top:1px solid var(--fg6)}
+.news-item{
+  display:grid;grid-template-columns:90px 1fr;gap:2rem;
+  padding:1.5rem 0;border-bottom:1px solid var(--fg6);
+  cursor:pointer;transition:padding-left .2s;position:relative;
+}
+.news-item::after{
+  content:'';position:absolute;left:0;bottom:-1px;width:0;height:1px;
+  background:var(--violet);transition:width .35s cubic-bezier(.22,1,.36,1);
+}
+.news-item:hover{padding-left:.8rem}
+.news-item:hover::after{width:100%}
+.nx-date{font-family:var(--mono);font-size:.65rem;color:var(--fg4)}
+.nx-title{font-size:.92rem;font-weight:600}
+
+/* ═══ CONTACT ═══ */
+.contact{
+  padding:8rem 0;text-align:center;
+  background:var(--deep);color:#fff;
+  position:relative;overflow:hidden;
+}
+
+/* rotating ring */
+.contact-ring{
+  position:absolute;left:50%;top:50%;
+  width:400px;height:400px;
+  transform:translate(-50%,-50%);
+  border:1px solid rgba(124,58,237,.06);
+  border-radius:50%;
+  animation:spin 30s linear infinite;
+  pointer-events:none;
+}
+.contact-ring::before{
+  content:'';position:absolute;top:-3px;left:50%;
+  width:6px;height:6px;border-radius:50%;
+  background:var(--violet);transform:translateX(-50%);
+}
+
+.contact h2{
+  font-family:var(--display);font-size:clamp(2rem,5vw,3.5rem);
+  font-weight:300;line-height:1.3;margin-bottom:1.2rem;
+  letter-spacing:.04em;position:relative;
+}
+.contact h2 strong{font-weight:700}
+.contact h2 .vi{color:var(--violet)}
+.contact>p{font-size:1rem;color:rgba(255,255,255,.35);max-width:380px;margin:0 auto 2.5rem;line-height:1.8;position:relative}
+.contact-links{display:flex;justify-content:center;gap:2rem;font-size:.88rem;position:relative}
+.cl{font-weight:600;color:rgba(255,255,255,.5);padding-bottom:.2rem;border-bottom:1.5px solid rgba(255,255,255,.1);transition:all .2s}
+.cl:hover{color:#fff;border-color:var(--violet)}
+
+/* ═══ FOOTER ═══ */
+footer{background:var(--deep);color:rgba(255,255,255,.3);padding:2rem 0;border-top:1px solid rgba(255,255,255,.05)}
+.ft{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+.ft-logo{font-family:var(--display);font-weight:600;font-size:.92rem;color:rgba(255,255,255,.5);letter-spacing:.06em}
+.ft-logo .vi{color:var(--violet)}
+.ft-links{display:flex;gap:1.5rem;font-size:.75rem}
+.ft-links a{color:rgba(255,255,255,.25);transition:color .15s}
+.ft-links a:hover{color:rgba(255,255,255,.6)}
+.ft-copy{font-size:.65rem;color:rgba(255,255,255,.15)}
+
+/* ═══ KEYFRAMES ═══ */
+@keyframes up{from{transform:translateY(110%)}to{transform:translateY(0)}}
+@keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes drop{0%{top:-100%}100%{top:200%}}
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes orbA{0%,100%{transform:translate(0,0)}50%{transform:translate(40px,-30px)}}
+@keyframes orbB{0%,100%{transform:translate(0,0)}50%{transform:translate(-30px,20px)}}
+
+.rv{opacity:0;transform:translateY(16px);transition:opacity .6s,transform .6s}
+.rv.vis{opacity:1;transform:translateY(0)}
+
+@media(max-width:900px){
+  .about-split,.tech-split{grid-template-columns:1fr}
+  .about-left{position:static}
+  .biz-grid{grid-template-columns:1fr}
+  .biz-card:nth-child(even){margin-top:0}
+  .stats-inner{grid-template-columns:repeat(3,1fr)}
+  .stat:nth-child(n+4){display:none}
+  .nk a:nth-child(-n+2){display:none}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav" class="dark"><div class="ni">
+  <a href="#" class="logo">Prelik</a>
+  <div class="nk"><a href="#about">소개</a><a href="#biz">사업</a><a href="#tech">기술</a><a href="#contact" class="nc">문의 →</a></div>
+</div></nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <canvas id="heroCanvas"></canvas>
+  <div class="w">
+    <div class="hero-inner">
+      <div class="hero-eyebrow"><span>Pre × Relik — AI Services Company</span></div>
+      <div class="hero-title">
+        <span class="tl"><span class="ti">레거시가 되기</span></span>
+        <span class="tl"><span class="ti"><strong><span class="vi">전에</span></strong> 만드는</span></span>
+        <span class="tl"><span class="ti"><strong>사람들.</strong></span></span>
+      </div>
+      <p class="hero-sub">AI 기반 서비스를 설계하고, 직접 코드를 쓰고, 자체 인프라에서 운영하는 기술 기업.</p>
+      <div class="hero-btns">
+        <a href="#biz" class="btn btn-vi">사업영역 보기 →</a>
+        <a href="https://github.com/prelik" class="btn btn-ghost">GitHub</a>
+      </div>
+    </div>
+  </div>
+  <div class="hero-scroll"><span>SCROLL</span><div class="scroll-bar"></div></div>
+</section>
+
+<div class="trans-strip"></div>
+
+<!-- ═══ ABOUT ═══ -->
+<section id="about" class="sect">
+  <div class="w">
+    <div class="sect-label rv">소개 — About</div>
+    <div class="about-split rv">
+      <div class="about-left">
+        <div class="about-big"><strong>만들기 전에는</strong> 존재하지 않았던 것을 <span class="vi">만듭니다.</span></div>
+        <div class="about-note">Pre·lik /prɛlɪk/<br>Pre (이전의) × Relik (유물)<br>레거시가 되기 전에 만든다.</div>
+      </div>
+      <div class="about-right">
+        <p>Prelik은 AI 기반 서비스를 설계하고, 직접 코드를 쓰고, 자체 인프라에서 운영하는 기술 기업입니다.</p>
+        <p>비밀 관리, 자율 에이전트, 워크플로 자동화, 관측 플랫폼 — 팀이 매일 쓰는 도구를 만듭니다. 핵심은 오픈소스로, 운영은 셀프호스팅으로.</p>
+        <p>고객의 데이터는 고객의 인프라 위에 있어야 합니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ BUSINESS ═══ -->
+<section id="biz" class="sect" style="padding-top:0">
+  <div class="w">
+    <div class="sect-label rv">사업영역 — 8 Products</div>
+    <div class="biz-grid rv" id="bizGrid"></div>
+  </div>
+</section>
+
+<!-- ═══ MANIFESTO ═══ -->
+<section class="manifesto">
+  <div class="mf-orb"></div><div class="mf-orb"></div>
+  <div class="w">
+    <div class="mf-inner rv">
+      <h2><strong>기술은 도구가 아니라</strong> <span class="vi">태도</span>입니다.</h2>
+      <div>
+        <div class="mf-row" data-s="0"><span class="mf-n">01</span><div class="mf-t"><strong>필요해지기 전에 만든다.</strong> 남들이 문제를 인식할 때, 우리는 이미.</div></div>
+        <div class="mf-row" data-s="1"><span class="mf-n">02</span><div class="mf-t"><strong>직접 운영한다.</strong> 우리가 만든 것은 우리가 씁니다.</div></div>
+        <div class="mf-row" data-s="2"><span class="mf-n">03</span><div class="mf-t">핵심 기술을 <strong class="vi">공개한다.</strong></div></div>
+        <div class="mf-row" data-s="3"><span class="mf-n">04</span><div class="mf-t"><strong>평문은 존재하지 않는다.</strong></div></div>
+        <div class="mf-row" data-s="4"><span class="mf-n">05</span><div class="mf-t">고객의 데이터는 <strong>고객의 서버에.</strong></div></div>
+        <div class="mf-row" data-s="5"><span class="mf-n">06</span><div class="mf-t"><strong>Go와 SQLite.</strong> 복잡함 대신 <span class="vi">확실함.</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ STATS ═══ -->
+<div class="stats rv">
+  <div class="stats-inner">
+    <div class="stat"><div class="sv"><span class="cv" data-t="8">0</span></div><div class="sl">자체 제품</div></div>
+    <div class="stat"><div class="sv"><span class="cv" data-t="30">0</span>+</div><div class="sl">운영 서비스</div></div>
+    <div class="stat"><div class="sv"><span class="cv" data-t="222">0</span>+</div><div class="sl">보안 패턴</div></div>
+    <div class="stat"><div class="sv">0</div><div class="sl">평문 at rest</div></div>
+    <div class="stat"><div class="sv">24/7</div><div class="sl">셀프호스팅</div></div>
+  </div>
+</div>
+
+<!-- ═══ TECH ═══ -->
+<section id="tech" class="sect">
+  <div class="w">
+    <div class="sect-label rv">기술 — Technology</div>
+    <div class="tech-split rv">
+      <div class="tech-left">
+        <h2><strong>직접 만들고,</strong> <span class="vi">직접</span> 운영합니다.</h2>
+        <p>Go, Python, TypeScript 풀스택. 자체 인프라에서 30개 이상의 서비스를 24시간 운영합니다.</p>
+      </div>
+      <div class="tech-tags" id="ttEl"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ NEWS ═══ -->
+<section class="sect news">
+  <div class="w">
+    <div class="sect-label rv">소식 — News</div>
+    <div class="rv">
+      <div class="news-item"><span class="nx-date">2026.03.17</span><span class="nx-title">VeilKey 오픈소스 공개 — GitHub AGPL-3.0</span></div>
+      <div class="news-item"><span class="nx-date">2026.03.15</span><span class="nx-title">SparkAgent 퍼블릭 베타 시작</span></div>
+      <div class="news-item"><span class="nx-date">2026.03.10</span><span class="nx-title">Prelik 공식 런칭</span></div>
+      <div class="news-item"><span class="nx-date">2026.03.05</span><span class="nx-title">CoreStack v2 릴리스</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CONTACT ═══ -->
+<section id="contact" class="contact">
+  <div class="contact-ring"></div>
+  <div class="w rv">
+    <h2><strong>이야기를</strong><br><span class="vi">시작하세요.</span></h2>
+    <p>AI 서비스, 보안, 인프라 — 어떤 단계든 편하게.</p>
+    <div class="contact-links">
+      <a href="mailto:hello@prelik.com" class="cl">hello@prelik.com</a>
+      <a href="https://github.com/prelik" class="cl">GitHub</a>
+    </div>
+  </div>
+</section>
+
+<footer><div class="w"><div class="ft">
+  <span class="ft-logo">Prelik<span class="vi">.</span></span>
+  <div class="ft-links"><a href="#about">소개</a><a href="#biz">사업</a><a href="https://github.com/prelik">GitHub</a><a href="#contact">문의</a></div>
+  <span class="ft-copy">© 2026 Pre × Relik</span>
+</div></div></footer>
+
+<script>
+// ═══ NAV COLOR SWITCH ═══
+const navEl=document.getElementById('nav');
+const heroEnd=document.querySelector('.trans-strip');
+function updateNav(){
+  const r=heroEnd.getBoundingClientRect();
+  navEl.classList.toggle('dark',r.bottom>0);
+  navEl.classList.toggle('light',r.bottom<=0);
+}
+window.addEventListener('scroll',updateNav);updateNav();
+
+// ═══ HERO CANVAS — constellation ═══
+const cvs=document.getElementById('heroCanvas'),ctx=cvs.getContext('2d');
+let W,H;const pts=[];
+function sz(){W=cvs.width=cvs.offsetWidth;H=cvs.height=cvs.offsetHeight}
+sz();window.addEventListener('resize',sz);
+
+for(let i=0;i<70;i++){pts.push({x:Math.random()*2000,y:Math.random()*2000,r:Math.random()*1.2+.4,dx:(Math.random()-.5)*.25,dy:(Math.random()-.5)*.25,o:Math.random()*.12+.02})}
+
+let mx=-999,my=-999;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  pts.forEach(p=>{
+    p.x+=p.dx;p.y+=p.dy;
+    if(p.x<0||p.x>W)p.dx*=-1;
+    if(p.y<0||p.y>H)p.dy*=-1;
+    const d=Math.hypot(p.x-mx,p.y-my);
+    const inf=Math.max(0,1-d/180);
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r+inf*2.5,0,Math.PI*2);
+    ctx.fillStyle=inf>.1?`rgba(124,58,237,${p.o+inf*.25})`:`rgba(255,255,255,${p.o})`;
+    ctx.fill();
+  });
+  for(let i=0;i<pts.length;i++){
+    for(let j=i+1;j<pts.length;j++){
+      const d=Math.hypot(pts[i].x-pts[j].x,pts[i].y-pts[j].y);
+      if(d<110){
+        const nm=Math.min(Math.hypot(pts[i].x-mx,pts[i].y-my),Math.hypot(pts[j].x-mx,pts[j].y-my));
+        const mi=Math.max(0,1-nm/180);
+        ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);
+        ctx.strokeStyle=mi>.1?`rgba(124,58,237,${.02+mi*.1})`:`rgba(255,255,255,${.015*(1-d/110)})`;
+        ctx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(draw);
+}
+draw();
+
+// ═══ BIZ ═══
+const biz=[
+  {name:'VeilKey',tag:'OPEN SOURCE',desc:'비밀 생명주기 관리. AES-256-GCM 암호화, VK: 참조 대체.'},
+  {name:'SparkAgent',tag:'BETA',desc:'자율 AI 에이전트. 다단계 추론, 도구 사용, 영속 메모리.'},
+  {name:'FlowForge',tag:'BETA',desc:'워크플로 자동화. AI 기반 단계 생성, 100+ API 커넥터.'},
+  {name:'LensView',tag:'GA',desc:'AI 관측. 토큰, 지연시간, 비용, 품질 추적.'},
+  {name:'CastDeploy',tag:'GA',desc:'원클릭 배포. Git push → 프로덕션.'},
+  {name:'ShieldAI',tag:'SOON',desc:'AI 보안 모니터링. 이상 탐지, 자동 대응.'},
+  {name:'WaveDB',tag:'ALPHA',desc:'벡터 + 관계형 DB. SQLite 호환.'},
+  {name:'CoreStack',tag:'ENTERPRISE',desc:'인프라 플랫폼. 30+ 서비스를 코드로.'},
+];
+const bg=document.getElementById('bizGrid');
+biz.forEach((b,i)=>{
+  bg.insertAdjacentHTML('beforeend',`<div class="biz-card"><div class="bk-num">0${i+1}</div><div class="bk-name">${b.name} <span class="bk-tag">${b.tag}</span></div><div class="bk-desc">${b.desc}</div></div>`);
+});
+
+// ═══ TECH ═══
+const tags=['Go','Python','TypeScript','Laravel','React','Vue','Proxmox','Docker','Temporal','Claude API','Ollama','PostgreSQL','SQLite','Grafana','GitLab CI','GitHub Actions','Playwright','Elasticsearch','Kestra','Mattermost'];
+const te=document.getElementById('ttEl');
+tags.forEach(t=>{te.insertAdjacentHTML('beforeend',`<span class="tt"><span>${t}</span></span>`)});
+
+// ═══ COUNTER ═══
+let cD=false;
+const cO=new IntersectionObserver(es=>{es.forEach(e=>{
+  if(!e.isIntersecting||cD)return;cD=true;
+  document.querySelectorAll('.cv').forEach(el=>{
+    const t=+el.dataset.t,d=1200,s=performance.now();
+    function tick(n){const p=Math.min((n-s)/d,1);el.textContent=Math.round(t*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(tick)}
+    requestAnimationFrame(tick);
+  });
+})},{threshold:.3});
+document.querySelectorAll('.stats').forEach(el=>cO.observe(el));
+
+// ═══ MANIFESTO STAGGER ═══
+const mO=new IntersectionObserver(es=>{es.forEach(e=>{
+  if(!e.isIntersecting)return;
+  setTimeout(()=>e.target.classList.add('vis'),+(e.target.dataset.s||0)*130);
+  mO.unobserve(e.target);
+})},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.mf-row').forEach(el=>mO.observe(el));
+
+// ═══ REVEAL ═══
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target)}})},{threshold:.05,rootMargin:'0px 0px -20px 0px'});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+</script>
+
+</body>
+</html>

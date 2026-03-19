@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VeilKey — AI Never Sees Your Secrets</title>
+<meta name="description" content="Your AI agent works with encrypted references, never real secrets. Open-source secret lifecycle manager.">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,600;1,6..72,300;1,6..72,400&family=Geist+Mono:wght@400;500;600&display=swap');
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root {
+  --fg: #e2ddd4;
+  --fg2: #9b9588;
+  --fg3: #5a564e;
+  --fg4: #2e2c28;
+  --bg: #08080a;
+  --bg2: #0f0f12;
+  --bg3: #161619;
+  --mint: #4af5c5;
+  --mint-dim: #2eb88f;
+  --mint-bg: rgba(74,245,197,0.05);
+  --mint-line: rgba(74,245,197,0.12);
+  --amber: #f5c24a;
+  --red: #f5574a;
+  --violet: #a474f5;
+  --display: 'Newsreader', Georgia, serif;
+  --mono: 'Geist Mono', 'SF Mono', monospace;
+  --body: 'Space Mono', monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--body);
+  font-size: 15px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+body { overflow-x: hidden; }
+::selection { background: var(--mint); color: var(--bg); }
+a { color: inherit; text-decoration: none; }
+
+/* grain */
+body::after {
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:10000;opacity:0.02;
+  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.8' numOctaves='4' type='fractalNoise'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:200px;
+}
+
+.w { max-width:1140px; margin:0 auto; padding:0 clamp(1.5rem,4vw,3rem); }
+
+/* ─── NAV ─── */
+nav {
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  padding:0 clamp(1.5rem,4vw,3rem);
+  background:rgba(8,8,10,0.85);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--fg4);
+}
+.nav-in {
+  max-width:1140px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  height:56px;
+}
+.n-logo {
+  font-family:var(--mono);font-weight:600;font-size:0.85rem;
+  letter-spacing:0.1em;color:var(--mint);
+  display:flex;align-items:center;gap:0.5rem;
+}
+.n-logo svg { width:18px;height:18px; }
+.n-links { display:flex;gap:2rem;align-items:center; }
+.n-links a {
+  font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--fg3);transition:color 0.2s;
+}
+.n-links a:hover { color:var(--fg); }
+.n-links .n-gh {
+  padding:0.4rem 1rem;border:1px solid var(--mint-line);color:var(--mint);
+  border-radius:3px;transition:all 0.2s;
+}
+.n-links .n-gh:hover { background:var(--mint);color:var(--bg); }
+
+/* ─── HERO ─── */
+.hero {
+  min-height:100vh;
+  display:flex;flex-direction:column;justify-content:center;
+  padding-top:56px;
+  position:relative;
+}
+
+/* ambient glow */
+.hero::before {
+  content:'';position:absolute;
+  width:900px;height:900px;left:50%;top:40%;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(circle,rgba(74,245,197,0.03) 0%,transparent 60%);
+  pointer-events:none;
+}
+
+.hero-center { text-align:center; position:relative;z-index:1; }
+
+.hero-pill {
+  display:inline-flex;align-items:center;gap:0.5rem;
+  font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--mint-dim);
+  padding:0.35rem 1rem;
+  border:1px solid var(--mint-line);
+  border-radius:20px;
+  margin-bottom:2.5rem;
+  animation:fadeUp 0.7s ease both;
+}
+.hero-pill .pulse-dot {
+  width:6px;height:6px;border-radius:50%;background:var(--mint);
+  animation:pulse 2s ease-in-out infinite;
+}
+
+.hero h1 {
+  font-family:var(--display);
+  font-size:clamp(2.6rem,6vw,4.5rem);
+  font-weight:300;
+  line-height:1.15;
+  color:var(--fg);
+  margin-bottom:1.5rem;
+  animation:fadeUp 0.7s ease 0.1s both;
+}
+.hero h1 strong { font-weight:600; }
+.hero h1 .hl { color:var(--mint);font-style:italic; }
+
+.hero-sub {
+  font-size:1rem;color:var(--fg2);
+  max-width:520px;margin:0 auto 3rem;
+  line-height:1.8;font-weight:400;
+  animation:fadeUp 0.7s ease 0.2s both;
+}
+
+/* ─── THE HOOK — LIVE ENCRYPTION ANIMATION ─── */
+.hook-stage {
+  max-width:720px;margin:0 auto;
+  animation:fadeUp 0.8s ease 0.35s both;
+}
+
+.hook-window {
+  background:var(--bg2);
+  border:1px solid var(--fg4);
+  border-radius:8px;
+  overflow:hidden;
+  box-shadow:0 20px 80px rgba(0,0,0,0.5);
+}
+.hook-bar {
+  padding:0.55rem 1rem;
+  display:flex;align-items:center;gap:0.5rem;
+  border-bottom:1px solid var(--fg4);
+  background:rgba(255,255,255,0.015);
+}
+.hook-dots { display:flex;gap:5px; }
+.hook-dots span { width:8px;height:8px;border-radius:50%;background:var(--fg4); }
+.hook-bar-title {
+  margin-left:0.8rem;font-family:var(--mono);
+  font-size:0.65rem;color:var(--fg3);letter-spacing:0.04em;
+}
+
+.hook-body {
+  padding:1.8rem 2rem;
+  font-family:var(--mono);
+  font-size:0.82rem;
+  line-height:2.2;
+  min-height:240px;
+  position:relative;
+}
+
+/* scenario tabs */
+.hook-tabs {
+  display:flex;gap:0;margin-bottom:0;
+  padding:0 2rem;
+  background:var(--bg2);
+  border-bottom:1px solid var(--fg4);
+}
+.hook-tab {
+  padding:0.6rem 1.2rem;
+  font-family:var(--mono);font-size:0.68rem;letter-spacing:0.06em;
+  color:var(--fg3);cursor:pointer;
+  border-bottom:2px solid transparent;
+  transition:all 0.2s;
+  background:none;border-top:none;border-left:none;border-right:none;
+}
+.hook-tab.active { color:var(--mint);border-bottom-color:var(--mint); }
+.hook-tab:hover:not(.active) { color:var(--fg2); }
+
+.hook-scene { display:none; }
+.hook-scene.active { display:block; }
+
+/* text animation styles */
+.line { overflow:hidden;white-space:nowrap;opacity:0; }
+.line.show { animation:lineIn 0.3s ease forwards; }
+
+.tok-comment { color:var(--fg3);font-style:italic; }
+.tok-prompt { color:var(--fg3); }
+.tok-cmd { color:var(--fg); }
+.tok-flag { color:var(--violet); }
+.tok-key { color:var(--fg2); }
+.tok-danger { color:var(--red); }
+.tok-safe { color:var(--mint); }
+.tok-ok { color:var(--mint); }
+.tok-dim { color:var(--fg3); }
+.tok-amber { color:var(--amber); }
+
+/* the magic — char-by-char morph */
+.morph-line {
+  position:relative;
+  display:inline;
+}
+.morph-char {
+  display:inline-block;
+  transition: color 0.15s, transform 0.25s;
+}
+.morph-char.encrypting {
+  color:var(--mint);
+  transform:translateY(-2px);
+  animation:charGlitch 0.3s ease;
+}
+
+/* typing cursor */
+.cursor {
+  display:inline-block;
+  width:8px;height:1.1em;
+  background:var(--mint);
+  vertical-align:text-bottom;
+  animation:blink 0.8s step-end infinite;
+  margin-left:2px;
+}
+
+.hook-status {
+  margin-top:1rem;
+  padding-top:1rem;
+  border-top:1px solid var(--fg4);
+  font-size:0.7rem;
+  color:var(--fg3);
+  display:flex;align-items:center;gap:0.5rem;
+}
+.hook-status .status-dot {
+  width:5px;height:5px;border-radius:50%;
+}
+.hook-status .status-dot.green { background:var(--mint); }
+
+/* replay button */
+.hook-replay {
+  position:absolute;top:1rem;right:1rem;
+  font-family:var(--mono);font-size:0.65rem;
+  padding:0.3rem 0.7rem;
+  background:transparent;
+  border:1px solid var(--fg4);
+  color:var(--fg3);
+  cursor:pointer;
+  border-radius:3px;
+  transition:all 0.2s;
+  z-index:5;
+}
+.hook-replay:hover { border-color:var(--mint-line);color:var(--mint); }
+
+/* ─── CONCEPT ─── */
+.concept {
+  padding:6rem 0;
+  border-top:1px solid var(--fg4);
+}
+.concept-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:4rem;
+  align-items:center;
+}
+.concept-visual {
+  position:relative;
+  background:var(--bg2);
+  border:1px solid var(--fg4);
+  border-radius:6px;
+  padding:3rem 2.5rem;
+  text-align:center;
+}
+
+.concept-flow {
+  display:flex;
+  flex-direction:column;
+  gap:1.5rem;
+  align-items:center;
+}
+.concept-flow-row {
+  display:flex;
+  align-items:center;
+  gap:1rem;
+  font-family:var(--mono);
+  font-size:0.78rem;
+}
+.concept-flow-label {
+  width:80px;
+  text-align:right;
+  color:var(--fg3);
+  font-size:0.65rem;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+.concept-flow-box {
+  padding:0.5rem 1.2rem;
+  border:1px solid var(--fg4);
+  border-radius:3px;
+  min-width:240px;
+  text-align:left;
+  transition:all 0.3s;
+}
+.concept-flow-box.plain {
+  border-color:rgba(245,87,74,0.3);
+  background:rgba(245,87,74,0.04);
+  color:var(--red);
+}
+.concept-flow-box.sealed {
+  border-color:var(--mint-line);
+  background:var(--mint-bg);
+  color:var(--mint);
+}
+.concept-flow-arrow {
+  font-size:1.2rem;
+  color:var(--fg4);
+}
+
+.concept-text .sec-ey {
+  font-family:var(--mono);font-size:0.65rem;
+  letter-spacing:0.15em;text-transform:uppercase;
+  color:var(--mint-dim);margin-bottom:1rem;
+}
+.concept-text h2 {
+  font-family:var(--display);
+  font-size:clamp(1.8rem,3vw,2.4rem);
+  font-weight:300;line-height:1.2;
+  margin-bottom:1rem;
+}
+.concept-text h2 .hl { color:var(--mint);font-style:italic;font-weight:400; }
+.concept-text p {
+  font-size:0.9rem;color:var(--fg2);line-height:1.8;
+  margin-bottom:1.5rem;
+}
+.concept-text .detail-list {
+  list-style:none;
+  display:flex;flex-direction:column;gap:0.6rem;
+}
+.concept-text .detail-list li {
+  font-size:0.82rem;color:var(--fg2);
+  display:flex;align-items:flex-start;gap:0.6rem;
+  line-height:1.5;
+}
+.concept-text .detail-list li::before {
+  content:'→';color:var(--mint-dim);flex-shrink:0;margin-top:1px;
+}
+
+/* ─── ARCH ─── */
+.arch-section {
+  padding:7rem 0;
+  background:var(--bg2);
+  border-top:1px solid var(--fg4);
+  border-bottom:1px solid var(--fg4);
+}
+
+.arch-cards {
+  margin-top:3.5rem;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:1px;
+  background:var(--fg4);
+}
+.arch-card {
+  background:var(--bg2);
+  padding:2rem 1.5rem;
+  transition:background 0.3s;
+}
+.arch-card:hover { background:var(--bg3); }
+.arch-card-icon {
+  font-family:var(--mono);font-size:0.65rem;font-weight:600;
+  color:var(--mint);letter-spacing:0.08em;
+  margin-bottom:1rem;
+  padding:0.3rem 0.6rem;
+  border:1px solid var(--mint-line);
+  display:inline-block;border-radius:2px;
+}
+.arch-card h3 {
+  font-family:var(--mono);font-size:0.82rem;font-weight:600;
+  margin-bottom:0.5rem;
+}
+.arch-card .arch-port {
+  font-size:0.68rem;color:var(--fg3);margin-bottom:0.8rem;
+  font-family:var(--mono);
+}
+.arch-card p {
+  font-size:0.8rem;color:var(--fg2);line-height:1.65;
+}
+
+/* ─── FEATURES ─── */
+.features-section { padding:7rem 0; }
+.feat-row {
+  margin-top:3.5rem;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:2rem;
+}
+.feat-item {
+  padding:2rem;
+  border:1px solid var(--fg4);
+  border-radius:4px;
+  transition:all 0.3s;
+  position:relative;
+}
+.feat-item:hover {
+  border-color:var(--mint-line);
+  transform:translateY(-3px);
+  box-shadow:0 8px 30px rgba(0,0,0,0.3);
+}
+.feat-item h3 {
+  font-family:var(--mono);font-size:0.82rem;font-weight:700;
+  margin-bottom:0.5rem;
+  display:flex;align-items:center;gap:0.6rem;
+}
+.feat-item h3 .feat-dot {
+  width:6px;height:6px;background:var(--mint);border-radius:50%;
+}
+.feat-item p {
+  font-size:0.82rem;color:var(--fg2);line-height:1.7;
+}
+
+/* ─── QUICK START ─── */
+.qs-section {
+  padding:7rem 0;
+  background:var(--bg2);
+  border-top:1px solid var(--fg4);
+  border-bottom:1px solid var(--fg4);
+}
+
+.qs-code {
+  margin-top:3rem;
+  background:var(--bg);
+  border:1px solid var(--fg4);
+  border-radius:6px;
+  overflow:hidden;
+  max-width:680px;
+}
+.qs-code-bar {
+  padding:0.6rem 1.2rem;
+  display:flex;align-items:center;gap:0.5rem;
+  border-bottom:1px solid var(--fg4);
+  background:rgba(255,255,255,0.01);
+}
+.qs-code-bar .d { width:7px;height:7px;border-radius:50%;background:var(--fg4); }
+.qs-code-bar span:last-child {
+  margin-left:auto;font-family:var(--mono);font-size:0.65rem;color:var(--fg3);
+}
+.qs-code-body {
+  padding:1.5rem 1.8rem;
+  font-family:var(--mono);font-size:0.8rem;
+  line-height:2.2;
+}
+
+/* ─── CTA ─── */
+.cta-final {
+  padding:8rem 0;
+  text-align:center;
+  position:relative;
+}
+.cta-final::before {
+  content:'';position:absolute;
+  width:700px;height:700px;left:50%;top:50%;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(circle,rgba(74,245,197,0.025) 0%,transparent 55%);
+  pointer-events:none;
+}
+.cta-final h2 {
+  font-family:var(--display);
+  font-size:clamp(2rem,4vw,3rem);
+  font-weight:300;line-height:1.2;
+  margin-bottom:1rem;position:relative;
+}
+.cta-final h2 .hl { color:var(--mint);font-style:italic; }
+.cta-final p {
+  color:var(--fg2);max-width:440px;margin:0 auto 2.5rem;
+  font-size:0.95rem;line-height:1.75;position:relative;
+}
+.cta-btns {
+  display:flex;justify-content:center;gap:0.8rem;flex-wrap:wrap;
+  position:relative;
+}
+
+.cta-tags {
+  margin-top:3rem;display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;
+  position:relative;
+}
+.cta-tags span {
+  font-family:var(--mono);font-size:0.65rem;
+  letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--fg3);
+}
+
+/* ─── FOOTER ─── */
+footer {
+  border-top:1px solid var(--fg4);padding:2rem 0;
+  font-family:var(--mono);font-size:0.68rem;color:var(--fg3);
+}
+.foot-in { display:flex;justify-content:space-between;align-items:center; }
+.foot-in a { color:var(--fg2);transition:color 0.2s; }
+.foot-in a:hover { color:var(--mint); }
+
+/* ─── KEYFRAMES ─── */
+@keyframes fadeUp {
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes pulse {
+  0%,100%{opacity:1} 50%{opacity:0.3}
+}
+@keyframes blink {
+  50%{opacity:0}
+}
+@keyframes lineIn {
+  from{opacity:0;transform:translateX(-8px)}
+  to{opacity:1;transform:translateX(0)}
+}
+@keyframes charGlitch {
+  0%{transform:translateY(0);opacity:1}
+  30%{transform:translateY(-3px);opacity:0.5}
+  60%{transform:translateY(1px);opacity:0.8}
+  100%{transform:translateY(0);opacity:1}
+}
+
+.rv { opacity:0;transform:translateY(20px);transition:opacity 0.6s,transform 0.6s; }
+.rv.vis { opacity:1;transform:translateY(0); }
+
+/* buttons */
+.btn {
+  font-family:var(--mono);font-size:0.78rem;letter-spacing:0.04em;
+  padding:0.75rem 1.8rem;border:none;cursor:pointer;
+  display:inline-flex;align-items:center;gap:0.5rem;
+  transition:all 0.25s;border-radius:3px;
+}
+.btn-mint { background:var(--mint);color:var(--bg);font-weight:600; }
+.btn-mint:hover { background:#6cffda;box-shadow:0 0 30px rgba(74,245,197,0.2);transform:translateY(-1px); }
+.btn-outline { background:transparent;border:1px solid var(--fg4);color:var(--fg2); }
+.btn-outline:hover { border-color:var(--fg3);color:var(--fg); }
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:900px){
+  .concept-grid{grid-template-columns:1fr}
+  .arch-cards{grid-template-columns:repeat(2,1fr)}
+  .feat-row{grid-template-columns:1fr}
+  .n-links a:not(.n-gh){display:none}
+}
+@media(max-width:600px){
+  .arch-cards{grid-template-columns:1fr}
+  .hook-tabs{padding:0 1rem}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-in">
+    <a href="#" class="n-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="11" width="18" height="11" rx="2"/>
+        <path d="M7 11V7a5 5 0 0110 0v4"/>
+      </svg>
+      VEILKEY
+    </a>
+    <div class="n-links">
+      <a href="#concept">Concept</a>
+      <a href="#arch">Architecture</a>
+      <a href="#features">Features</a>
+      <a href="https://github.com/veilkey/veilkey-selfhosted" class="n-gh">GitHub ↗</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="w">
+    <div class="hero-center">
+      <div class="hero-pill"><span class="pulse-dot"></span> Open Source Secret Manager</div>
+      <h1><strong>AI works with references.</strong><br>Never your <span class="hl">real secrets.</span></h1>
+      <p class="hero-sub">
+        VeilKey encrypts secrets at the point of creation and replaces them with
+        scoped references. Your AI agent, your CI, your logs — they all see
+        <code style="color:var(--mint);background:var(--mint-bg);padding:0.1rem 0.4rem;border-radius:2px;font-family:var(--mono);font-size:0.85rem;">VK:LOCAL:a1b2</code>,
+        never the real key.
+      </p>
+
+      <!-- THE HOOK -->
+      <div class="hook-stage">
+        <div class="hook-window">
+          <div class="hook-bar">
+            <div class="hook-dots"><span></span><span></span><span></span></div>
+            <div class="hook-bar-title">veilkey — live encryption</div>
+          </div>
+          <div class="hook-tabs">
+            <button class="hook-tab active" data-scene="paste">Paste → Encrypt</button>
+            <button class="hook-tab" data-scene="ai">AI Agent Flow</button>
+            <button class="hook-tab" data-scene="scan">Scan & Filter</button>
+          </div>
+
+          <!-- Scene 1: Paste a real key, watch it morph -->
+          <div class="hook-body">
+            <button class="hook-replay" title="Replay">↻ replay</button>
+
+            <div class="hook-scene active" id="scene-paste">
+              <div id="paste-content"></div>
+            </div>
+
+            <div class="hook-scene" id="scene-ai">
+              <div id="ai-content"></div>
+            </div>
+
+            <div class="hook-scene" id="scene-scan">
+              <div id="scan-content"></div>
+            </div>
+
+            <div class="hook-status">
+              <span class="status-dot green"></span>
+              <span id="hook-status-text">watching for secrets...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CONCEPT ═══ -->
+<section id="concept" class="concept">
+  <div class="w">
+    <div class="concept-grid rv">
+      <div class="concept-visual">
+        <div class="concept-flow">
+          <div class="concept-flow-row">
+            <div class="concept-flow-label">Developer</div>
+            <div class="concept-flow-box plain">sk_live_51HG8a...xYz</div>
+          </div>
+          <div class="concept-flow-arrow">↓ veilkey filter</div>
+          <div class="concept-flow-row">
+            <div class="concept-flow-label">Config</div>
+            <div class="concept-flow-box sealed">VK:LOCAL:e5f6a7b8</div>
+          </div>
+          <div class="concept-flow-arrow">↓ veilkey exec</div>
+          <div class="concept-flow-row">
+            <div class="concept-flow-label">App</div>
+            <div class="concept-flow-box sealed" style="border-color:rgba(164,116,245,0.3);background:rgba(164,116,245,0.04);color:var(--violet);">sk_live_51HG8a...xYz ✓</div>
+          </div>
+        </div>
+      </div>
+      <div class="concept-text">
+        <div class="sec-ey">The Idea</div>
+        <h2>Secrets exist in memory.<br>Never on <span class="hl">disk.</span></h2>
+        <p>
+          The moment a secret enters VeilKey, it's encrypted with AES-256-GCM
+          and replaced with a scoped reference token. Your config files, your
+          git history, your CI logs — none of them ever contain plaintext.
+        </p>
+        <ul class="detail-list">
+          <li>AI agents see only VK: references — work normally, zero risk</li>
+          <li>Rotation happens per-node without restarts</li>
+          <li>Each node has its own DEK — lateral movement is dead</li>
+          <li>Password read from file, never environment variable</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ ARCHITECTURE ═══ -->
+<section id="arch" class="arch-section">
+  <div class="w">
+    <div class="rv">
+      <div class="sec-ey" style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--mint-dim);margin-bottom:1rem;">Architecture</div>
+      <h2 style="font-family:var(--display);font-size:clamp(2rem,3.5vw,2.8rem);font-weight:300;line-height:1.2;margin-bottom:1rem;">
+        Hub-and-spoke. Every node <span class="hl">isolated.</span>
+      </h2>
+      <p style="font-size:0.95rem;color:var(--fg2);max-width:520px;line-height:1.75;">
+        One KeyCenter decides policy. LocalVault nodes hold only ciphertext.
+        Compromise a spoke — the hub and every other spoke stays sealed.
+      </p>
+    </div>
+    <div class="arch-cards rv">
+      <div class="arch-card">
+        <div class="arch-card-icon">KC</div>
+        <h3>KeyCenter</h3>
+        <div class="arch-port">:10181</div>
+        <p>Control plane. Node identity, DEK lifecycle, rotation policy, secret registry. Single instance per deployment.</p>
+      </div>
+      <div class="arch-card">
+        <div class="arch-card-icon">LV</div>
+        <h3>LocalVault</h3>
+        <div class="arch-port">:10180</div>
+        <p>Node agent. Stores ciphertext, heartbeats every 5m. Cannot decrypt without KeyCenter. One per machine.</p>
+      </div>
+      <div class="arch-card">
+        <div class="arch-card-icon">PX</div>
+        <h3>Proxy</h3>
+        <div class="arch-port">:18080</div>
+        <p>Egress enforcement. Intercepts outbound HTTP, blocks plaintext leaks, issues VK:TEMP: tokens. Optional.</p>
+      </div>
+      <div class="arch-card">
+        <div class="arch-card-icon">CLI</div>
+        <h3>CLI</h3>
+        <div class="arch-port">&nbsp;</div>
+        <p>Operator tool. scan, filter, wrap, exec, resolve. PTY wrapping with automatic secret masking.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FEATURES ═══ -->
+<section id="features" class="features-section">
+  <div class="w">
+    <div class="rv">
+      <div class="sec-ey" style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--mint-dim);margin-bottom:1rem;">Features</div>
+      <h2 style="font-family:var(--display);font-size:clamp(2rem,3.5vw,2.8rem);font-weight:300;line-height:1.2;">
+        Built for the <span class="hl">AI era.</span>
+      </h2>
+    </div>
+    <div class="feat-row rv">
+      <div class="feat-item">
+        <h3><span class="feat-dot"></span> AI-safe references</h3>
+        <p>AI agents work with VK: tokens. They read, write, and execute — without ever seeing real credentials.</p>
+      </div>
+      <div class="feat-item">
+        <h3><span class="feat-dot"></span> Zero plaintext at rest</h3>
+        <p>AES-256-GCM encryption at point of entry. Configs, git history, and logs contain only references.</p>
+      </div>
+      <div class="feat-item">
+        <h3><span class="feat-dot"></span> Seamless rotation</h3>
+        <p>KeyCenter schedules, each node re-encrypts. No restart, no downtime, no coordination needed.</p>
+      </div>
+      <div class="feat-item">
+        <h3><span class="feat-dot"></span> 222+ patterns</h3>
+        <p>Detect AWS, GCP, GitHub, Stripe, private keys, JWTs. Fully offline scan — no API required.</p>
+      </div>
+      <div class="feat-item">
+        <h3><span class="feat-dot"></span> Egress enforcement</h3>
+        <p>Optional proxy blocks plaintext in outbound HTTP. Veilroot shell guards block direct curl/wget.</p>
+      </div>
+      <div class="feat-item">
+        <h3><span class="feat-dot"></span> Self-hosted</h3>
+        <p>SQLite backend, no cloud deps. macOS launchd or Linux systemd. AGPL-3.0 licensed.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ QUICK START ═══ -->
+<section class="qs-section">
+  <div class="w">
+    <div class="rv">
+      <div class="sec-ey" style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--mint-dim);margin-bottom:1rem;">Quick Start</div>
+      <h2 style="font-family:var(--display);font-size:clamp(2rem,3.5vw,2.8rem);font-weight:300;line-height:1.2;margin-bottom:1rem;">
+        Encrypted in <span class="hl">five minutes.</span>
+      </h2>
+    </div>
+    <div class="qs-code rv">
+      <div class="qs-code-bar">
+        <span class="d"></span><span class="d"></span><span class="d"></span>
+        <span>macOS</span>
+      </div>
+      <div class="qs-code-body">
+<span class="tok-prompt">$</span> <span class="tok-cmd">git clone</span> <span class="tok-flag">https://github.com/veilkey/veilkey-selfhosted.git</span>
+<span class="tok-prompt">$</span> <span class="tok-cmd">cd</span> veilkey-selfhosted
+<span class="tok-prompt">$</span> <span class="tok-cmd">./installer/scripts/install-mac.sh</span> <span class="tok-flag">install</span>
+<span class="tok-dim">  [OK] Go 1.26 installed</span>
+<span class="tok-dim">  [OK] 5 binaries built</span>
+<span class="tok-dim">  [OK] KeyCenter initialized · LocalVault connected</span>
+<span class="tok-prompt">$</span> <span class="tok-cmd">./installer/scripts/install-mac.sh</span> <span class="tok-flag">start</span>
+<span class="tok-ok">  ✓ KeyCenter :10181 · LocalVault :10180</span>
+
+<span class="tok-comment"># Try it</span>
+<span class="tok-prompt">$</span> <span class="tok-cmd">echo</span> <span class="tok-danger">"STRIPE_KEY=sk_live_abc123"</span> | <span class="tok-cmd">vk scan</span> -
+<span class="tok-dim">  [1] stdin:1 — stripe secret key</span> <span class="tok-danger">■ high</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ═══ -->
+<section class="cta-final">
+  <div class="w rv">
+    <h2>Your AI doesn't need<br>your <span class="hl">real keys.</span></h2>
+    <p>Give it references. VeilKey handles the rest.</p>
+    <div class="cta-btns">
+      <a href="https://github.com/veilkey/veilkey-selfhosted" class="btn btn-mint">View on GitHub →</a>
+      <a href="https://github.com/veilkey/veilkey-selfhosted/blob/main/docs/installation.md" class="btn btn-outline">Install Guide</a>
+    </div>
+    <div class="cta-tags">
+      <span>AGPL-3.0</span>
+      <span>Go + SQLite</span>
+      <span>AES-256-GCM</span>
+      <span>macOS + Linux</span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="w"><div class="foot-in">
+    <span>VeilKey — Secret Lifecycle Manager</span>
+    <span><a href="https://github.com/veilkey/veilkey-selfhosted">github.com/veilkey</a> · AGPL-3.0</span>
+  </div></div>
+</footer>
+
+<script>
+// ─── SCENE ENGINE ───
+const scenes = {
+  paste: {
+    lines: [
+      { type:'comment', text:'# You paste an API key into your config...' },
+      { type:'blank' },
+      { type:'static', text:'OPENAI_API_KEY=' },
+      { type:'typeAndMorph', prefix:'OPENAI_API_KEY=', secret:'sk-proj-4f8a2b1c9d3e7f6a5b8c2d1e', result:'VK:LOCAL:4f8a2b1c', delay:800 },
+      { type:'blank' },
+      { type:'comment', text:'# VeilKey encrypted it instantly.' },
+      { type:'output', text:'  ✓ 1 secret detected → encrypted → sealed', cls:'tok-ok' },
+      { type:'output', text:'  ✓ plaintext destroyed · reference stored', cls:'tok-ok' },
+    ],
+    status: '1 secret sealed — plaintext destroyed'
+  },
+  ai: {
+    lines: [
+      { type:'comment', text:'# Your AI agent reads the config...' },
+      { type:'blank' },
+      { type:'output', text:'  Claude sees: DATABASE_URL=VK:LOCAL:a1b2c3d4', cls:'tok-safe' },
+      { type:'output', text:'  Claude sees: STRIPE_KEY=VK:LOCAL:e5f6a7b8', cls:'tok-safe' },
+      { type:'output', text:'  Claude sees: JWT_SECRET=VK:LOCAL:c9d0e1f2', cls:'tok-safe' },
+      { type:'blank' },
+      { type:'comment', text:'# It writes code, deploys, runs tests — never touching real secrets.' },
+      { type:'blank' },
+      { type:'prompt', cmd:'veilkey exec', flag:'./deploy.sh' },
+      { type:'output', text:'  ✓ 3 refs resolved at runtime · app started', cls:'tok-ok' },
+      { type:'output', text:'  ✓ AI never saw plaintext · zero exposure', cls:'tok-ok' },
+    ],
+    status: 'AI operated with references only — zero plaintext exposure'
+  },
+  scan: {
+    lines: [
+      { type:'prompt', cmd:'veilkey scan', flag:'.env docker-compose.yml config/' },
+      { type:'blank' },
+      { type:'output', text:'  [1] .env:3           AWS_SECRET_ACCESS_KEY', cls:'tok-dim' },
+      { type:'output', text:'      pattern: aws-secret-key         confidence: 95', cls:'tok-dim' },
+      { type:'output', text:'      match: wJalrXUtnFEMI/K7MDENG/b█████████', cls:'tok-danger' },
+      { type:'blank' },
+      { type:'output', text:'  [2] docker-compose:12  POSTGRES_PASSWORD', cls:'tok-dim' },
+      { type:'output', text:'      match: sup3r-s3cret-██████', cls:'tok-danger' },
+      { type:'blank' },
+      { type:'prompt', cmd:'veilkey filter', flag:'.env docker-compose.yml' },
+      { type:'output', text:'  ✓ 2 secrets → VK:LOCAL:* references', cls:'tok-ok' },
+      { type:'output', text:'  ✓ files updated in-place · originals encrypted', cls:'tok-ok' },
+    ],
+    status: '2 secrets found and sealed across 3 files'
+  }
+};
+
+let currentScene = 'paste';
+let animTimer = null;
+
+function clearScene(id) {
+  document.getElementById(id + '-content').innerHTML = '';
+}
+
+function setStatus(text) {
+  document.getElementById('hook-status-text').textContent = text;
+}
+
+async function sleep(ms) {
+  return new Promise(r => setTimeout(r, ms));
+}
+
+function addLine(container, html, cls) {
+  const div = document.createElement('div');
+  div.className = 'line ' + (cls||'');
+  div.innerHTML = html;
+  container.appendChild(div);
+  requestAnimationFrame(() => div.classList.add('show'));
+  return div;
+}
+
+async function typeText(container, prefix, text, cls, speed) {
+  const div = document.createElement('div');
+  div.className = 'line show';
+  const prefixSpan = document.createElement('span');
+  prefixSpan.className = 'tok-key';
+  prefixSpan.textContent = prefix;
+  div.appendChild(prefixSpan);
+  const textSpan = document.createElement('span');
+  textSpan.className = cls || '';
+  div.appendChild(textSpan);
+  const cursor = document.createElement('span');
+  cursor.className = 'cursor';
+  div.appendChild(cursor);
+  container.appendChild(div);
+
+  for (let i = 0; i < text.length; i++) {
+    textSpan.textContent += text[i];
+    await sleep(speed || 35);
+  }
+  return { div, textSpan, cursor };
+}
+
+async function morphText(span, from, to) {
+  // Build char spans
+  span.textContent = '';
+  const chars = [];
+  for (let i = 0; i < from.length; i++) {
+    const c = document.createElement('span');
+    c.className = 'morph-char';
+    c.textContent = from[i];
+    c.style.color = 'var(--red)';
+    span.appendChild(c);
+    chars.push(c);
+  }
+  await sleep(600);
+
+  // Morph phase: scramble then resolve
+  const toChars = to.split('');
+  const maxLen = Math.max(chars.length, toChars.length);
+
+  // First pass: scramble all
+  const scrambleChars = '█▓▒░╳╲╱◆◇○●';
+  for (let round = 0; round < 3; round++) {
+    for (let i = 0; i < chars.length; i++) {
+      chars[i].textContent = scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
+      chars[i].classList.add('encrypting');
+    }
+    await sleep(80);
+  }
+
+  // Adjust length
+  while (span.children.length > toChars.length) {
+    span.removeChild(span.lastChild);
+  }
+  while (span.children.length < toChars.length) {
+    const c = document.createElement('span');
+    c.className = 'morph-char encrypting';
+    c.textContent = scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
+    span.appendChild(c);
+  }
+
+  const finalChars = Array.from(span.children);
+  await sleep(100);
+
+  // Second pass: resolve left to right
+  for (let i = 0; i < toChars.length; i++) {
+    finalChars[i].textContent = toChars[i];
+    finalChars[i].style.color = 'var(--mint)';
+    await sleep(30);
+  }
+
+  // Clean up animation class
+  await sleep(200);
+  finalChars.forEach(c => c.classList.remove('encrypting'));
+}
+
+async function playScene(name) {
+  const scene = scenes[name];
+  const containerId = name + '-content';
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  setStatus('watching for secrets...');
+
+  for (const line of scene.lines) {
+    switch (line.type) {
+      case 'comment':
+        addLine(container, `<span class="tok-comment">${line.text}</span>`);
+        await sleep(400);
+        break;
+      case 'blank':
+        addLine(container, '<br>');
+        await sleep(100);
+        break;
+      case 'prompt':
+        addLine(container, `<span class="tok-prompt">$</span> <span class="tok-cmd">${line.cmd}</span> <span class="tok-flag">${line.flag||''}</span>`);
+        await sleep(500);
+        break;
+      case 'output':
+        addLine(container, `<span class="${line.cls||''}">${line.text}</span>`);
+        await sleep(300);
+        break;
+      case 'static':
+        // just show prefix, next line does the typing
+        break;
+      case 'typeAndMorph': {
+        const { div, textSpan, cursor } = await typeText(container, line.prefix, line.secret, 'tok-danger', 30);
+        await sleep(line.delay || 600);
+        cursor.remove();
+        await morphText(textSpan, line.secret, line.result);
+        await sleep(300);
+        break;
+      }
+    }
+  }
+
+  setStatus(scene.status);
+}
+
+// Tab switching
+document.querySelectorAll('.hook-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const name = tab.dataset.scene;
+    document.querySelectorAll('.hook-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.hook-scene').forEach(s => s.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('scene-' + name).classList.add('active');
+    currentScene = name;
+    playScene(name);
+  });
+});
+
+// Replay
+document.querySelector('.hook-replay').addEventListener('click', () => {
+  playScene(currentScene);
+});
+
+// Auto-play first scene
+setTimeout(() => playScene('paste'), 800);
+
+// Scroll reveal
+const obs = new IntersectionObserver(es => {
+  es.forEach(e => { if(e.isIntersecting) e.target.classList.add('vis'); });
+}, { threshold:0.08, rootMargin:'0px 0px -30px 0px' });
+document.querySelectorAll('.rv').forEach(el => obs.observe(el));
+</script>
+
+</body>
+</html>

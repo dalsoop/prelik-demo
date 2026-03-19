@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VeilKey — Kill the Plaintext</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Manrope:wght@300;400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --fg:#f4f4f0;
+  --fg2:#b0ada4;
+  --fg3:#6e6b62;
+  --fg4:#3a3830;
+  --bg:#0e0e10;
+  --bg2:#151518;
+  --bg3:#1c1c20;
+  --hot:#ff2d55;
+  --hot-dim:#cc2244;
+  --hot-bg:rgba(255,45,85,0.06);
+  --hot-line:rgba(255,45,85,0.2);
+  --hot-glow:rgba(255,45,85,0.12);
+  --cyan:#00e5ff;
+  --cyan-dim:#00b8cc;
+  --cyan-bg:rgba(0,229,255,0.05);
+  --cyan-line:rgba(0,229,255,0.15);
+  --cyan-glow:rgba(0,229,255,0.1);
+  --yellow:#ffe138;
+  --display:'Dela Gothic One',cursive;
+  --sans:'Manrope',system-ui,sans-serif;
+  --code:'JetBrains Mono',monospace;
+}
+
+html{scroll-behavior:smooth;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:15px;-webkit-font-smoothing:antialiased}
+body{overflow-x:hidden}
+::selection{background:var(--hot);color:white}
+a{color:inherit;text-decoration:none}
+
+.w{max-width:1140px;margin:0 auto;padding:0 clamp(1.5rem,4vw,3rem)}
+
+/* ═══ NAV ═══ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:300;
+  background:rgba(14,14,16,0.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--fg4);
+}
+.ni{max-width:1140px;margin:0 auto;padding:0 clamp(1.5rem,4vw,3rem);display:flex;align-items:center;justify-content:space-between;height:56px}
+.logo{display:flex;align-items:center;gap:0.6rem}
+.logo-icon{
+  width:28px;height:28px;background:var(--hot);
+  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  display:grid;place-items:center;
+}
+.logo-icon span{font-family:var(--code);font-size:0.6rem;font-weight:700;color:white}
+.logo-text{font-family:var(--display);font-size:0.85rem;letter-spacing:0.02em}
+.nk{display:flex;align-items:center;gap:2rem}
+.nk a{font-size:0.75rem;font-weight:600;color:var(--fg3);transition:color 0.15s;letter-spacing:0.02em}
+.nk a:hover{color:var(--fg)}
+.nk .nc{
+  font-size:0.75rem;font-weight:700;padding:0.45rem 1.2rem;
+  background:var(--hot);color:white;border-radius:6px;
+  transition:all 0.2s;
+}
+.nk .nc:hover{background:var(--hot-dim);transform:translateY(-1px);box-shadow:0 4px 16px var(--hot-glow)}
+
+/* ═══ HERO ═══ */
+.hero{
+  min-height:100vh;display:flex;align-items:center;
+  position:relative;padding-top:56px;overflow:hidden;
+}
+
+/* dual gradient blobs */
+.hero-blob-1{
+  position:absolute;top:-20%;left:-15%;width:700px;height:700px;
+  background:radial-gradient(circle,var(--hot-glow),transparent 55%);
+  filter:blur(100px);pointer-events:none;
+}
+.hero-blob-2{
+  position:absolute;bottom:-20%;right:-10%;width:600px;height:600px;
+  background:radial-gradient(circle,var(--cyan-glow),transparent 55%);
+  filter:blur(100px);pointer-events:none;
+}
+
+.hero-center{text-align:center;position:relative;z-index:1}
+
+.hero-chip{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  font-size:0.7rem;font-weight:700;letter-spacing:0.06em;
+  color:var(--hot);padding:0.35rem 1rem;
+  background:var(--hot-bg);border:1px solid var(--hot-line);
+  border-radius:100px;margin-bottom:2.5rem;
+  animation:pop 0.5s ease both;
+}
+.hero-chip .hc-dot{width:6px;height:6px;border-radius:50%;background:var(--hot);animation:blink 2s ease-in-out infinite}
+
+.hero h1{
+  font-family:var(--display);
+  font-size:clamp(2.8rem,7vw,6rem);
+  line-height:1;letter-spacing:-0.02em;
+  margin-bottom:2rem;
+  animation:pop 0.5s ease 0.06s both;
+}
+.hero h1 .hot{color:var(--hot);text-shadow:0 0 40px var(--hot-glow)}
+.hero h1 .cyan{color:var(--cyan);text-shadow:0 0 40px var(--cyan-glow)}
+
+.hero-p{
+  font-size:1.15rem;color:var(--fg2);max-width:540px;
+  margin:0 auto 3rem;line-height:1.85;font-weight:400;
+  animation:pop 0.5s ease 0.12s both;
+}
+
+.hero-btns{
+  display:flex;justify-content:center;gap:0.7rem;flex-wrap:wrap;
+  animation:pop 0.5s ease 0.18s both;
+}
+.btn{
+  font-family:var(--sans);font-size:0.88rem;font-weight:700;
+  padding:0.85rem 2rem;border:none;cursor:pointer;
+  display:inline-flex;align-items:center;gap:0.4rem;
+  transition:all 0.2s;border-radius:10px;
+}
+.btn-hot{background:var(--hot);color:white}
+.btn-hot:hover{background:var(--hot-dim);transform:translateY(-2px);box-shadow:0 8px 28px var(--hot-glow)}
+.btn-glass{background:rgba(255,255,255,0.04);border:1px solid var(--fg4);color:var(--fg2);backdrop-filter:blur(8px)}
+.btn-glass:hover{background:rgba(255,255,255,0.07);border-color:var(--fg3)}
+
+/* ═══ THE KILL SWITCH — hero animation ═══ */
+.kill-stage{
+  margin:5rem auto 0;max-width:760px;
+  animation:pop 0.6s ease 0.26s both;
+}
+
+.kill-window{
+  background:var(--bg2);border:1px solid var(--fg4);
+  border-radius:14px;overflow:hidden;
+  box-shadow:0 24px 80px rgba(0,0,0,0.5),0 0 1px var(--hot-line);
+}
+.kw-bar{
+  padding:0.55rem 1rem;display:flex;align-items:center;gap:0.4rem;
+  border-bottom:1px solid var(--fg4);background:rgba(255,255,255,0.01);
+}
+.kw-dots{display:flex;gap:5px}
+.kw-dots span{width:9px;height:9px;border-radius:50%}
+.kw-dots span:nth-child(1){background:var(--hot)}
+.kw-dots span:nth-child(2){background:var(--yellow)}
+.kw-dots span:nth-child(3){background:#34d058}
+.kw-title{margin-left:auto;font-family:var(--code);font-size:0.62rem;color:var(--fg3)}
+
+.kw-body{
+  display:grid;grid-template-columns:1fr 1fr;
+  min-height:280px;
+}
+.kw-pane{padding:1.3rem 1.5rem;font-family:var(--code);font-size:0.78rem;line-height:2.2}
+.kw-pane+.kw-pane{border-left:1px solid var(--fg4)}
+
+.kw-label{
+  font-size:0.58rem;font-weight:700;letter-spacing:0.12em;
+  text-transform:uppercase;margin-bottom:0.8rem;
+  display:flex;align-items:center;gap:0.4rem;
+}
+.kw-label.danger{color:var(--hot)}
+.kw-label.safe{color:var(--cyan)}
+.kw-label .kl-dot{width:6px;height:6px;border-radius:50%}
+.kl-red{background:var(--hot);box-shadow:0 0 6px var(--hot-glow)}
+.kl-cyan{background:var(--cyan);box-shadow:0 0 6px var(--cyan-glow)}
+
+.kl-line{display:flex;opacity:0;animation:lineIn 0.2s ease forwards}
+.kl-key{color:var(--fg3)}
+.kl-eq{color:var(--fg4)}
+.kl-bad{color:var(--hot)}
+.kl-good{color:var(--cyan);font-weight:500}
+
+/* center kill button */
+.kw-center-btn{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:5;
+  width:52px;height:52px;border-radius:50%;
+  background:var(--bg2);border:2px solid var(--fg4);
+  display:grid;place-items:center;
+  font-size:0.7rem;color:var(--fg3);
+  cursor:pointer;transition:all 0.3s;
+  box-shadow:0 4px 12px rgba(0,0,0,0.3);
+}
+.kw-center-btn:hover{border-color:var(--hot-line);color:var(--hot)}
+.kw-center-btn.active{
+  border-color:var(--cyan);color:var(--cyan);
+  box-shadow:0 0 20px var(--cyan-glow);
+  animation:pulseRing 0.6s ease;
+}
+
+.kw-status{
+  padding:0.55rem 1.2rem;border-top:1px solid var(--fg4);
+  font-family:var(--code);font-size:0.62rem;color:var(--fg3);
+  display:flex;align-items:center;justify-content:space-between;
+  letter-spacing:0.04em;
+}
+.kw-status button{
+  background:none;border:1px solid var(--fg4);
+  font-family:var(--code);font-size:0.58rem;color:var(--fg3);
+  padding:0.15rem 0.5rem;border-radius:4px;cursor:pointer;transition:all 0.15s;
+}
+.kw-status button:hover{border-color:var(--hot-line);color:var(--hot)}
+
+/* ═══ STATS STRIP ═══ */
+.stats-strip{
+  padding:2.5rem 0;border-top:1px solid var(--fg4);border-bottom:1px solid var(--fg4);
+  background:var(--bg2);
+}
+.ss-inner{display:flex;justify-content:center;gap:clamp(2rem,5vw,5rem);flex-wrap:wrap}
+.ss-item{text-align:center}
+.ss-num{font-family:var(--display);font-size:1.6rem;line-height:1}
+.ss-num.hot-c{color:var(--hot);text-shadow:0 0 10px var(--hot-glow)}
+.ss-num.cyan-c{color:var(--cyan);text-shadow:0 0 10px var(--cyan-glow)}
+.ss-label{font-size:0.65rem;color:var(--fg3);margin-top:0.3rem;letter-spacing:0.04em}
+
+/* ═══ SECTIONS ═══ */
+section{padding:6rem 0;position:relative;z-index:1}
+.sey{font-size:0.65rem;font-weight:700;letter-spacing:0.1em;color:var(--hot);margin-bottom:0.6rem}
+.sh{font-family:var(--display);font-size:clamp(1.6rem,3vw,2.4rem);line-height:1.1;margin-bottom:0.8rem}
+.sh .hot{color:var(--hot)}
+.sh .cyan{color:var(--cyan)}
+.sp{font-size:0.95rem;color:var(--fg2);line-height:1.8;max-width:460px}
+
+/* ═══ PROCESS — PILL TRACK ═══ */
+.process-section{border-top:1px solid var(--fg4);border-bottom:1px solid var(--fg4);background:var(--bg2)}
+
+.pill-track{
+  margin-top:3rem;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;
+}
+.pill{
+  background:var(--bg3);border:1px solid var(--fg4);
+  border-radius:16px;padding:1.8rem;
+  transition:all 0.3s;position:relative;overflow:hidden;
+}
+.pill::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--hot),var(--cyan));
+  opacity:0;transition:opacity 0.3s;
+}
+.pill:hover{border-color:var(--fg3);transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.3)}
+.pill:hover::before{opacity:1}
+
+.pill-num{
+  font-family:var(--display);font-size:2rem;
+  background:linear-gradient(135deg,var(--hot),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  line-height:1;margin-bottom:1rem;
+}
+.pill h3{font-size:0.9rem;font-weight:800;margin-bottom:0.3rem}
+.pill p{font-size:0.85rem;color:var(--fg2);line-height:1.65}
+.pill .pill-cmd{
+  margin-top:0.7rem;font-family:var(--code);font-size:0.68rem;
+  color:var(--cyan-dim);
+}
+
+/* ═══ ARCH — GLASS CARDS ═══ */
+.arch-section{padding:6rem 0}
+
+.arch-cards{
+  margin-top:3rem;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;
+}
+.arch-card{
+  background:rgba(255,255,255,0.02);
+  border:1px solid var(--fg4);
+  border-radius:14px;padding:1.8rem;
+  backdrop-filter:blur(4px);
+  transition:all 0.3s;
+}
+.arch-card:hover{
+  border-color:var(--cyan-line);
+  background:rgba(0,229,255,0.02);
+  box-shadow:0 0 20px var(--cyan-bg);
+}
+
+.ac-tag{
+  font-family:var(--code);font-size:0.58rem;font-weight:700;
+  color:var(--cyan);padding:0.2rem 0.5rem;
+  border:1px solid var(--cyan-line);border-radius:4px;
+  display:inline-block;margin-bottom:0.8rem;
+}
+.arch-card h3{font-size:0.9rem;font-weight:800;margin-bottom:0.15rem}
+.arch-card .ac-port{font-family:var(--code);font-size:0.65rem;color:var(--fg3);margin-bottom:0.6rem}
+.arch-card p{font-size:0.82rem;color:var(--fg2);line-height:1.6}
+
+/* key chain */
+.key-chain{
+  margin-top:1.5rem;
+  display:flex;gap:1rem;
+}
+.kc-cell{
+  flex:1;padding:1.2rem;
+  background:rgba(255,255,255,0.02);border:1px solid var(--fg4);
+  border-radius:10px;
+}
+.kc-name{font-family:var(--code);font-size:0.62rem;font-weight:700;color:var(--hot);margin-bottom:0.2rem}
+.kc-desc{font-size:0.78rem;color:var(--fg2);line-height:1.5}
+.kc-algo{font-family:var(--code);font-size:0.58rem;color:var(--fg3);margin-top:0.2rem}
+
+/* ═══ AI ═══ */
+.ai-section{border-top:1px solid var(--fg4);border-bottom:1px solid var(--fg4);background:var(--bg2)}
+
+.ai-layout{
+  margin-top:3rem;display:grid;grid-template-columns:1fr 1fr;
+  gap:3rem;align-items:center;
+}
+
+.ai-term{
+  background:var(--bg);border:1px solid var(--fg4);
+  border-radius:12px;overflow:hidden;
+}
+.ai-term-bar{
+  padding:0.45rem 0.8rem;display:flex;align-items:center;gap:0.3rem;
+  border-bottom:1px solid var(--fg4);
+}
+.ai-term-bar .atd{width:7px;height:7px;border-radius:50%;background:var(--fg4)}
+.ai-term-bar span{margin-left:auto;font-family:var(--code);font-size:0.58rem;color:var(--fg4)}
+
+.ai-chat{padding:1rem;display:flex;flex-direction:column;gap:0.6rem}
+.ai-msg{max-width:88%;padding:0.65rem 1rem;border-radius:12px;font-size:0.85rem;line-height:1.6}
+.ai-msg.u{align-self:flex-end;background:var(--hot);color:white;border-bottom-right-radius:3px}
+.ai-msg.a{align-self:flex-start;background:var(--bg3);border:1px solid var(--fg4);color:var(--fg2);border-bottom-left-radius:3px}
+.ai-msg code{font-family:var(--code);font-size:0.75rem;background:var(--cyan-bg);color:var(--cyan);padding:0.05rem 0.3rem;border-radius:3px}
+
+.ai-text ul{list-style:none;margin-top:1rem;display:flex;flex-direction:column;gap:0.4rem}
+.ai-text li{font-size:0.9rem;color:var(--fg2);line-height:1.55;padding-left:1.2rem;position:relative}
+.ai-text li::before{content:'';position:absolute;left:0;top:0.55em;width:5px;height:5px;background:var(--hot);border-radius:1px}
+
+/* ═══ FEATURES ═══ */
+.feat-section{padding:6rem 0}
+
+.feat-grid{
+  margin-top:3rem;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;
+}
+.feat-card{
+  background:var(--bg2);border:1px solid var(--fg4);
+  border-radius:14px;padding:1.8rem;
+  transition:all 0.3s;position:relative;
+}
+.feat-card:hover{border-color:var(--fg3);transform:translateY(-2px)}
+
+.feat-card .fc-num{
+  font-family:var(--display);font-size:1.8rem;
+  background:linear-gradient(135deg,var(--hot),var(--yellow));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;line-height:1;margin-bottom:0.8rem;
+}
+.feat-card h3{font-size:0.88rem;font-weight:800;margin-bottom:0.3rem}
+.feat-card p{font-size:0.85rem;color:var(--fg2);line-height:1.65}
+
+/* ═══ INSTALL ═══ */
+.install-section{padding:6rem 0;border-top:1px solid var(--fg4)}
+
+.install-block{
+  margin-top:2.5rem;max-width:620px;
+  background:var(--bg2);border:1px solid var(--fg4);
+  border-radius:12px;overflow:hidden;
+}
+.ib-bar{padding:0.5rem 0.8rem;display:flex;align-items:center;gap:0.3rem;border-bottom:1px solid var(--fg4)}
+.ib-bar .d{width:7px;height:7px;border-radius:50%;background:var(--fg4)}
+.ib-bar span{margin-left:auto;font-family:var(--code);font-size:0.58rem;color:var(--fg4)}
+.ib-body{padding:1.3rem 1.5rem;font-family:var(--code);font-size:0.78rem;line-height:2.2;color:var(--fg3)}
+.ib-body .p{color:var(--fg4)}
+.ib-body .c{color:var(--fg)}
+.ib-body .f{color:var(--hot)}
+.ib-body .g{color:var(--cyan)}
+.ib-body .dm{color:var(--fg4)}
+
+/* ═══ CTA ═══ */
+.cta{padding:8rem 0;text-align:center;position:relative}
+.cta::before{
+  content:'';position:absolute;width:600px;height:600px;left:50%;top:50%;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(circle,var(--hot-bg),transparent 50%);
+  pointer-events:none;
+}
+.cta h2{font-family:var(--display);font-size:clamp(2rem,5vw,3.5rem);line-height:1.05;margin-bottom:1rem;position:relative}
+.cta h2 .hot{color:var(--hot)}
+.cta>p{color:var(--fg2);max-width:400px;margin:0 auto 2.5rem;font-size:1.05rem;line-height:1.8;position:relative}
+.cta-btns{display:flex;justify-content:center;gap:0.7rem;flex-wrap:wrap;position:relative}
+.cta-meta{margin-top:3rem;display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;position:relative}
+.cta-meta span{font-size:0.68rem;color:var(--fg3);letter-spacing:0.04em}
+
+footer{border-top:1px solid var(--fg4);padding:1.5rem 0}
+.ft{display:flex;justify-content:space-between;align-items:center;font-size:0.7rem;color:var(--fg4)}
+.ft a{color:var(--fg3);transition:color 0.15s}
+.ft a:hover{color:var(--hot)}
+
+/* ═══ ANIM ═══ */
+@keyframes pop{from{opacity:0;transform:translateY(16px) scale(0.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes lineIn{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:translateX(0)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+@keyframes pulseRing{0%{box-shadow:0 0 0 0 var(--cyan-glow)}100%{box-shadow:0 0 0 16px transparent}}
+
+.rv{opacity:0;transform:translateY(16px);transition:opacity 0.5s,transform 0.5s}
+.rv.vis{opacity:1;transform:translateY(0)}
+
+@media(max-width:900px){
+  .kw-body{grid-template-columns:1fr}
+  .kw-pane+.kw-pane{border-left:none;border-top:1px solid var(--fg4)}
+  .kw-center-btn{display:none}
+  .pill-track{grid-template-columns:1fr 1fr}
+  .arch-cards{grid-template-columns:1fr 1fr}
+  .ai-layout{grid-template-columns:1fr}
+  .feat-grid{grid-template-columns:1fr}
+  .key-chain{flex-direction:column}
+  .nk a:not(.nc){display:none}
+}
+</style>
+</head>
+<body>
+
+<nav><div class="ni">
+  <a href="#" class="logo"><div class="logo-icon"><span>VK</span></div><span class="logo-text">VeilKey</span></a>
+  <div class="nk">
+    <a href="#process">Process</a>
+    <a href="#arch">Architecture</a>
+    <a href="#features">Features</a>
+    <a href="https://github.com/veilkey/veilkey-selfhosted" class="nc">GitHub →</a>
+  </div>
+</div></nav>
+
+<section class="hero">
+  <div class="hero-blob-1"></div>
+  <div class="hero-blob-2"></div>
+  <div class="w">
+    <div class="hero-center">
+      <div class="hero-chip"><span class="hc-dot"></span>Open Source · AGPL-3.0</div>
+      <h1>Kill the<br><span class="hot">plaintext.</span></h1>
+      <p class="hero-p">
+        VeilKey intercepts every secret at the point of entry, destroys the plaintext,
+        and leaves behind an encrypted reference. Your AI, your CI, your git — they
+        see <span style="color:var(--cyan);font-family:var(--code);font-size:0.95em">VK:LOCAL:a1b2</span>, never the real key.
+      </p>
+      <div class="hero-btns">
+        <a href="https://github.com/veilkey/veilkey-selfhosted" class="btn btn-hot">Get Started →</a>
+        <a href="https://github.com/veilkey/veilkey-selfhosted/blob/main/docs/architecture.md" class="btn btn-glass">Read Docs</a>
+      </div>
+
+      <!-- THE KILL SWITCH -->
+      <div class="kill-stage">
+        <div class="kill-window" id="killWindow" style="position:relative">
+          <div class="kw-bar">
+            <div class="kw-dots"><span></span><span></span><span></span></div>
+            <span class="kw-title">veilkey filter .env</span>
+          </div>
+          <div class="kw-body">
+            <div class="kw-pane" id="kwLeft">
+              <div class="kw-label danger"><span class="kl-dot kl-red"></span>PLAINTEXT</div>
+            </div>
+            <div class="kw-pane" id="kwRight">
+              <div class="kw-label safe"><span class="kl-dot kl-cyan"></span>SEALED</div>
+            </div>
+          </div>
+          <div class="kw-center-btn" id="killBtn">▶</div>
+          <div class="kw-status">
+            <span id="kwStatus">ready</span>
+            <button id="kwReplay">↻ replay</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="stats-strip"><div class="w"><div class="ss-inner">
+  <div class="ss-item"><div class="ss-num hot-c">222+</div><div class="ss-label">Patterns</div></div>
+  <div class="ss-item"><div class="ss-num cyan-c">AES-256</div><div class="ss-label">Encryption</div></div>
+  <div class="ss-item"><div class="ss-num hot-c">0</div><div class="ss-label">Plaintext at Rest</div></div>
+  <div class="ss-item"><div class="ss-num cyan-c">3-Layer</div><div class="ss-label">Key Hierarchy</div></div>
+  <div class="ss-item"><div class="ss-num hot-c">∞</div><div class="ss-label">Rotation</div></div>
+</div></div></div>
+
+<!-- ═══ PROCESS ═══ -->
+<section id="process" class="process-section">
+  <div class="w">
+    <div style="text-align:center" class="rv"><div class="sey">Protocol</div><h2 class="sh">Four phases. <span class="hot">Zero</span> exposure.</h2></div>
+    <div class="pill-track rv">
+      <div class="pill"><div class="pill-num">01</div><h3>Scan</h3><p>222+ patterns. AWS, GitHub, Stripe, private keys, JWTs. Fully offline.</p><div class="pill-cmd">vk scan .env</div></div>
+      <div class="pill"><div class="pill-num">02</div><h3>Filter</h3><p>Kill plaintext. Replace with AES-256-GCM encrypted VK: references.</p><div class="pill-cmd">vk filter .env</div></div>
+      <div class="pill"><div class="pill-num">03</div><h3>Wrap</h3><p>Execute with auto-masking. Secrets can't leak to logs or terminals.</p><div class="pill-cmd">vk wrap ./deploy</div></div>
+      <div class="pill"><div class="pill-num">04</div><h3>Exec</h3><p>Resolve at launch. Decrypted in memory — never disk, never env vars.</p><div class="pill-cmd">vk exec ./app</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ ARCHITECTURE ═══ -->
+<section id="arch" class="arch-section">
+  <div class="w">
+    <div class="rv"><div class="sey">Architecture</div><h2 class="sh">Hub-and-spoke. Nodes <span class="cyan">isolated.</span></h2><p class="sp">Compromise a node — the rest stay sealed. Every node has its own key.</p></div>
+    <div class="arch-cards rv">
+      <div class="arch-card"><div class="ac-tag">KC</div><h3>KeyCenter</h3><div class="ac-port">:10181</div><p>Control plane. Identity, DEK lifecycle, rotation policy.</p></div>
+      <div class="arch-card"><div class="ac-tag">LV</div><h3>LocalVault</h3><div class="ac-port">:10180</div><p>Node agent. Ciphertext only. Heartbeats every 5 minutes.</p></div>
+      <div class="arch-card"><div class="ac-tag">PX</div><h3>Proxy</h3><div class="ac-port">:18080</div><p>Egress enforcement. Blocks plaintext in outbound HTTP.</p></div>
+      <div class="arch-card"><div class="ac-tag">CLI</div><h3>CLI</h3><div class="ac-port">&nbsp;</div><p>scan, filter, wrap, exec, resolve. PTY secret masking.</p></div>
+    </div>
+    <div class="key-chain rv">
+      <div class="kc-cell"><div class="kc-name">KEK</div><div class="kc-desc">From password. Never stored.</div><div class="kc-algo">scrypt · N=32768</div></div>
+      <div class="kc-cell"><div class="kc-name">DEK</div><div class="kc-desc">256-bit random. Encrypted with KEK.</div><div class="kc-algo">AES-256-GCM</div></div>
+      <div class="kc-cell"><div class="kc-name">CIPHERTEXT</div><div class="kc-desc">Per-secret nonce. VK:{SCOPE}:{REF}</div><div class="kc-algo">unique nonce</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ AI ═══ -->
+<section class="ai-section">
+  <div class="w">
+    <div class="ai-layout rv">
+      <div class="ai-term">
+        <div class="ai-term-bar"><span class="atd"></span><span class="atd"></span><span class="atd"></span><span>AI Agent</span></div>
+        <div class="ai-chat">
+          <div class="ai-msg u">Deploy this. Config in .env.production</div>
+          <div class="ai-msg a">Found <code>VK:LOCAL:db01</code> and <code>VK:LOCAL:st4c</code>. Running <code>vk exec deploy.sh</code>. Secrets resolve at runtime.</div>
+          <div class="ai-msg u">Did it work?</div>
+          <div class="ai-msg a">✓ 2 refs resolved. App running. I only handled references — never saw real credentials.</div>
+        </div>
+      </div>
+      <div class="ai-text">
+        <div class="sey">AI Safety</div>
+        <h2 class="sh">AI sees <span class="cyan">references.</span><br>Never real keys.</h2>
+        <p class="sp">Your agent deploys, tests, codes — with zero secret exposure.</p>
+        <ul>
+          <li>AI reads VK:LOCAL:xxxx — works perfectly</li>
+          <li>Real secret injected at exec, never on disk</li>
+          <li>Zero exposure in chat, logs, or git</li>
+          <li>No workflow changes required</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FEATURES ═══ -->
+<section id="features" class="feat-section">
+  <div class="w">
+    <div style="text-align:center" class="rv"><div class="sey">Capabilities</div><h2 class="sh">Built for the <span class="hot">post-AI</span> era.</h2></div>
+    <div class="feat-grid rv">
+      <div class="feat-card"><div class="fc-num">01</div><h3>Zero Plaintext</h3><p>Encrypted at entry. Configs, git, logs — only VK: references survive.</p></div>
+      <div class="feat-card"><div class="fc-num">02</div><h3>Seamless Rotation</h3><p>KeyCenter schedules. Each node re-encrypts independently. Zero downtime.</p></div>
+      <div class="feat-card"><div class="fc-num">03</div><h3>Node Isolation</h3><p>Every node has its own DEK. Breach one — the rest stay sealed.</p></div>
+      <div class="feat-card"><div class="fc-num">04</div><h3>AI-Safe Refs</h3><p>AI agents see VK: tokens. Deploy, test, code — zero credential exposure.</p></div>
+      <div class="feat-card"><div class="fc-num">05</div><h3>Egress Guard</h3><p>Proxy blocks plaintext in outbound HTTP. Shell hooks block curl/wget.</p></div>
+      <div class="feat-card"><div class="fc-num">06</div><h3>Self-Hosted</h3><p>SQLite, no cloud deps. macOS or Linux. AGPL-3.0 licensed.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ INSTALL ═══ -->
+<section class="install-section">
+  <div class="w rv">
+    <div class="sey">Quick Start</div>
+    <h2 class="sh">Operational in <span class="cyan">five</span> minutes.</h2>
+    <div class="install-block">
+      <div class="ib-bar"><span class="d"></span><span class="d"></span><span class="d"></span><span>macOS</span></div>
+      <div class="ib-body">
+<span class="p">$</span> <span class="c">git clone</span> <span class="f">https://github.com/veilkey/veilkey-selfhosted.git</span>
+<span class="p">$</span> <span class="c">cd</span> veilkey-selfhosted
+<span class="p">$</span> <span class="c">./installer/scripts/install-mac.sh</span> <span class="f">install</span>
+<span class="dm">  [OK] Go · 5 binaries · KeyCenter · LocalVault</span>
+<span class="p">$</span> <span class="c">./installer/scripts/install-mac.sh</span> <span class="f">start</span>
+<span class="g">  ✓ KeyCenter :10181 · LocalVault :10180</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ═══ -->
+<section class="cta">
+  <div class="w rv">
+    <h2>Plaintext is<br><span class="hot">already dead.</span></h2>
+    <p>One protocol. Every secret encrypted before it touches disk.</p>
+    <div class="cta-btns">
+      <a href="https://github.com/veilkey/veilkey-selfhosted" class="btn btn-hot">GitHub →</a>
+      <a href="https://github.com/veilkey/veilkey-selfhosted/blob/main/docs/installation.md" class="btn btn-glass">Install Guide</a>
+    </div>
+    <div class="cta-meta"><span>AGPL-3.0</span><span>Go + SQLite</span><span>AES-256-GCM</span><span>macOS + Linux</span></div>
+  </div>
+</section>
+
+<footer><div class="w"><div class="ft"><span>VeilKey</span><a href="https://github.com/veilkey/veilkey-selfhosted">github.com/veilkey</a></div></div></footer>
+
+<script>
+// ═══ KILL SWITCH ANIMATION ═══
+const secrets=[
+  {k:'DATABASE_URL',d:'postgres://admin:s3cret@db:5432',s:'VK:LOCAL:db01a2b3'},
+  {k:'AWS_SECRET',d:'wJalrXUtnFEMI/K7MDENG',s:'VK:LOCAL:aws4c5d6'},
+  {k:'GITHUB_TOKEN',d:'ghp_abc123def456ghi789',s:'VK:LOCAL:gh7e8f9a'},
+  {k:'STRIPE_SK',d:'sk_live_51HG8axYzKlMnOp',s:'VK:LOCAL:st0b1c2d'},
+  {k:'JWT_SECRET',d:'super-secret-jwt-2024!',s:'VK:LOCAL:jw3e4f5a'},
+  {k:'REDIS_URL',d:'redis://:p4ssw0rd@cache',s:'VK:LOCAL:rd6g7h8i'},
+];
+const sl=ms=>new Promise(r=>setTimeout(r,ms));
+
+function addLine(container,html,delay){
+  const d=document.createElement('div');d.className='kl-line';
+  d.style.animationDelay=(delay||0)+'ms';
+  d.innerHTML=html;container.appendChild(d);
+}
+
+async function playKill(){
+  const left=document.getElementById('kwLeft');
+  const right=document.getElementById('kwRight');
+  const btn=document.getElementById('killBtn');
+  const status=document.getElementById('kwStatus');
+
+  left.innerHTML='<div class="kw-label danger"><span class="kl-dot kl-red"></span>PLAINTEXT</div>';
+  right.innerHTML='<div class="kw-label safe"><span class="kl-dot kl-cyan"></span>SEALED</div>';
+  btn.textContent='▶';btn.classList.remove('active');
+  status.textContent='ready';
+
+  await sl(500);
+
+  // fill left
+  for(let i=0;i<secrets.length;i++){
+    addLine(left,`<span class="kl-key">${secrets[i].k}</span><span class="kl-eq">=</span><span class="kl-bad">${secrets[i].d}</span>`,i*40);
+    await sl(100);
+  }
+
+  status.textContent=`${secrets.length} targets identified`;
+  await sl(1000);
+
+  // KILL
+  btn.textContent='⚡';btn.classList.add('active');
+  status.textContent='killing plaintext...';
+
+  for(let i=0;i<secrets.length;i++){
+    // strikethrough on left
+    const leftLines=left.querySelectorAll('.kl-line');
+    if(leftLines[i]){
+      const bad=leftLines[i].querySelector('.kl-bad');
+      if(bad){bad.style.textDecoration='line-through';bad.style.opacity='0.3';bad.style.color='var(--fg4)'}
+    }
+
+    // add to right
+    addLine(right,`<span class="kl-key">${secrets[i].k}</span><span class="kl-eq">=</span><span class="kl-good">${secrets[i].s}</span>`);
+    await sl(250);
+  }
+
+  btn.textContent='✓';
+  status.textContent=`✓ ${secrets.length} killed and sealed`;
+
+  await sl(5000);
+  playKill();
+}
+
+document.getElementById('kwReplay').addEventListener('click',playKill);
+document.getElementById('killBtn').addEventListener('click',playKill);
+setTimeout(playKill,800);
+
+// ═══ REVEAL ═══
+const obs=new IntersectionObserver(es=>{
+  es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis')});
+},{threshold:0.06,rootMargin:'0px 0px -20px 0px'});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+</script>
+
+</body>
+</html>

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prelik — 먼저 만드는 사람들</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&family=Noto+Serif+KR:wght@400;500;600;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--fg:#111;--fg2:#3a3a3a;--fg3:#777;--fg4:#aaa;--fg5:#d0d0d0;--fg6:#e8e8e8;--bg:#fcfcfa;--white:#fff;--off:#f3f2ee;--ink:#0a0a0a;--sans:'Noto Sans KR',system-ui,sans-serif;--serif:'Noto Serif KR',Georgia,serif;--code:'IBM Plex Mono',monospace}
+
+html{scroll-behavior:smooth;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;-webkit-font-smoothing:antialiased}
+body{overflow-x:hidden}
+::selection{background:var(--ink);color:white}
+a{color:inherit;text-decoration:none}
+.w{max-width:1100px;margin:0 auto;padding:0 clamp(1.5rem,4vw,3.5rem)}
+
+/* ═══ NAV ═══ */
+nav{position:fixed;top:0;left:0;right:0;z-index:300;background:rgba(252,252,250,0.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid transparent;transition:border-color 0.3s}
+nav.s{border-bottom-color:var(--fg6)}
+.ni{max-width:1100px;margin:0 auto;padding:0 clamp(1.5rem,4vw,3.5rem);display:flex;align-items:center;justify-content:space-between;height:56px}
+.logo{font-family:var(--serif);font-weight:900;font-size:1.1rem}
+.nk{display:flex;gap:0;align-items:center}
+.nk a{font-size:0.85rem;font-weight:500;color:var(--fg3);padding:0.4rem 0.9rem;transition:color 0.15s}
+.nk a:hover{color:var(--fg)}
+
+/* ═══ HERO ═══ */
+.hero{padding:14rem 0 10rem;position:relative}
+.hero-inner{position:relative;z-index:1}
+
+.hero-ko{
+  font-family:var(--serif);font-size:clamp(2.2rem,4.5vw,3.4rem);
+  font-weight:700;line-height:1.55;letter-spacing:-0.02em;
+  margin-bottom:3rem;word-break:keep-all;max-width:620px;
+}
+.hero-ko .thin{font-weight:400;color:var(--fg3)}
+
+.hero-meta{
+  display:flex;gap:3rem;align-items:flex-start;
+  padding-top:2rem;border-top:1px solid var(--fg6);
+}
+.hero-meta-item{max-width:240px}
+.hero-meta-label{font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--fg4);margin-bottom:0.4rem}
+.hero-meta-value{font-size:0.9rem;color:var(--fg2);line-height:1.7}
+
+/* floating vertical text */
+.hero-vert{
+  position:absolute;right:clamp(1.5rem,4vw,3.5rem);top:14rem;
+  writing-mode:vertical-rl;
+  font-family:var(--code);font-size:0.6rem;color:var(--fg5);
+  letter-spacing:0.2em;
+}
+
+/* ═══ PHILOSOPHY — full-width strip ═══ */
+.phil-strip{
+  background:var(--ink);color:white;
+  padding:5rem 0;
+  overflow:hidden;
+}
+.phil-marquee{
+  display:flex;gap:4rem;
+  animation:marquee 30s linear infinite;
+  width:max-content;
+}
+.phil-word{
+  font-family:var(--serif);font-size:clamp(2rem,4vw,3.5rem);
+  font-weight:400;white-space:nowrap;
+  opacity:0.15;
+}
+.phil-word em{font-style:italic;opacity:1;color:white}
+
+/* ═══ SECTION SYSTEM ═══ */
+.sect{padding:6rem 0}
+.sect-off{background:var(--off)}
+.sect-dark{background:var(--ink);color:white}
+
+.sect-head{
+  display:grid;grid-template-columns:200px 1fr;gap:2rem;
+  margin-bottom:3rem;align-items:start;
+}
+.sect-head-label{
+  font-size:0.62rem;font-weight:700;letter-spacing:0.15em;
+  text-transform:uppercase;color:var(--fg4);
+  padding-top:0.3rem;
+  position:sticky;top:80px;
+}
+.sect-dark .sect-head-label{color:rgba(255,255,255,0.2)}
+.sect-head-content h2{
+  font-family:var(--serif);font-size:1.6rem;font-weight:600;
+  line-height:1.5;margin-bottom:0.5rem;word-break:keep-all;
+}
+.sect-head-content p{font-size:0.92rem;color:var(--fg3);line-height:1.8;max-width:500px}
+.sect-dark .sect-head-content p{color:rgba(255,255,255,0.4)}
+
+/* ═══ ABOUT — 3 column statement ═══ */
+.about-statements{
+  display:grid;grid-template-columns:200px 1fr;gap:2rem;
+}
+.about-col{
+  display:grid;grid-template-columns:1fr 1fr;gap:3rem;
+}
+.about-item h3{font-size:1rem;font-weight:700;margin-bottom:0.4rem}
+.about-item p{font-size:0.88rem;color:var(--fg2);line-height:1.8}
+
+/* ═══ BUSINESS — magazine list ═══ */
+.biz-layout{display:grid;grid-template-columns:200px 1fr;gap:2rem}
+
+.biz-list{}
+.biz-row{
+  display:grid;grid-template-columns:32px 1fr 80px;gap:1rem;
+  align-items:baseline;
+  padding:1.8rem 0;border-bottom:1px solid var(--fg6);
+  cursor:pointer;transition:all 0.2s;
+}
+.biz-row:first-child{border-top:1px solid var(--fg6)}
+.biz-row:hover{padding-left:0.8rem;background:rgba(0,0,0,0.008);margin:0 -0.8rem;padding-right:0.8rem;border-radius:4px}
+
+.br-num{font-family:var(--code);font-size:0.65rem;color:var(--fg5);padding-top:0.15rem}
+.br-info{}
+.br-name{font-size:1.05rem;font-weight:700;margin-bottom:0.15rem;display:flex;align-items:center;gap:0.5rem}
+.br-tag{font-size:0.55rem;font-weight:600;letter-spacing:0.04em;padding:0.1rem 0.4rem;border-radius:3px;background:var(--off);color:var(--fg3);text-transform:uppercase}
+.br-desc{font-size:0.82rem;color:var(--fg3);line-height:1.5}
+.br-arrow{font-size:0.78rem;color:var(--fg5);text-align:right;transition:all 0.2s}
+.biz-row:hover .br-arrow{color:var(--fg);transform:translateX(3px)}
+
+/* ═══ FEATURED — horizontal scroll ═══ */
+.featured-section{padding:6rem 0;background:var(--ink);color:white;overflow:hidden}
+
+.feat-scroll{
+  display:flex;gap:1.5rem;
+  padding:0 clamp(1.5rem,4vw,3.5rem);
+  overflow-x:auto;scroll-snap-type:x mandatory;
+  -ms-overflow-style:none;scrollbar-width:none;
+}
+.feat-scroll::-webkit-scrollbar{display:none}
+
+.feat-card{
+  flex:0 0 380px;scroll-snap-align:start;
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:4px;padding:2.5rem;min-height:300px;
+  display:flex;flex-direction:column;
+  transition:border-color 0.3s,background 0.3s;
+}
+.feat-card:hover{border-color:rgba(255,255,255,0.15);background:rgba(255,255,255,0.02)}
+
+.fc-num{font-family:var(--code);font-size:0.6rem;color:rgba(255,255,255,0.15);margin-bottom:auto}
+.fc-name{font-size:1.2rem;font-weight:700;margin-bottom:0.2rem}
+.fc-tag{font-size:0.82rem;color:rgba(255,255,255,0.35);margin-bottom:1rem}
+.fc-desc{font-size:0.88rem;color:rgba(255,255,255,0.45);line-height:1.7;margin-bottom:1.2rem}
+.fc-link{font-size:0.78rem;font-weight:600;color:rgba(255,255,255,0.3);transition:color 0.2s;display:flex;align-items:center;gap:0.3rem}
+.feat-card:hover .fc-link{color:rgba(255,255,255,0.7)}
+
+.feat-hint{
+  text-align:center;margin-top:1.5rem;
+  font-size:0.7rem;color:rgba(255,255,255,0.15);
+  letter-spacing:0.06em;
+}
+
+/* ═══ TECH — asymmetric ═══ */
+.tech-layout{display:grid;grid-template-columns:200px 1fr;gap:2rem}
+
+.tech-content{display:grid;grid-template-columns:1fr 1fr;gap:3rem}
+.tech-col{}
+.tech-col h3{font-family:var(--serif);font-size:1.3rem;font-weight:600;line-height:1.5;margin-bottom:1.2rem}
+.tech-col p{font-size:0.88rem;color:rgba(255,255,255,0.4);line-height:1.8;margin-bottom:1.5rem}
+
+.tech-stats{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2rem}
+.ts{padding:1rem 0;border-top:1px solid rgba(255,255,255,0.06)}
+.ts-num{font-size:1.8rem;font-weight:900;line-height:1}
+.ts-label{font-size:0.7rem;color:rgba(255,255,255,0.25);margin-top:0.2rem}
+
+.tech-chips{display:flex;flex-wrap:wrap;gap:0.35rem}
+.chip{
+  font-family:var(--code);font-size:0.68rem;
+  padding:0.3rem 0.7rem;
+  border:1px solid rgba(255,255,255,0.06);border-radius:3px;
+  color:rgba(255,255,255,0.3);transition:all 0.2s;cursor:default;
+}
+.chip:hover{border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.55)}
+
+/* ═══ NEWS — date-first list ═══ */
+.news-layout{display:grid;grid-template-columns:200px 1fr;gap:2rem}
+
+.news-row{
+  display:grid;grid-template-columns:90px 1fr 60px;gap:1rem;
+  align-items:baseline;
+  padding:1.3rem 0;border-bottom:1px solid var(--fg6);
+  cursor:pointer;transition:padding-left 0.2s;
+}
+.news-row:first-child{border-top:1px solid var(--fg6)}
+.news-row:hover{padding-left:0.5rem}
+
+.nr-date{font-family:var(--code);font-size:0.7rem;color:var(--fg4)}
+.nr-title{font-size:0.92rem;font-weight:600;line-height:1.4}
+.nr-cat{font-size:0.62rem;color:var(--fg4);text-align:right;letter-spacing:0.04em}
+
+/* ═══ CONTACT ═══ */
+.contact-section{padding:8rem 0;border-top:1px solid var(--fg6)}
+
+.contact-inner{
+  display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start;
+}
+
+.contact-left h2{
+  font-family:var(--serif);font-size:clamp(1.6rem,3vw,2.2rem);
+  font-weight:600;line-height:1.55;margin-bottom:1rem;word-break:keep-all;
+}
+.contact-left>p{font-size:0.92rem;color:var(--fg3);line-height:1.8;margin-bottom:2rem;max-width:360px}
+
+.contact-channels{display:flex;flex-direction:column;gap:0.8rem}
+.cc{
+  display:flex;align-items:center;gap:1rem;
+  padding:1rem 1.2rem;border:1px solid var(--fg6);
+  border-radius:4px;transition:border-color 0.2s;
+}
+.cc:hover{border-color:var(--fg5)}
+.cc-label{font-size:0.65rem;color:var(--fg4);letter-spacing:0.06em}
+.cc-value{font-size:0.92rem;font-weight:600}
+
+.contact-right{
+  padding:2.5rem;border:1px solid var(--fg6);border-radius:4px;
+  background:var(--white);
+}
+.contact-right h3{font-size:1rem;font-weight:700;margin-bottom:1.5rem}
+.cf-field{margin-bottom:1rem}
+.cf-field label{display:block;font-size:0.75rem;font-weight:600;color:var(--fg2);margin-bottom:0.3rem}
+.cf-field input,.cf-field textarea{
+  width:100%;padding:0.65rem 0.8rem;
+  background:var(--off);border:1px solid var(--fg6);border-radius:3px;
+  font-family:var(--sans);font-size:0.88rem;color:var(--fg);
+  outline:none;transition:border-color 0.15s;resize:vertical;
+}
+.cf-field input:focus,.cf-field textarea:focus{border-color:var(--fg4)}
+.cf-field textarea{min-height:90px}
+.cf-submit{
+  width:100%;padding:0.75rem;
+  background:var(--ink);color:white;border:none;border-radius:3px;
+  font-family:var(--sans);font-size:0.88rem;font-weight:700;
+  cursor:pointer;transition:background 0.15s;
+}
+.cf-submit:hover{background:var(--fg2)}
+
+/* ═══ FOOTER ═══ */
+footer{border-top:1px solid var(--fg6);padding:2.5rem 0}
+.ft{display:grid;grid-template-columns:1fr auto;gap:2rem;align-items:start}
+.ft-left{display:flex;flex-direction:column;gap:0.3rem}
+.ft-name{font-family:var(--serif);font-weight:900;font-size:1rem}
+.ft-desc{font-size:0.78rem;color:var(--fg4);line-height:1.5;max-width:280px}
+.ft-right{display:flex;gap:2.5rem}
+.ft-col a{display:block;font-size:0.82rem;color:var(--fg3);padding:0.15rem 0;transition:color 0.15s}
+.ft-col a:hover{color:var(--fg)}
+.ft-bottom{margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--fg6);font-size:0.72rem;color:var(--fg4);display:flex;justify-content:space-between}
+
+/* ═══ ANIM ═══ */
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+.rv{opacity:0;transform:translateY(14px);transition:opacity 0.6s ease,transform 0.6s ease}
+.rv.vis{opacity:1;transform:translateY(0)}
+
+@media(max-width:900px){
+  .sect-head{grid-template-columns:1fr}
+  .about-statements{grid-template-columns:1fr}
+  .about-col{grid-template-columns:1fr}
+  .biz-layout{grid-template-columns:1fr}
+  .tech-layout{grid-template-columns:1fr}
+  .tech-content{grid-template-columns:1fr}
+  .news-layout{grid-template-columns:1fr}
+  .contact-inner{grid-template-columns:1fr}
+  .hero-meta{flex-direction:column;gap:1.5rem}
+  .hero-vert{display:none}
+  .nk a:not(:last-child){display:none}
+  .feat-card{flex:0 0 300px}
+  .ft-right{gap:1.5rem}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav"><div class="ni">
+  <a href="#" class="logo">Prelik</a>
+  <div class="nk">
+    <a href="#about">소개</a>
+    <a href="#biz">사업</a>
+    <a href="#tech">기술</a>
+    <a href="#news">소식</a>
+    <a href="#contact">문의</a>
+  </div>
+</div></nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="w">
+    <div class="hero-inner rv">
+      <h1 class="hero-ko">
+        필요해지기 전에 만들고,<br>
+        <span class="thin">레거시가 되기 전에 바꿉니다.</span>
+      </h1>
+      <div class="hero-meta">
+        <div class="hero-meta-item">
+          <div class="hero-meta-label">What we do</div>
+          <div class="hero-meta-value">AI 기반 서비스 설계, 개발, 운영. 보안부터 자동화까지.</div>
+        </div>
+        <div class="hero-meta-item">
+          <div class="hero-meta-label">How we work</div>
+          <div class="hero-meta-value">셀프호스팅 기본. 오픈소스 공개. 직접 만들고 직접 운영합니다.</div>
+        </div>
+        <div class="hero-meta-item">
+          <div class="hero-meta-label">Name origin</div>
+          <div class="hero-meta-value">Pre(이전의) × Relik(유물). 레거시가 되기 전에 만든다는 뜻.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-vert">PRE × RELIK — AI SERVICES — 2026</div>
+</section>
+
+<!-- ═══ PHILOSOPHY MARQUEE ═══ -->
+<div class="phil-strip">
+  <div class="phil-marquee" id="philMarquee"></div>
+</div>
+
+<!-- ═══ ABOUT ═══ -->
+<section id="about" class="sect sect-off">
+  <div class="w">
+    <div class="about-statements rv">
+      <div class="sect-head-label">소개<br>ABOUT</div>
+      <div class="about-col">
+        <div class="about-item">
+          <h3>직접 만듭니다</h3>
+          <p>Prelik은 AI 서비스를 설계하고, 코드를 쓰고, 서버를 운영하는 기술 기업입니다. 외주나 조립이 아닌, 처음부터 끝까지 직접 엔지니어링합니다.</p>
+        </div>
+        <div class="about-item">
+          <h3>공개합니다</h3>
+          <p>핵심 제품을 AGPL-3.0 오픈소스로 공개합니다. 좋은 도구는 누구나 사용할 수 있어야 하고, 커뮤니티와 함께 발전해야 한다고 믿습니다.</p>
+        </div>
+        <div class="about-item">
+          <h3>소유권을 돌려드립니다</h3>
+          <p>클라우드에 종속되지 않는 셀프호스팅을 기본으로 합니다. 고객의 데이터와 서비스는 고객의 인프라 위에 있어야 합니다.</p>
+        </div>
+        <div class="about-item">
+          <h3>보안이 기본입니다</h3>
+          <p>평문 비밀은 존재하지 않습니다. AES-256-GCM 암호화, 파일 기반 비밀번호, 키 계층 격리. AI 에이전트도 실제 키를 볼 수 없습니다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ BUSINESS ═══ -->
+<section id="biz" class="sect">
+  <div class="w">
+    <div class="biz-layout rv">
+      <div class="sect-head-label">사업영역<br>BUSINESS</div>
+      <div class="biz-list" id="bizList"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FEATURED ═══ -->
+<section class="featured-section">
+  <div class="w" style="padding:0">
+    <div style="padding:0 clamp(1.5rem,4vw,3.5rem);margin-bottom:2rem" class="rv">
+      <div class="sect-head-label" style="color:rgba(255,255,255,0.15);position:static">주요 프로젝트 FEATURED</div>
+    </div>
+  </div>
+  <div class="feat-scroll rv" id="featScroll"></div>
+  <div class="feat-hint">← 스크롤하여 더 보기 →</div>
+</section>
+
+<!-- ═══ TECH ═══ -->
+<section id="tech" class="sect sect-dark">
+  <div class="w">
+    <div class="tech-layout rv">
+      <div class="sect-head-label">기술역량<br>TECH</div>
+      <div class="tech-content">
+        <div class="tech-col">
+          <h3>직접 만들고,<br>직접 운영합니다.</h3>
+          <p>Go, Python, TypeScript 풀스택. Proxmox 기반 자체 인프라에서 30개 이상의 서비스를 24시간 운영하고 있습니다.</p>
+          <div class="tech-stats">
+            <div class="ts"><div class="ts-num">8</div><div class="ts-label">자체 제품</div></div>
+            <div class="ts"><div class="ts-num">30+</div><div class="ts-label">운영 서비스</div></div>
+            <div class="ts"><div class="ts-num">222+</div><div class="ts-label">보안 패턴</div></div>
+            <div class="ts"><div class="ts-num">24/7</div><div class="ts-label">셀프호스팅</div></div>
+          </div>
+        </div>
+        <div class="tech-col">
+          <h3>기술 스택</h3>
+          <p>검증된 도구만 사용합니다. 유행이 아닌 신뢰로 선택합니다.</p>
+          <div class="tech-chips">
+            <span class="chip">Go</span><span class="chip">Python</span><span class="chip">TypeScript</span>
+            <span class="chip">Laravel</span><span class="chip">React</span><span class="chip">Vue</span>
+            <span class="chip">Proxmox</span><span class="chip">Docker</span><span class="chip">Temporal</span>
+            <span class="chip">Claude API</span><span class="chip">Ollama</span><span class="chip">PostgreSQL</span>
+            <span class="chip">SQLite</span><span class="chip">Grafana</span><span class="chip">GitLab CI</span>
+            <span class="chip">GitHub Actions</span><span class="chip">Playwright</span><span class="chip">Elasticsearch</span>
+            <span class="chip">Kestra</span><span class="chip">Mattermost</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ NEWS ═══ -->
+<section id="news" class="sect">
+  <div class="w">
+    <div class="news-layout rv">
+      <div class="sect-head-label">소식<br>NEWS</div>
+      <div>
+        <div class="news-row"><span class="nr-date">2026.03.17</span><span class="nr-title">VeilKey 오픈소스 공개 — AGPL-3.0</span><span class="nr-cat">Product</span></div>
+        <div class="news-row"><span class="nr-date">2026.03.15</span><span class="nr-title">SparkAgent 퍼블릭 베타 시작</span><span class="nr-cat">Product</span></div>
+        <div class="news-row"><span class="nr-date">2026.03.10</span><span class="nr-title">Prelik 공식 런칭</span><span class="nr-cat">Company</span></div>
+        <div class="news-row"><span class="nr-date">2026.03.05</span><span class="nr-title">CoreStack v2 — 30개 서비스 통합 관리</span><span class="nr-cat">Product</span></div>
+        <div class="news-row"><span class="nr-date">2026.02.28</span><span class="nr-title">FlowForge 클로즈드 베타 모집</span><span class="nr-cat">Product</span></div>
+        <div class="news-row"><span class="nr-date">2026.02.20</span><span class="nr-title">LensView GA 릴리스 — AI 관측 플랫폼</span><span class="nr-cat">Product</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CONTACT ═══ -->
+<section id="contact" class="contact-section">
+  <div class="w">
+    <div class="contact-inner rv">
+      <div class="contact-left">
+        <h2>함께 만들어갈<br>프로젝트가 있으신가요.</h2>
+        <p>AI 서비스, 보안 솔루션, 인프라 구축 — 어떤 단계든 이야기를 나눠보겠습니다.</p>
+        <div class="contact-channels">
+          <div class="cc"><div><div class="cc-label">Email</div><div class="cc-value">hello@prelik.com</div></div></div>
+          <div class="cc"><div><div class="cc-label">GitHub</div><div class="cc-value">github.com/prelik</div></div></div>
+        </div>
+      </div>
+      <div class="contact-right">
+        <h3>문의하기</h3>
+        <div class="cf-field"><label>이름</label><input type="text" placeholder="홍길동"></div>
+        <div class="cf-field"><label>이메일</label><input type="email" placeholder="you@company.com"></div>
+        <div class="cf-field"><label>내용</label><textarea placeholder="프로젝트에 대해 알려주세요."></textarea></div>
+        <button class="cf-submit">보내기</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer><div class="w">
+  <div class="ft">
+    <div class="ft-left">
+      <div class="ft-name">Prelik</div>
+      <div class="ft-desc">Pre × Relik. AI 서비스 기업.<br>레거시가 되기 전에 만듭니다.</div>
+    </div>
+    <div class="ft-right">
+      <div class="ft-col"><a href="#about">소개</a><a href="#biz">사업</a><a href="#tech">기술</a><a href="#news">소식</a></div>
+      <div class="ft-col"><a href="https://github.com/prelik">GitHub</a><a href="https://github.com/veilkey">VeilKey</a><a href="#contact">문의</a></div>
+    </div>
+  </div>
+  <div class="ft-bottom"><span>© 2026 Prelik</span><span>Pre × Relik</span></div>
+</div></footer>
+
+<script>
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('s',scrollY>30));
+
+// ═══ PHILOSOPHY MARQUEE ═══
+const words=['먼저 만든다','직접 운영한다','공개한다','보안이 기본','AI 네이티브','단순하게','셀프호스팅','오픈소스','Pre × Relik'];
+const pm=document.getElementById('philMarquee');
+[...words,...words,...words].forEach(w=>{
+  const s=document.createElement('span');s.className='phil-word';
+  s.innerHTML=w.includes('×')?`<em>${w}</em>`:w;
+  pm.appendChild(s);
+});
+
+// ═══ BUSINESS LIST ═══
+const biz=[
+  {name:'VeilKey',tag:'Open Source',desc:'비밀 생명주기 관리. 생성 시점에 암호화, 참조로 대체, 무중단 로테이션.'},
+  {name:'SparkAgent',tag:'Beta',desc:'자율 AI 에이전트. 다단계 추론, 도구 사용, 영속 메모리.'},
+  {name:'FlowForge',tag:'Beta',desc:'워크플로 자동화. AI 기반 단계 생성, API 연결, 이벤트 트리거.'},
+  {name:'LensView',tag:'GA',desc:'AI 관측 플랫폼. 토큰, 지연시간, 비용, 품질 추적.'},
+  {name:'CastDeploy',tag:'GA',desc:'원클릭 배포. Git push 프로덕션. Proxmox, Docker, 베어메탈.'},
+  {name:'ShieldAI',tag:'Soon',desc:'AI 보안 모니터링. 이상 탐지, 위협 스코어링, 자동 대응.'},
+  {name:'WaveDB',tag:'Alpha',desc:'벡터 + 관계형 통합 DB. SQLite 호환.'},
+  {name:'CoreStack',tag:'Enterprise',desc:'인프라 플랫폼. 30+ 서비스를 코드로 관리.'},
+];
+const bl=document.getElementById('bizList');
+biz.forEach((b,i)=>{
+  const r=document.createElement('div');r.className='biz-row';
+  r.innerHTML=`<span class="br-num">0${i+1}</span><div class="br-info"><div class="br-name">${b.name} <span class="br-tag">${b.tag}</span></div><div class="br-desc">${b.desc}</div></div><span class="br-arrow">→</span>`;
+  bl.appendChild(r);
+});
+
+// ═══ FEATURED SCROLL ═══
+const feats=[
+  {name:'VeilKey',tag:'Secret Lifecycle Manager',desc:'시크릿을 생성 시점에 AES-256-GCM으로 암호화하고 VK: 참조로 대체합니다. AI 에이전트는 참조만 보고 작업합니다.',link:'https://github.com/veilkey/veilkey-selfhosted',linkText:'GitHub에서 보기'},
+  {name:'SparkAgent',tag:'Autonomous AI Agents',desc:'다단계 추론과 도구 사용이 가능한 자율 에이전트를 구축합니다. Claude, GPT 백엔드를 Temporal로 오케스트레이션.',link:'#',linkText:'개발 중'},
+  {name:'CoreStack',tag:'Infrastructure Platform',desc:'GitLab, Grafana, Vault 등 30개 이상의 서비스를 코드로 관리하는 완전한 셀프호스팅 스택.',link:'#',linkText:'Enterprise 전용'},
+  {name:'FlowForge',tag:'Workflow Automation',desc:'AI가 단계를 자동 생성하는 비주얼 워크플로 빌더. 100개 이상의 API 커넥터.',link:'#',linkText:'베타 참여'},
+  {name:'LensView',tag:'AI Observability',desc:'모든 AI 호출의 토큰, 비용, 지연시간, 품질을 실시간으로 추적합니다.',link:'#',linkText:'시작하기'},
+];
+const fs=document.getElementById('featScroll');
+feats.forEach((f,i)=>{
+  const c=document.createElement('div');c.className='feat-card';
+  c.innerHTML=`<div class="fc-num">0${i+1}</div><div class="fc-name">${f.name}</div><div class="fc-tag">${f.tag}</div><div class="fc-desc">${f.desc}</div><a href="${f.link}" class="fc-link">${f.linkText} →</a>`;
+  fs.appendChild(c);
+});
+
+// ═══ REVEAL ═══
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis')})},{threshold:.05,rootMargin:'0px 0px -20px 0px'});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+</script>
+
+</body>
+</html>

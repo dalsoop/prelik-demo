@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VeilKey — Secrets in Amber</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Vollkorn:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Karla:wght@300;400;500;600;700&family=Fragment+Mono&display=swap');
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --fg:#2c2418;
+  --fg2:#5c5040;
+  --fg3:#8a7d6c;
+  --fg4:#b8ad9c;
+  --fg5:#dcd4c6;
+  --fg6:#ebe6dc;
+  --cream:#f9f6f0;
+  --warm:#faf7f2;
+  --white:#fffdf8;
+  --honey:#d4960a;
+  --honey-deep:#b07a00;
+  --honey-soft:rgba(212,150,10,0.08);
+  --honey-line:rgba(212,150,10,0.2);
+  --honey-glow:rgba(212,150,10,0.12);
+  --bark:#3d2e1a;
+  --moss:#3a6b4c;
+  --moss-soft:rgba(58,107,76,0.06);
+  --ember:#c44b2a;
+  --ember-soft:rgba(196,75,42,0.06);
+  --display:'Vollkorn',Georgia,serif;
+  --sans:'Karla',system-ui,sans-serif;
+  --code:'Fragment Mono','Menlo',monospace;
+}
+
+html{scroll-behavior:smooth;background:var(--cream);color:var(--fg);font-family:var(--sans);font-size:16px;-webkit-font-smoothing:antialiased}
+body{overflow-x:hidden}
+::selection{background:var(--honey);color:white}
+a{color:inherit;text-decoration:none}
+
+.w{max-width:1060px;margin:0 auto;padding:0 clamp(1.5rem,4vw,3rem)}
+
+/* parchment texture */
+body::after{
+  content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:0.015;
+  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='t'%3E%3CfeTurbulence baseFrequency='0.65' numOctaves='5' type='fractalNoise'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23t)'/%3E%3C/svg%3E");
+  background-size:200px;
+}
+
+/* ═══ NAV ═══ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:300;
+  background:rgba(249,246,240,0.9);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--fg6);transition:box-shadow 0.3s;
+}
+nav.s{box-shadow:0 2px 20px rgba(44,36,24,0.05)}
+.ni{max-width:1060px;margin:0 auto;padding:0 clamp(1.5rem,4vw,3rem);display:flex;align-items:center;justify-content:space-between;height:56px}
+.logo{font-family:var(--display);font-weight:700;font-size:1.05rem;color:var(--bark);display:flex;align-items:center;gap:0.5rem}
+.logo-amber{
+  width:20px;height:20px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#f0c850,var(--honey),var(--honey-deep));
+  box-shadow:0 1px 4px rgba(212,150,10,0.3),inset 0 -2px 4px rgba(0,0,0,0.1);
+}
+.nk{display:flex;align-items:center;gap:2rem}
+.nk a{font-size:0.82rem;color:var(--fg3);font-weight:500;transition:color 0.15s}
+.nk a:hover{color:var(--fg)}
+.nk .nc{
+  font-size:0.82rem;font-weight:600;padding:0.45rem 1.2rem;
+  background:var(--bark);color:var(--cream);border-radius:100px;transition:all 0.2s;
+}
+.nk .nc:hover{background:#2a1f10;transform:translateY(-1px);box-shadow:0 4px 12px rgba(61,46,26,0.2)}
+
+/* ═══ HERO ═══ */
+.hero{padding:10rem 0 5rem;position:relative}
+
+/* warm light from top-right */
+.hero::before{
+  content:'';position:absolute;top:-200px;right:-100px;
+  width:700px;height:700px;
+  background:radial-gradient(circle,var(--honey-glow),transparent 55%);
+  pointer-events:none;
+}
+
+.hero-inner{position:relative;z-index:1}
+
+.hero-stamp{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  font-family:var(--code);font-size:0.68rem;
+  color:var(--honey-deep);
+  padding:0.3rem 0.8rem;
+  background:var(--honey-soft);border:1px solid var(--honey-line);
+  border-radius:100px;margin-bottom:2rem;
+}
+.hero-stamp .amber-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--honey);
+  box-shadow:0 0 6px rgba(212,150,10,0.4);
+  animation:amberPulse 3s ease-in-out infinite;
+}
+
+.hero h1{
+  font-family:var(--display);
+  font-size:clamp(2.8rem,5.5vw,4.5rem);
+  font-weight:400;line-height:1.1;
+  max-width:680px;
+  margin-bottom:1.5rem;
+}
+.hero h1 em{font-style:italic;color:var(--honey-deep)}
+
+.hero-p{
+  font-size:1.1rem;color:var(--fg2);max-width:480px;
+  line-height:1.85;margin-bottom:2.5rem;font-weight:400;
+}
+
+.hero-btns{display:flex;gap:0.6rem;flex-wrap:wrap}
+.btn{
+  font-family:var(--sans);font-size:0.88rem;font-weight:600;
+  padding:0.8rem 1.8rem;border:none;cursor:pointer;
+  display:inline-flex;align-items:center;gap:0.4rem;
+  transition:all 0.2s;border-radius:100px;
+}
+.btn-honey{background:var(--honey);color:white}
+.btn-honey:hover{background:var(--honey-deep);transform:translateY(-1px);box-shadow:0 6px 20px rgba(212,150,10,0.2)}
+.btn-paper{background:var(--white);color:var(--fg2);border:1.5px solid var(--fg5)}
+.btn-paper:hover{border-color:var(--fg4);background:var(--cream)}
+
+/* ═══ THE AMBER PRESERVATION — hero animation ═══ */
+.amber-stage{
+  margin-top:5rem;
+  max-width:720px;
+}
+
+.amber-card{
+  background:var(--white);
+  border:1px solid var(--fg5);
+  border-radius:20px;
+  overflow:hidden;
+  box-shadow:0 1px 3px rgba(44,36,24,0.04),0 16px 48px rgba(44,36,24,0.06);
+}
+
+.amber-bar{
+  padding:0.65rem 1.2rem;display:flex;align-items:center;
+  border-bottom:1px solid var(--fg6);background:var(--cream);
+}
+.amber-dots{display:flex;gap:6px}
+.amber-dots span{width:10px;height:10px;border-radius:50%}
+.amber-dots span:nth-child(1){background:#e5694e}
+.amber-dots span:nth-child(2){background:var(--honey)}
+.amber-dots span:nth-child(3){background:var(--moss)}
+.amber-title{margin-left:auto;font-family:var(--code);font-size:0.68rem;color:var(--fg4)}
+
+.amber-body{
+  padding:1.5rem 2rem;font-family:var(--code);font-size:0.8rem;
+  line-height:2.3;min-height:240px;position:relative;
+}
+
+/* Each secret line */
+.am-row{
+  display:flex;align-items:center;gap:0;
+  padding:0.15rem 0.6rem;margin:0.1rem -0.6rem;
+  border-radius:8px;transition:background 0.3s;
+}
+.am-row:hover{background:var(--cream)}
+
+.am-key{color:var(--fg3)}
+.am-eq{color:var(--fg5)}
+
+.am-val-wrap{
+  position:relative;display:inline-flex;align-items:center;
+  height:1.4em;flex:1;overflow:hidden;
+}
+.am-plain,.am-sealed{
+  position:absolute;left:0;
+  transition:all 0.5s cubic-bezier(0.4,0,0.2,1);
+  white-space:nowrap;
+}
+.am-plain{color:var(--ember)}
+.am-sealed{color:var(--honey-deep);font-weight:500;opacity:0;transform:scale(0.9);filter:blur(4px)}
+
+.am-row.preserved .am-plain{opacity:0;transform:scale(1.05);filter:blur(6px)}
+.am-row.preserved .am-sealed{opacity:1;transform:scale(1);filter:blur(0)}
+
+/* amber resin effect on the sealed value */
+.am-row.preserved .am-val-wrap::after{
+  content:'';position:absolute;inset:-3px -8px;
+  background:var(--honey-soft);
+  border:1px solid var(--honey-line);
+  border-radius:6px;z-index:-1;
+  animation:amberWrap 0.4s ease forwards;
+}
+
+.am-indicator{
+  margin-left:auto;flex-shrink:0;
+  width:18px;height:18px;border-radius:50%;
+  border:1.5px solid var(--fg6);
+  display:grid;place-items:center;
+  font-size:0.5rem;color:transparent;
+  transition:all 0.3s;
+}
+.am-row.preserved .am-indicator{
+  border-color:var(--honey);background:var(--honey-soft);color:var(--honey);
+}
+
+.amber-footer{
+  padding:0.7rem 1.5rem;border-top:1px solid var(--fg6);
+  display:flex;align-items:center;justify-content:space-between;
+  font-family:var(--code);font-size:0.68rem;color:var(--fg4);
+  background:var(--cream);border-radius:0 0 20px 20px;
+}
+.amber-footer .af-counter{
+  display:flex;align-items:center;gap:0.4rem;
+  transition:color 0.3s;
+}
+.af-counter.done{color:var(--honey-deep)}
+.amber-footer button{
+  background:none;border:1px solid var(--fg5);font-family:var(--code);
+  font-size:0.62rem;color:var(--fg4);padding:0.2rem 0.6rem;
+  border-radius:100px;cursor:pointer;transition:all 0.15s;
+}
+.amber-footer button:hover{border-color:var(--honey-line);color:var(--honey)}
+
+/* ═══ SECTION COMMONS ═══ */
+section{padding:6rem 0}
+.sey{font-size:0.68rem;font-weight:600;letter-spacing:0.08em;color:var(--honey-deep);margin-bottom:0.6rem}
+.sh{font-family:var(--display);font-size:clamp(1.8rem,3vw,2.5rem);font-weight:400;line-height:1.2;margin-bottom:0.6rem}
+.sh em{font-style:italic;color:var(--honey-deep)}
+.sp{font-size:0.95rem;color:var(--fg2);line-height:1.8;max-width:460px}
+
+/* ═══ CONCEPT — organic flow ═══ */
+.concept-section{
+  background:var(--white);
+  border-top:1px solid var(--fg6);border-bottom:1px solid var(--fg6);
+}
+
+.concept-grid{
+  margin-top:3rem;
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:3.5rem;align-items:center;
+}
+
+.concept-visual{
+  background:var(--cream);border:1px solid var(--fg6);
+  border-radius:16px;padding:2.5rem;
+}
+
+.cv-flow{display:flex;flex-direction:column;gap:1rem;align-items:center}
+.cv-step{
+  display:flex;align-items:center;gap:1rem;width:100%;
+  font-family:var(--code);font-size:0.78rem;
+}
+.cv-label{
+  width:70px;flex-shrink:0;text-align:right;
+  font-size:0.6rem;letter-spacing:0.08em;
+  text-transform:uppercase;color:var(--fg4);
+}
+.cv-box{
+  flex:1;padding:0.6rem 1.2rem;
+  border:1px solid var(--fg5);border-radius:10px;
+  transition:all 0.3s;
+}
+.cv-box.exposed{border-color:rgba(196,75,42,0.25);background:var(--ember-soft);color:var(--ember)}
+.cv-box.sealed{border-color:var(--honey-line);background:var(--honey-soft);color:var(--honey-deep)}
+.cv-box.resolved{border-color:rgba(58,107,76,0.2);background:var(--moss-soft);color:var(--moss)}
+
+.cv-arrow{font-size:1rem;color:var(--fg5)}
+
+.concept-text ul{
+  list-style:none;margin-top:1rem;display:flex;flex-direction:column;gap:0.5rem;
+}
+.concept-text li{
+  font-size:0.9rem;color:var(--fg2);line-height:1.55;
+  display:flex;align-items:flex-start;gap:0.5rem;
+}
+.concept-text li::before{
+  content:'→';color:var(--honey);flex-shrink:0;margin-top:1px;
+}
+
+/* ═══ WORKFLOW — WARM CARDS ═══ */
+.workflow-section{padding:6rem 0}
+
+.wf-cards{
+  margin-top:3rem;
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:1rem;
+}
+
+.wf-card{
+  background:var(--white);border:1px solid var(--fg6);
+  border-radius:14px;padding:1.8rem;
+  transition:all 0.3s;position:relative;overflow:hidden;
+}
+.wf-card::before{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--honey),var(--honey-deep));
+  opacity:0;transition:opacity 0.3s;
+}
+.wf-card:hover{
+  border-color:var(--fg5);transform:translateY(-3px);
+  box-shadow:0 8px 24px rgba(44,36,24,0.06);
+}
+.wf-card:hover::before{opacity:1}
+
+.wf-num{
+  font-family:var(--display);font-size:2rem;font-style:italic;
+  color:var(--fg5);line-height:1;margin-bottom:1rem;
+}
+.wf-card:hover .wf-num{color:var(--honey)}
+.wf-card h3{font-size:0.92rem;font-weight:700;margin-bottom:0.3rem}
+.wf-card p{font-size:0.85rem;color:var(--fg2);line-height:1.65}
+.wf-card .wf-cmd{
+  margin-top:0.6rem;font-family:var(--code);font-size:0.7rem;
+  color:var(--honey-deep);
+}
+
+/* ═══ ARCH — WARM COLUMNS ═══ */
+.arch-section{
+  padding:6rem 0;
+  background:var(--white);
+  border-top:1px solid var(--fg6);border-bottom:1px solid var(--fg6);
+}
+
+.arch-row{
+  margin-top:3rem;
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:1rem;
+}
+.arch-item{
+  background:var(--cream);border:1px solid var(--fg6);
+  border-radius:14px;padding:1.8rem;
+  transition:all 0.25s;
+}
+.arch-item:hover{border-color:var(--honey-line);box-shadow:0 4px 16px rgba(44,36,24,0.04)}
+
+.ai-tag{
+  font-family:var(--code);font-size:0.6rem;font-weight:600;
+  color:var(--honey-deep);padding:0.2rem 0.5rem;
+  background:var(--honey-soft);border-radius:6px;
+  display:inline-block;margin-bottom:0.8rem;
+}
+.arch-item h3{font-family:var(--display);font-size:1.05rem;font-weight:500;margin-bottom:0.15rem}
+.arch-item .ai-port{font-family:var(--code);font-size:0.68rem;color:var(--fg4);margin-bottom:0.6rem}
+.arch-item p{font-size:0.85rem;color:var(--fg2);line-height:1.6}
+
+/* Key chain */
+.key-flow{
+  margin-top:1.5rem;
+  display:flex;align-items:center;gap:0;
+  background:var(--white);border:1px solid var(--fg6);
+  border-radius:12px;overflow:hidden;
+}
+.kf-cell{
+  flex:1;padding:1.2rem 1.5rem;
+  border-right:1px solid var(--fg6);
+  position:relative;
+}
+.kf-cell:last-child{border-right:none}
+.kf-cell::after{
+  content:'→';position:absolute;right:-8px;top:50%;transform:translateY(-50%);
+  color:var(--fg5);font-size:0.8rem;background:var(--white);padding:0.1rem 0;z-index:1;
+}
+.kf-cell:last-child::after{display:none}
+.kf-name{font-family:var(--code);font-size:0.65rem;font-weight:600;color:var(--honey-deep);margin-bottom:0.2rem}
+.kf-desc{font-size:0.8rem;color:var(--fg2);line-height:1.5}
+.kf-algo{font-family:var(--code);font-size:0.6rem;color:var(--fg4);margin-top:0.2rem}
+
+/* ═══ AI ═══ */
+.ai-section{padding:6rem 0}
+
+.ai-layout{
+  margin-top:3rem;display:grid;grid-template-columns:1fr 1fr;
+  gap:3rem;align-items:center;
+}
+
+.ai-window{
+  background:var(--white);border:1px solid var(--fg6);
+  border-radius:16px;overflow:hidden;
+  box-shadow:0 8px 24px rgba(44,36,24,0.04);
+}
+.aw-bar{
+  padding:0.5rem 1rem;display:flex;align-items:center;gap:0.4rem;
+  background:var(--cream);border-bottom:1px solid var(--fg6);
+}
+.aw-bar .awd{width:8px;height:8px;border-radius:50%;background:var(--fg6)}
+.aw-bar span{margin-left:auto;font-family:var(--code);font-size:0.62rem;color:var(--fg4)}
+
+.ai-chat{padding:1rem;display:flex;flex-direction:column;gap:0.7rem}
+.ai-msg{max-width:88%;padding:0.7rem 1rem;border-radius:14px;font-size:0.85rem;line-height:1.6}
+.ai-msg.u{align-self:flex-end;background:var(--bark);color:var(--cream);border-bottom-right-radius:4px}
+.ai-msg.a{align-self:flex-start;background:var(--cream);border:1px solid var(--fg6);color:var(--fg2);border-bottom-left-radius:4px}
+.ai-msg code{font-family:var(--code);font-size:0.76rem;background:var(--honey-soft);color:var(--honey-deep);padding:0.05rem 0.35rem;border-radius:4px}
+
+.ai-info ul{list-style:none;margin-top:1rem;display:flex;flex-direction:column;gap:0.4rem}
+.ai-info li{
+  font-size:0.9rem;color:var(--fg2);line-height:1.55;
+  padding-left:1.2rem;position:relative;
+}
+.ai-info li::before{
+  content:'';position:absolute;left:0;top:0.55em;
+  width:6px;height:6px;border-radius:50%;
+  background:var(--honey-soft);border:1.5px solid var(--honey);
+}
+
+/* ═══ INSTALL ═══ */
+.install-section{
+  padding:6rem 0;background:var(--bark);color:var(--cream);
+  border-radius:24px;margin:0 clamp(0.5rem,2vw,1.5rem);
+  position:relative;overflow:hidden;
+}
+.install-section::before{
+  content:'';position:absolute;top:-100px;right:-100px;
+  width:400px;height:400px;
+  background:radial-gradient(circle,rgba(212,150,10,0.08),transparent 55%);
+  pointer-events:none;
+}
+
+.install-section .sey{color:var(--honey)}
+.install-section .sh{color:var(--cream)}
+.install-section .sh em{color:var(--honey)}
+
+.install-block{
+  margin-top:2.5rem;max-width:560px;
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+  border-radius:14px;overflow:hidden;
+}
+.ib-bar{padding:0.5rem 1rem;display:flex;align-items:center;gap:0.4rem;border-bottom:1px solid rgba(255,255,255,0.06)}
+.ib-bar .d{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.08)}
+.ib-bar span{margin-left:auto;font-family:var(--code);font-size:0.6rem;color:rgba(255,255,255,0.2)}
+.ib-body{padding:1.3rem 1.5rem;font-family:var(--code);font-size:0.78rem;line-height:2.2;color:rgba(255,255,255,0.4)}
+.ib-body .p{color:rgba(255,255,255,0.15)}
+.ib-body .c{color:rgba(255,255,255,0.8)}
+.ib-body .f{color:var(--honey)}
+.ib-body .g{color:#86efac}
+.ib-body .dm{color:rgba(255,255,255,0.15)}
+
+/* ═══ CTA ═══ */
+.cta{padding:8rem 0;text-align:center}
+.cta h2{font-family:var(--display);font-size:clamp(2.2rem,5vw,3.5rem);font-weight:400;line-height:1.08;margin-bottom:1rem}
+.cta h2 em{font-style:italic;color:var(--honey-deep)}
+.cta>p{color:var(--fg2);max-width:400px;margin:0 auto 2.5rem;font-size:1.05rem;line-height:1.8}
+.cta-btns{display:flex;justify-content:center;gap:0.6rem;flex-wrap:wrap}
+.cta-meta{margin-top:3rem;display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap}
+.cta-meta span{font-size:0.78rem;color:var(--fg4)}
+
+footer{border-top:1px solid var(--fg6);padding:1.5rem 0}
+.ft{display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;color:var(--fg4)}
+.ft a{color:var(--fg3);transition:color 0.15s}
+.ft a:hover{color:var(--honey)}
+
+/* ═══ ANIM ═══ */
+@keyframes amberPulse{0%,100%{box-shadow:0 0 6px rgba(212,150,10,0.4)}50%{box-shadow:0 0 14px rgba(212,150,10,0.6)}}
+@keyframes amberWrap{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+
+.rv{opacity:0;transform:translateY(18px);transition:opacity 0.6s ease,transform 0.6s ease}
+.rv.vis{opacity:1;transform:translateY(0)}
+
+@media(max-width:900px){
+  .concept-grid{grid-template-columns:1fr}
+  .wf-cards{grid-template-columns:1fr 1fr}
+  .arch-row{grid-template-columns:1fr 1fr}
+  .ai-layout{grid-template-columns:1fr}
+  .key-flow{flex-direction:column}
+  .kf-cell{border-right:none;border-bottom:1px solid var(--fg6)}
+  .kf-cell:last-child{border-bottom:none}
+  .kf-cell::after{display:none}
+  .nk a:not(.nc){display:none}
+  .install-section{border-radius:16px}
+}
+@media(max-width:600px){
+  .wf-cards{grid-template-columns:1fr}
+  .arch-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav"><div class="ni">
+  <a href="#" class="logo"><span class="logo-amber"></span>VeilKey</a>
+  <div class="nk">
+    <a href="#workflow">Workflow</a>
+    <a href="#arch">Architecture</a>
+    <a href="#ai">AI Safety</a>
+    <a href="https://github.com/veilkey/veilkey-selfhosted" class="nc">GitHub →</a>
+  </div>
+</div></nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="w">
+    <div class="hero-inner">
+      <div class="hero-stamp"><span class="amber-dot"></span>Open Source · Self-Hosted</div>
+      <h1>Secrets preserved<br>in <em>amber.</em></h1>
+      <p class="hero-p">
+        VeilKey catches every secret at the moment of creation, encases it in
+        AES-256-GCM encryption, and leaves behind a warm, glowing reference.
+        The original is sealed away — permanently.
+      </p>
+      <div class="hero-btns">
+        <a href="https://github.com/veilkey/veilkey-selfhosted" class="btn btn-honey">Get Started →</a>
+        <a href="https://github.com/veilkey/veilkey-selfhosted/blob/main/docs/architecture.md" class="btn btn-paper">Documentation</a>
+      </div>
+
+      <!-- AMBER PRESERVATION -->
+      <div class="amber-stage">
+        <div class="amber-card" id="amberCard">
+          <div class="amber-bar">
+            <div class="amber-dots"><span></span><span></span><span></span></div>
+            <span class="amber-title">.env.production</span>
+          </div>
+          <div class="amber-body" id="amberBody"></div>
+          <div class="amber-footer">
+            <span class="af-counter" id="amberCounter">0 / 6 preserved</span>
+            <button id="amberReplay">↻ replay</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CONCEPT ═══ -->
+<section class="concept-section">
+  <div class="w">
+    <div class="concept-grid rv">
+      <div class="concept-visual">
+        <div class="cv-flow">
+          <div class="cv-step"><div class="cv-label">Developer</div><div class="cv-box exposed">sk_live_51HG8abc...xYz</div></div>
+          <div class="cv-arrow">↓ veilkey filter</div>
+          <div class="cv-step"><div class="cv-label">Config</div><div class="cv-box sealed">VK:LOCAL:e5f6a7b8</div></div>
+          <div class="cv-arrow">↓ veilkey exec</div>
+          <div class="cv-step"><div class="cv-label">Runtime</div><div class="cv-box resolved">sk_live_51HG8abc...xYz ✓</div></div>
+        </div>
+      </div>
+      <div class="concept-text">
+        <div class="sey">The Idea</div>
+        <h2 class="sh">Encrypted at entry.<br>Resolved at <em>runtime.</em></h2>
+        <p class="sp">
+          The real secret exists only in process memory, for the duration of execution.
+          Everything else — configs, git, logs, AI chat — sees only the amber reference.
+        </p>
+        <ul>
+          <li>AI agents see VK: references — work perfectly, zero risk</li>
+          <li>Key rotation happens per-node without restarts</li>
+          <li>Each node has its own DEK — lateral movement stops</li>
+          <li>Password from file only, never environment variable</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ WORKFLOW ═══ -->
+<section id="workflow" class="workflow-section">
+  <div class="w">
+    <div class="rv">
+      <div class="sey">Workflow</div>
+      <h2 class="sh">Four steps to <em>preservation.</em></h2>
+    </div>
+    <div class="wf-cards rv">
+      <div class="wf-card"><div class="wf-num">1</div><h3>Scan</h3><p>222+ patterns. AWS, GitHub, Stripe, private keys. Fully offline.</p><div class="wf-cmd">vk scan .env</div></div>
+      <div class="wf-card"><div class="wf-num">2</div><h3>Filter</h3><p>Replace plaintext with AES-256-GCM encrypted VK: references.</p><div class="wf-cmd">vk filter .env</div></div>
+      <div class="wf-card"><div class="wf-num">3</div><h3>Wrap</h3><p>Execute with auto-masking. Secrets can't leak to logs.</p><div class="wf-cmd">vk wrap ./deploy</div></div>
+      <div class="wf-card"><div class="wf-num">4</div><h3>Exec</h3><p>Resolve at launch. In memory only, never on disk.</p><div class="wf-cmd">vk exec ./app</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ ARCHITECTURE ═══ -->
+<section id="arch" class="arch-section">
+  <div class="w">
+    <div class="rv">
+      <div class="sey">Architecture</div>
+      <h2 class="sh">Every node. Its own <em>key.</em></h2>
+      <p class="sp">Hub-and-spoke hierarchy. Compromise a node — the rest stay sealed.</p>
+    </div>
+    <div class="arch-row rv">
+      <div class="arch-item"><div class="ai-tag">KC</div><h3>KeyCenter</h3><div class="ai-port">:10181</div><p>Control plane. Identity, DEK lifecycle, rotation policy.</p></div>
+      <div class="arch-item"><div class="ai-tag">LV</div><h3>LocalVault</h3><div class="ai-port">:10180</div><p>Node agent. Ciphertext only. Heartbeats every 5m.</p></div>
+      <div class="arch-item"><div class="ai-tag">PX</div><h3>Proxy</h3><div class="ai-port">:18080</div><p>Egress enforcement. Blocks plaintext in HTTP.</p></div>
+      <div class="arch-item"><div class="ai-tag">CLI</div><h3>CLI</h3><div class="ai-port">&nbsp;</div><p>scan, filter, wrap, exec, resolve. PTY masking.</p></div>
+    </div>
+    <div class="key-flow rv">
+      <div class="kf-cell"><div class="kf-name">KEK</div><div class="kf-desc">From password. Never stored.</div><div class="kf-algo">scrypt</div></div>
+      <div class="kf-cell"><div class="kf-name">DEK</div><div class="kf-desc">256-bit. Encrypted with KEK.</div><div class="kf-algo">AES-256-GCM</div></div>
+      <div class="kf-cell"><div class="kf-name">Ciphertext</div><div class="kf-desc">Per-secret nonce. VK:{SCOPE}:{REF}</div><div class="kf-algo">unique nonce</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ AI ═══ -->
+<section id="ai" class="ai-section">
+  <div class="w">
+    <div class="ai-layout rv">
+      <div class="ai-window">
+        <div class="aw-bar"><span class="awd"></span><span class="awd"></span><span class="awd"></span><span>AI Agent</span></div>
+        <div class="ai-chat">
+          <div class="ai-msg u">Deploy this service. Secrets are in .env.production</div>
+          <div class="ai-msg a">Found <code>VK:LOCAL:db01</code> and <code>VK:LOCAL:st4c</code>. Running <code>vk exec deploy.sh</code> — secrets resolve at runtime. I never need real values.</div>
+          <div class="ai-msg u">Did it work?</div>
+          <div class="ai-msg a">✓ 2 refs resolved. App running with real credentials — but I only ever saw the amber references.</div>
+        </div>
+      </div>
+      <div class="ai-info">
+        <div class="sey">AI Safety</div>
+        <h2 class="sh">AI sees amber.<br>Never <em>the real thing.</em></h2>
+        <p class="sp">Your AI agent works with VK: references. The real secret exists only in process memory at exec time.</p>
+        <ul>
+          <li>AI reads VK:LOCAL:xxxx — works perfectly</li>
+          <li>Real secret injected at exec, never on disk</li>
+          <li>Zero exposure in chat, logs, or git</li>
+          <li>No workflow changes required</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ INSTALL ═══ -->
+<section class="install-section">
+  <div class="w rv">
+    <div class="sey">Quick Start</div>
+    <h2 class="sh">Preserved in <em>five minutes.</em></h2>
+    <div class="install-block">
+      <div class="ib-bar"><span class="d"></span><span class="d"></span><span class="d"></span><span>macOS</span></div>
+      <div class="ib-body">
+<span class="p">$</span> <span class="c">git clone</span> <span class="f">https://github.com/veilkey/veilkey-selfhosted.git</span>
+<span class="p">$</span> <span class="c">cd</span> veilkey-selfhosted
+<span class="p">$</span> <span class="c">./installer/scripts/install-mac.sh</span> <span class="f">install</span>
+<span class="dm">  [OK] Go · 5 binaries · KeyCenter · LocalVault</span>
+<span class="p">$</span> <span class="c">./installer/scripts/install-mac.sh</span> <span class="f">start</span>
+<span class="g">  ✓ KeyCenter :10181 · LocalVault :10180</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div style="height:2rem"></div>
+
+<!-- ═══ CTA ═══ -->
+<section class="cta">
+  <div class="w rv">
+    <h2>Some things are meant<br>to stay in <em>amber.</em></h2>
+    <p>Sealed. Visible. Unreadable. Exactly how secrets should be.</p>
+    <div class="cta-btns">
+      <a href="https://github.com/veilkey/veilkey-selfhosted" class="btn btn-honey">View on GitHub →</a>
+      <a href="https://github.com/veilkey/veilkey-selfhosted/blob/main/docs/installation.md" class="btn btn-paper">Install Guide</a>
+    </div>
+    <div class="cta-meta"><span>AGPL-3.0</span><span>Go + SQLite</span><span>AES-256-GCM</span><span>macOS + Linux</span></div>
+  </div>
+</section>
+
+<footer><div class="w"><div class="ft"><span>VeilKey</span><a href="https://github.com/veilkey/veilkey-selfhosted">github.com/veilkey</a></div></div></footer>
+
+<script>
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('s',scrollY>30));
+
+// ═══ AMBER PRESERVATION ═══
+const secrets=[
+  {k:'DATABASE_URL',d:'postgres://admin:s3cret@db',s:'VK:LOCAL:db01a2b3'},
+  {k:'AWS_SECRET',d:'wJalrXUtnFEMI/K7MDENG',s:'VK:LOCAL:aws4c5d6'},
+  {k:'GITHUB_TOKEN',d:'ghp_abc123def456ghi78',s:'VK:LOCAL:gh7e8f9a'},
+  {k:'STRIPE_SK',d:'sk_live_51HG8axYzKlMn',s:'VK:LOCAL:st0b1c2d'},
+  {k:'JWT_SECRET',d:'super-secret-jwt-2024!',s:'VK:LOCAL:jw3e4f5a'},
+  {k:'REDIS_URL',d:'redis://:p4ssw0rd@cache',s:'VK:LOCAL:rd6g7h8i'},
+];
+
+const sl=ms=>new Promise(r=>setTimeout(r,ms));
+
+function buildAmber(){
+  const body=document.getElementById('amberBody');
+  body.innerHTML='';
+  secrets.forEach((s,i)=>{
+    const row=document.createElement('div');
+    row.className='am-row';row.id='am-'+i;
+    row.innerHTML=`
+      <span class="am-key">${s.k}</span><span class="am-eq">=</span>
+      <span class="am-val-wrap">
+        <span class="am-plain">${s.d}</span>
+        <span class="am-sealed">${s.s}</span>
+      </span>
+      <span class="am-indicator">✓</span>
+    `;
+    body.appendChild(row);
+  });
+}
+
+async function playAmber(){
+  buildAmber();
+  const counter=document.getElementById('amberCounter');
+  counter.className='af-counter';
+  counter.textContent=`0 / ${secrets.length} preserved`;
+
+  await sl(1200);
+
+  for(let i=0;i<secrets.length;i++){
+    const row=document.getElementById('am-'+i);
+    row.classList.add('preserved');
+    counter.textContent=`${i+1} / ${secrets.length} preserved`;
+    await sl(500);
+  }
+
+  counter.className='af-counter done';
+  counter.textContent=`✓ ${secrets.length} secrets preserved in amber`;
+
+  await sl(5000);
+  playAmber();
+}
+
+document.getElementById('amberReplay').addEventListener('click',playAmber);
+setTimeout(playAmber,700);
+
+// ═══ REVEAL ═══
+const obs=new IntersectionObserver(es=>{
+  es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis')});
+},{threshold:0.06,rootMargin:'0px 0px -20px 0px'});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+</script>
+
+</body>
+</html>

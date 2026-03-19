@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prelik — 만들기 전에는 존재하지 않았던 것</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&family=Noto+Serif+KR:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--fg:#131313;--fg2:#3d3d3d;--fg3:#7a7a7a;--fg4:#aaa;--fg5:#d0d0d0;--fg6:#e6e6e6;--bg:#f0eeeb;--card:#faf9f7;--white:#fff;--ink:#0e0e0e;--sans:'Noto Sans KR',sans-serif;--serif:'Noto Serif KR',serif;--mono:'DM Mono',monospace}
+
+html{scroll-behavior:smooth;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;-webkit-font-smoothing:antialiased}
+body{overflow-x:hidden}
+::selection{background:var(--ink);color:var(--bg)}
+a{color:inherit;text-decoration:none}
+.w{max-width:1060px;margin:0 auto;padding:0 clamp(1.5rem,4vw,3rem)}
+
+/* ═══ NAV ═══ */
+nav{position:fixed;top:0;left:0;right:0;z-index:300;padding:0 clamp(1.5rem,4vw,3rem);transition:background 0.4s,border-color 0.4s;border-bottom:1px solid transparent}
+nav.s{background:rgba(240,238,235,0.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom-color:var(--fg6)}
+.ni{max-width:1060px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px}
+.logo{font-family:var(--serif);font-weight:700;font-size:0.95rem}
+.nk{display:flex;gap:1.2rem;align-items:center}
+.nk a{font-size:0.82rem;color:var(--fg3);font-weight:500;transition:color 0.15s}
+.nk a:hover{color:var(--fg)}
+
+/* ═══ HERO ═══ */
+.hero{min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden}
+
+/* counter — giant year watermark */
+.hero-year{
+  position:absolute;bottom:-5%;right:-3%;
+  font-family:var(--serif);font-size:clamp(12rem,30vw,22rem);
+  font-weight:700;color:rgba(0,0,0,0.018);
+  line-height:0.85;pointer-events:none;user-select:none;
+  letter-spacing:-0.05em;
+}
+
+.hero-content{position:relative;z-index:1;width:100%}
+
+.hero-top{
+  display:grid;grid-template-columns:1.2fr 1fr;gap:4rem;align-items:end;
+}
+
+/* line-by-line reveal */
+.hero-heading{overflow:hidden}
+.hero-line{
+  font-family:var(--serif);
+  font-size:clamp(2rem,4vw,3rem);
+  font-weight:600;line-height:1.65;letter-spacing:-0.02em;
+  word-break:keep-all;
+  transform:translateY(100%);
+  animation:lineUp 0.7s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+.hero-line:nth-child(2){animation-delay:0.12s}
+.hero-line:nth-child(3){animation-delay:0.24s}
+
+.hero-right{padding-bottom:0.5rem;animation:fadeUp 0.6s ease 0.4s both}
+.hero-right p{font-size:0.92rem;color:var(--fg2);line-height:1.9;margin-bottom:1.5rem}
+.hero-links{display:flex;gap:1rem}
+.hl{font-size:0.82rem;font-weight:600;color:var(--fg3);padding-bottom:0.15rem;border-bottom:1px solid var(--fg5);transition:all 0.15s}
+.hl:hover{color:var(--fg);border-color:var(--fg)}
+
+.hero-bar{
+  display:flex;justify-content:space-between;align-items:center;
+  padding-top:2rem;margin-top:4rem;border-top:1px solid var(--fg5);
+  animation:fadeUp 0.6s ease 0.55s both;
+}
+.hero-bar span{font-size:0.68rem;color:var(--fg4);letter-spacing:0.06em}
+
+/* scroll indicator */
+.hero-scroll{
+  position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:0.5rem;
+  animation:fadeUp 0.6s ease 0.7s both;
+}
+.hero-scroll span{font-size:0.6rem;color:var(--fg4);letter-spacing:0.15em}
+.scroll-line{width:1px;height:32px;background:var(--fg5);position:relative;overflow:hidden}
+.scroll-line::after{
+  content:'';position:absolute;top:-100%;left:0;width:1px;height:100%;
+  background:var(--fg3);
+  animation:scrollDrop 1.8s ease-in-out infinite;
+}
+
+/* ═══ ABOUT — reveal on scroll ═══ */
+.about-section{padding:8rem 0}
+
+.about-word{
+  font-family:var(--serif);font-size:clamp(3rem,7vw,5.5rem);
+  font-weight:700;text-align:center;
+  margin-bottom:4rem;letter-spacing:-0.04em;
+  overflow:hidden;
+}
+.about-word .aw-inner{
+  display:inline-block;
+  transform:translateY(100%);opacity:0;
+  transition:transform 0.7s cubic-bezier(0.22,1,0.36,1),opacity 0.7s ease;
+}
+.about-word.vis .aw-inner{transform:translateY(0);opacity:1}
+
+.about-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:4rem;
+}
+.about-item{
+  opacity:0;transform:translateY(20px);
+  transition:opacity 0.6s ease,transform 0.6s ease;
+}
+.about-item.vis{opacity:1;transform:translateY(0)}
+
+.about-item h3{
+  font-size:1.05rem;font-weight:700;margin-bottom:0.5rem;
+  padding-bottom:0.5rem;border-bottom:1px solid var(--fg6);
+}
+.about-item p{font-size:0.9rem;color:var(--fg2);line-height:1.9}
+
+/* ═══ BUSINESS — staggered cards ═══ */
+.biz-section{padding:6rem 0}
+
+.biz-header{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  margin-bottom:3rem;
+}
+.biz-header h2{font-family:var(--serif);font-size:1.5rem;font-weight:600}
+.biz-header .bh-count{font-family:var(--mono);font-size:0.68rem;color:var(--fg4)}
+
+.biz-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem}
+
+.biz-card{
+  background:var(--card);border:1px solid var(--fg6);
+  padding:2.5rem;position:relative;cursor:pointer;
+  transition:all 0.35s cubic-bezier(0.22,1,0.36,1);
+  opacity:0;transform:translateY(24px);
+}
+.biz-card.vis{opacity:1;transform:translateY(0)}
+.biz-card:hover{background:var(--white);border-color:var(--fg5);transform:translateY(-4px)!important;box-shadow:0 16px 40px rgba(0,0,0,0.04)}
+
+.biz-card .bk-num{font-family:var(--mono);font-size:0.58rem;color:var(--fg5);margin-bottom:1.5rem}
+.biz-card .bk-name{font-size:1.1rem;font-weight:700;margin-bottom:0.15rem;display:flex;align-items:center;gap:0.5rem}
+.bk-tag{font-family:var(--mono);font-size:0.52rem;font-weight:500;color:var(--fg4);padding:0.1rem 0.4rem;border:1px solid var(--fg6);letter-spacing:0.03em}
+.biz-card .bk-desc{font-size:0.85rem;color:var(--fg3);line-height:1.7;margin-top:0.4rem}
+.biz-card .bk-arrow{position:absolute;bottom:2rem;right:2.5rem;font-size:0.82rem;color:var(--fg5);transition:all 0.25s}
+.biz-card:hover .bk-arrow{color:var(--fg);transform:translateX(4px)}
+
+/* featured spanning 2 cols */
+.biz-card.bk-feat{grid-column:span 2;display:grid;grid-template-columns:1.2fr 1fr;gap:2rem}
+.bk-code{
+  font-family:var(--mono);font-size:0.78rem;color:var(--fg3);line-height:2.2;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:1.5rem;background:var(--bg);border:1px solid var(--fg6);
+}
+.bk-code .bkc-line{
+  opacity:0;transform:translateX(-8px);
+  transition:opacity 0.3s ease,transform 0.3s ease;
+}
+.biz-card.vis .bkc-line{opacity:1;transform:translateX(0)}
+.bkc-key{color:var(--fg3)}
+.bkc-val{color:var(--fg2);font-weight:500}
+.bkc-ok{color:var(--fg4);font-size:0.68rem;margin-top:0.5rem}
+
+/* ═══ MANIFESTO — text reveal ═══ */
+.manifesto{padding:6rem 0;background:var(--ink);color:var(--bg);overflow:hidden}
+
+.manifesto-title{
+  font-family:var(--serif);font-size:clamp(1.3rem,2.5vw,1.8rem);
+  font-weight:600;text-align:center;margin-bottom:3rem;
+  line-height:1.6;word-break:keep-all;
+}
+
+.mf-items{max-width:620px;margin:0 auto}
+
+.mf-item{
+  padding:1.5rem 0;border-top:1px solid rgba(255,255,255,0.05);
+  display:grid;grid-template-columns:36px 1fr;gap:1rem;align-items:baseline;
+  opacity:0;transform:translateX(-16px);
+  transition:opacity 0.5s ease,transform 0.5s ease;
+}
+.mf-item.vis{opacity:1;transform:translateX(0)}
+
+.mf-num{font-family:var(--mono);font-size:0.58rem;color:rgba(255,255,255,0.15)}
+.mf-text{font-size:0.92rem;color:rgba(255,255,255,0.45);line-height:1.75}
+.mf-text strong{color:rgba(255,255,255,0.85);font-weight:600}
+
+/* ═══ TECH — counter animation ═══ */
+.tech-section{padding:6rem 0}
+
+.tech-counters{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:0;
+  border-top:1px solid var(--fg5);border-bottom:1px solid var(--fg5);
+  margin-bottom:3rem;
+}
+.tc-item{padding:2rem 1.5rem;border-right:1px solid var(--fg6);text-align:center}
+.tc-item:last-child{border-right:none}
+.tc-num{font-size:2.2rem;font-weight:900;line-height:1}
+.tc-num .counter-val{display:inline-block}
+.tc-label{font-size:0.68rem;color:var(--fg4);margin-top:0.3rem}
+
+.tech-chips{display:flex;flex-wrap:wrap;gap:0.35rem;justify-content:center}
+.chip{
+  font-family:var(--mono);font-size:0.68rem;padding:0.35rem 0.75rem;
+  background:var(--card);border:1px solid var(--fg6);color:var(--fg3);
+  transition:all 0.2s;cursor:default;
+}
+.chip:hover{border-color:var(--fg5);color:var(--fg2);background:var(--white)}
+
+/* ═══ NEWS — slide in ═══ */
+.news-section{padding:6rem 0;border-top:1px solid var(--fg5)}
+
+.news-item{
+  padding:1.5rem 0;border-bottom:1px solid var(--fg6);
+  display:flex;align-items:baseline;gap:1.5rem;
+  cursor:pointer;
+  opacity:0;transform:translateY(12px);
+  transition:opacity 0.4s ease,transform 0.4s ease,padding-left 0.2s;
+}
+.news-item.vis{opacity:1;transform:translateY(0)}
+.news-item:hover{padding-left:0.5rem}
+
+.nx-date{font-family:var(--mono);font-size:0.68rem;color:var(--fg4);flex-shrink:0;width:80px}
+.nx-title{font-size:0.92rem;font-weight:600;flex:1}
+.nx-cat{font-size:0.6rem;color:var(--fg4);flex-shrink:0}
+
+/* ═══ CONTACT ═══ */
+.contact-section{padding:6rem 0;background:var(--card);border-top:1px solid var(--fg6)}
+
+.contact-inner{
+  display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start;
+}
+.contact-left h2{font-family:var(--serif);font-size:clamp(1.5rem,2.5vw,2rem);font-weight:600;line-height:1.6;margin-bottom:1rem;word-break:keep-all}
+.contact-left>p{font-size:0.9rem;color:var(--fg3);line-height:1.8;margin-bottom:2rem;max-width:340px}
+.cl-channels{display:flex;flex-direction:column;gap:0.5rem;font-size:0.85rem;color:var(--fg2)}
+.cl-channels span{display:flex;align-items:center;gap:0.5rem}
+.cl-dot{width:4px;height:4px;background:var(--fg5);border-radius:50%}
+
+.contact-form{background:var(--white);border:1px solid var(--fg6);padding:2.5rem}
+.contact-form h3{font-size:0.95rem;font-weight:700;margin-bottom:1.5rem}
+.cf-f{margin-bottom:1rem}
+.cf-f label{display:block;font-size:0.72rem;font-weight:600;color:var(--fg3);margin-bottom:0.3rem}
+.cf-f input,.cf-f textarea{width:100%;padding:0.65rem 0.8rem;background:var(--bg);border:1px solid var(--fg6);font-family:var(--sans);font-size:0.88rem;color:var(--fg);outline:none;transition:border-color 0.15s}
+.cf-f input:focus,.cf-f textarea:focus{border-color:var(--fg4)}
+.cf-f textarea{min-height:80px;resize:vertical}
+.cf-btn{width:100%;padding:0.75rem;background:var(--ink);color:var(--bg);border:none;font-family:var(--sans);font-size:0.88rem;font-weight:700;cursor:pointer;transition:background 0.15s}
+.cf-btn:hover{background:var(--fg2)}
+
+/* ═══ FOOTER ═══ */
+footer{padding:2rem 0;border-top:1px solid var(--fg5)}
+.ft{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+.ft-left{font-family:var(--serif);font-weight:700;font-size:0.88rem}
+.ft-links{display:flex;gap:1.5rem;font-size:0.78rem}
+.ft-links a{color:var(--fg3);transition:color 0.15s}
+.ft-links a:hover{color:var(--fg)}
+.ft-copy{font-size:0.68rem;color:var(--fg4)}
+
+/* ═══ KEYFRAMES ═══ */
+@keyframes lineUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scrollDrop{0%{top:-100%}100%{top:200%}}
+
+@media(max-width:900px){
+  .hero-top{grid-template-columns:1fr;gap:2rem}
+  .about-grid{grid-template-columns:1fr}
+  .biz-grid{grid-template-columns:1fr}
+  .biz-card.bk-feat{grid-column:span 1;grid-template-columns:1fr}
+  .tech-counters{grid-template-columns:1fr 1fr}
+  .tc-item{border-bottom:1px solid var(--fg6)}
+  .contact-inner{grid-template-columns:1fr}
+  .hero-scroll{display:none}
+  .nk a:nth-child(-n+2){display:none}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav"><div class="ni">
+  <a href="#" class="logo">Prelik</a>
+  <div class="nk"><a href="#about">소개</a><a href="#biz">사업</a><a href="#tech">기술</a><a href="#news">소식</a><a href="#contact">문의</a></div>
+</div></nav>
+
+<section class="hero">
+  <div class="hero-year">2026</div>
+  <div class="w">
+    <div class="hero-content">
+      <div class="hero-top">
+        <div class="hero-heading">
+          <div class="hero-line">만들기 전에는</div>
+          <div class="hero-line">존재하지 않았던 것을</div>
+          <div class="hero-line">만듭니다.</div>
+        </div>
+        <div class="hero-right">
+          <p>Prelik은 AI 기반 서비스를 설계하고, 직접 코드를 쓰고, 자체 인프라에서 운영하는 기술 기업입니다.</p>
+          <div class="hero-links">
+            <a href="#biz" class="hl">사업영역</a>
+            <a href="#contact" class="hl">문의하기</a>
+            <a href="https://github.com/prelik" class="hl">GitHub</a>
+          </div>
+        </div>
+      </div>
+      <div class="hero-bar">
+        <span>Pre × Relik</span>
+        <span>AI Services</span>
+        <span>Seoul</span>
+      </div>
+    </div>
+  </div>
+  <div class="hero-scroll"><span>SCROLL</span><div class="scroll-line"></div></div>
+</section>
+
+<!-- ═══ ABOUT ═══ -->
+<section id="about" class="about-section">
+  <div class="w">
+    <div class="about-word" data-reveal><span class="aw-inner">Prelik</span></div>
+    <div class="about-grid">
+      <div class="about-item" data-stagger="0">
+        <h3>Pre × Relik</h3>
+        <p>이전의(Pre) 유물(Relik). 기술이 레거시가 되기 전에 먼저 만든다는 뜻입니다. 필요가 분명해지기 전에 준비하고, 남들이 문제를 인식할 때 이미 해결책을 갖고 있는 것이 우리의 방식입니다.</p>
+      </div>
+      <div class="about-item" data-stagger="1">
+        <h3>직접 만들고 운영합니다</h3>
+        <p>비밀 관리, 자율 에이전트, 워크플로 자동화, 관측 플랫폼 — 8개 자체 제품을 개발하고, 30개 이상의 서비스를 자체 서버에서 24시간 운영합니다.</p>
+      </div>
+      <div class="about-item" data-stagger="2">
+        <h3>오픈소스로 공개합니다</h3>
+        <p>핵심 기술을 AGPL-3.0으로 공개합니다. 좋은 도구는 독점하지 않고 커뮤니티와 함께 발전시킵니다.</p>
+      </div>
+      <div class="about-item" data-stagger="3">
+        <h3>소유권을 돌려드립니다</h3>
+        <p>클라우드에 종속되지 않는 셀프호스팅이 기본입니다. 고객의 데이터는 고객의 인프라 위에 있어야 합니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ BUSINESS ═══ -->
+<section id="biz" class="biz-section">
+  <div class="w">
+    <div class="biz-header rv">
+      <h2>사업영역</h2>
+      <span class="bh-count">8 products</span>
+    </div>
+    <div class="biz-grid">
+
+      <div class="biz-card bk-feat" data-stagger="0">
+        <div>
+          <div class="bk-num">01</div>
+          <div class="bk-name">VeilKey <span class="bk-tag">OPEN SOURCE</span></div>
+          <div class="bk-desc">비밀 생명주기 관리. 시크릿을 생성 시점에 AES-256-GCM으로 암호화하고 VK: 참조로 대체합니다. AI 에이전트는 참조만 보고 작업합니다.</div>
+          <div class="bk-arrow">→</div>
+        </div>
+        <div class="bk-code">
+          <div class="bkc-line" style="transition-delay:0.3s"><span class="bkc-key">STRIPE_KEY=</span><span class="bkc-val">VK:LOCAL:st0b1c2d</span></div>
+          <div class="bkc-line" style="transition-delay:0.45s"><span class="bkc-key">DATABASE_URL=</span><span class="bkc-val">VK:LOCAL:db01a2b3</span></div>
+          <div class="bkc-line" style="transition-delay:0.6s"><span class="bkc-key">AWS_SECRET=</span><span class="bkc-val">VK:LOCAL:aws4c5d6</span></div>
+          <div class="bkc-line bkc-ok" style="transition-delay:0.75s">✓ 0 plaintext</div>
+        </div>
+      </div>
+
+      <div class="biz-card" data-stagger="1"><div class="bk-num">02</div><div class="bk-name">SparkAgent <span class="bk-tag">BETA</span></div><div class="bk-desc">자율 AI 에이전트. 다단계 추론, 도구 사용, 영속 메모리. Claude/GPT + Temporal.</div><div class="bk-arrow">→</div></div>
+      <div class="biz-card" data-stagger="2"><div class="bk-num">03</div><div class="bk-name">FlowForge <span class="bk-tag">BETA</span></div><div class="bk-desc">워크플로 자동화. AI 기반 단계 생성, 100+ API 커넥터, 이벤트 트리거.</div><div class="bk-arrow">→</div></div>
+      <div class="biz-card" data-stagger="3"><div class="bk-num">04</div><div class="bk-name">LensView <span class="bk-tag">GA</span></div><div class="bk-desc">AI 관측 플랫폼. 토큰, 지연시간, 비용, 품질 실시간 추적.</div><div class="bk-arrow">→</div></div>
+      <div class="biz-card" data-stagger="4"><div class="bk-num">05</div><div class="bk-name">CastDeploy <span class="bk-tag">GA</span></div><div class="bk-desc">원클릭 배포. Git push 프로덕션. Proxmox, Docker, 베어메탈.</div><div class="bk-arrow">→</div></div>
+      <div class="biz-card" data-stagger="5"><div class="bk-num">06</div><div class="bk-name">ShieldAI <span class="bk-tag">SOON</span></div><div class="bk-desc">AI 보안 모니터링. 이상 탐지, 위협 스코어링, 자동 대응.</div><div class="bk-arrow">→</div></div>
+      <div class="biz-card" data-stagger="6"><div class="bk-num">07</div><div class="bk-name">WaveDB <span class="bk-tag">ALPHA</span></div><div class="bk-desc">벡터 + 관계형 DB. SQLite 호환, 임베더블.</div><div class="bk-arrow">→</div></div>
+
+      <div class="biz-card bk-feat" data-stagger="7">
+        <div>
+          <div class="bk-num">08</div>
+          <div class="bk-name">CoreStack <span class="bk-tag">ENTERPRISE</span></div>
+          <div class="bk-desc">인프라 플랫폼. 30개 이상의 서비스를 코드로 관리하는 셀프호스팅 스택.</div>
+          <div class="bk-arrow">→</div>
+        </div>
+        <div class="bk-code">
+          <div class="bkc-line" style="transition-delay:0.3s">GitLab · Grafana · Vault</div>
+          <div class="bkc-line" style="transition-delay:0.45s">Mattermost · Sentry · Keycloak</div>
+          <div class="bkc-line" style="transition-delay:0.6s">Elasticsearch · Metabase</div>
+          <div class="bkc-line bkc-ok" style="transition-delay:0.75s">+ 22 more</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MANIFESTO ═══ -->
+<section class="manifesto">
+  <div class="w">
+    <div class="manifesto-title rv">우리가 믿는 것</div>
+    <div class="mf-items">
+      <div class="mf-item" data-stagger="0"><span class="mf-num">01</span><div class="mf-text"><strong>필요해지기 전에 만든다.</strong> 남들이 문제를 인식할 때, 우리는 이미 해결책을 갖고 있습니다.</div></div>
+      <div class="mf-item" data-stagger="1"><span class="mf-num">02</span><div class="mf-text"><strong>직접 운영한다.</strong> 우리가 만든 것은 우리가 씁니다. 30개 이상의 서비스를 자체 서버에서 운영합니다.</div></div>
+      <div class="mf-item" data-stagger="2"><span class="mf-num">03</span><div class="mf-text"><strong>공개한다.</strong> 핵심 기술을 오픈소스로 공개합니다. 좋은 도구는 독점하지 않습니다.</div></div>
+      <div class="mf-item" data-stagger="3"><span class="mf-num">04</span><div class="mf-text"><strong>평문은 존재하지 않는다.</strong> 모든 비밀은 생성 시점에 암호화됩니다.</div></div>
+      <div class="mf-item" data-stagger="4"><span class="mf-num">05</span><div class="mf-text"><strong>소유권을 돌려준다.</strong> 고객의 데이터는 고객의 서버에 있어야 합니다.</div></div>
+      <div class="mf-item" data-stagger="5"><span class="mf-num">06</span><div class="mf-text"><strong>단순하게 만든다.</strong> Go와 SQLite. 단일 바이너리. 복잡함 대신 확실함.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TECH ═══ -->
+<section id="tech" class="tech-section">
+  <div class="w">
+    <div class="tech-counters rv">
+      <div class="tc-item"><div class="tc-num"><span class="counter-val" data-target="8">0</span></div><div class="tc-label">자체 제품</div></div>
+      <div class="tc-item"><div class="tc-num"><span class="counter-val" data-target="30">0</span>+</div><div class="tc-label">운영 서비스</div></div>
+      <div class="tc-item"><div class="tc-num"><span class="counter-val" data-target="222">0</span>+</div><div class="tc-label">보안 패턴</div></div>
+      <div class="tc-item"><div class="tc-num">24/7</div><div class="tc-label">셀프호스팅</div></div>
+    </div>
+    <div class="tech-chips rv">
+      <span class="chip">Go</span><span class="chip">Python</span><span class="chip">TypeScript</span>
+      <span class="chip">Laravel</span><span class="chip">React</span><span class="chip">Vue</span>
+      <span class="chip">Proxmox</span><span class="chip">Docker</span><span class="chip">Temporal</span>
+      <span class="chip">Claude API</span><span class="chip">Ollama</span><span class="chip">PostgreSQL</span>
+      <span class="chip">SQLite</span><span class="chip">Grafana</span><span class="chip">GitLab CI</span>
+      <span class="chip">GitHub Actions</span><span class="chip">Playwright</span><span class="chip">Elasticsearch</span>
+      <span class="chip">Kestra</span><span class="chip">Mattermost</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ NEWS ═══ -->
+<section id="news" class="news-section">
+  <div class="w">
+    <div class="biz-header rv"><h2>소식</h2></div>
+    <div>
+      <div class="news-item" data-stagger="0"><span class="nx-date">2026.03.17</span><span class="nx-title">VeilKey 오픈소스 공개 — GitHub AGPL-3.0</span><span class="nx-cat">Product</span></div>
+      <div class="news-item" data-stagger="1"><span class="nx-date">2026.03.15</span><span class="nx-title">SparkAgent 퍼블릭 베타 시작</span><span class="nx-cat">Product</span></div>
+      <div class="news-item" data-stagger="2"><span class="nx-date">2026.03.10</span><span class="nx-title">Prelik 공식 런칭</span><span class="nx-cat">Company</span></div>
+      <div class="news-item" data-stagger="3"><span class="nx-date">2026.03.05</span><span class="nx-title">CoreStack v2 릴리스</span><span class="nx-cat">Product</span></div>
+      <div class="news-item" data-stagger="4"><span class="nx-date">2026.02.28</span><span class="nx-title">FlowForge 클로즈드 베타 모집</span><span class="nx-cat">Product</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CONTACT ═══ -->
+<section id="contact" class="contact-section">
+  <div class="w">
+    <div class="contact-inner rv">
+      <div class="contact-left">
+        <h2>함께 만들어갈<br>이야기가 있으신가요.</h2>
+        <p>AI 서비스, 보안, 인프라 — 어떤 단계든 편하게 연락해주세요.</p>
+        <div class="cl-channels">
+          <span><span class="cl-dot"></span>hello@prelik.com</span>
+          <span><span class="cl-dot"></span>github.com/prelik</span>
+        </div>
+      </div>
+      <div class="contact-form">
+        <h3>메시지 보내기</h3>
+        <div class="cf-f"><label>이름</label><input type="text" placeholder="홍길동"></div>
+        <div class="cf-f"><label>이메일</label><input type="email" placeholder="you@company.com"></div>
+        <div class="cf-f"><label>내용</label><textarea placeholder="프로젝트에 대해 알려주세요."></textarea></div>
+        <button class="cf-btn">보내기</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer><div class="w"><div class="ft">
+  <span class="ft-left">Prelik</span>
+  <div class="ft-links"><a href="#about">소개</a><a href="#biz">사업</a><a href="https://github.com/prelik">GitHub</a><a href="#contact">문의</a></div>
+  <span class="ft-copy">© 2026 Pre × Relik</span>
+</div></div></footer>
+
+<script>
+// ═══ NAV ═══
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('s',scrollY>60));
+
+// ═══ STAGGERED REVEAL ═══
+const staggerObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting)return;
+    const delay=parseInt(e.target.dataset.stagger||'0')*120;
+    setTimeout(()=>e.target.classList.add('vis'),delay);
+    staggerObs.unobserve(e.target);
+  });
+},{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+
+document.querySelectorAll('[data-stagger]').forEach(el=>staggerObs.observe(el));
+
+// ═══ WORD REVEAL ═══
+const wordObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){e.target.classList.add('vis');wordObs.unobserve(e.target)}
+  });
+},{threshold:0.3});
+document.querySelectorAll('[data-reveal]').forEach(el=>wordObs.observe(el));
+
+// ═══ COUNTER ANIMATION ═══
+let counterDone=false;
+const counterObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting||counterDone)return;
+    counterDone=true;
+    document.querySelectorAll('.counter-val').forEach(el=>{
+      const target=parseInt(el.dataset.target);
+      const duration=1200;
+      const start=performance.now();
+      function tick(now){
+        const elapsed=now-start;
+        const progress=Math.min(elapsed/duration,1);
+        const eased=1-Math.pow(1-progress,3);
+        el.textContent=Math.round(target*eased);
+        if(progress<1)requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    });
+  });
+},{threshold:0.3});
+document.querySelectorAll('.tech-counters').forEach(el=>counterObs.observe(el));
+
+// ═══ BASIC REVEAL ═══
+const rvObs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');rvObs.unobserve(e.target)}})},{threshold:0.05,rootMargin:'0px 0px -20px 0px'});
+document.querySelectorAll('.rv').forEach(el=>rvObs.observe(el));
+</script>
+
+</body>
+</html>

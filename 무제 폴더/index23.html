@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prelik</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;600;700;800;900&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --w:    #f4f3ef;
+  --b:    #111110;
+  --blue: #2155ff;
+  --blue-d: #0f33cc;
+  --mid:  #6b6b68;
+  --line: #e0deda;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--w);
+  color: var(--b);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── REVEAL ─── */
+.r {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity .65s cubic-bezier(.16,1,.3,1), transform .65s cubic-bezier(.16,1,.3,1);
+}
+.r.on { opacity: 1; transform: none; }
+.d1 { transition-delay: .07s; }
+.d2 { transition-delay: .14s; }
+.d3 { transition-delay: .21s; }
+.d4 { transition-delay: .28s; }
+
+/* ─── NAV ─── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  height: 56px;
+  background: var(--w);
+  border-bottom: 2px solid var(--b);
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  text-decoration: none;
+}
+
+.logo-p {
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: -.01em;
+  color: var(--b);
+}
+.logo-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--blue);
+  margin: 0 1px 10px;
+  display: inline-block;
+}
+
+.nav-links {
+  display: flex;
+  gap: 0;
+  list-style: none;
+}
+.nav-links li { border-left: 1px solid var(--line); }
+.nav-links a {
+  display: block;
+  padding: 0 20px;
+  line-height: 54px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .06em;
+  color: var(--mid);
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color .2s, background .2s;
+}
+.nav-links a:hover { color: var(--b); background: var(--line); }
+
+.nav-btn {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--w);
+  background: var(--b);
+  border: 2px solid var(--b);
+  padding: 8px 20px;
+  text-decoration: none;
+  transition: background .2s, color .2s;
+}
+.nav-btn:hover { background: var(--blue); border-color: var(--blue); }
+
+/* ─── HERO ─── */
+.hero {
+  padding-top: 56px;
+  border-bottom: 2px solid var(--b);
+  overflow: hidden;
+}
+
+.hero-banner {
+  background: var(--b);
+  padding: 2px 0;
+  overflow: hidden;
+  white-space: nowrap;
+  border-bottom: 2px solid var(--b);
+}
+
+.ticker-track {
+  display: inline-flex;
+  gap: 0;
+  animation: tick 18s linear infinite;
+}
+.ticker-track span {
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--w);
+  padding: 6px 28px;
+  border-right: 1px solid #2a2a28;
+}
+.ticker-track span.hi { color: var(--blue); }
+
+@keyframes tick {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.hero-main {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  min-height: calc(100vh - 100px);
+}
+
+.hero-left {
+  padding: 56px 48px;
+  border-right: 2px solid var(--b);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 32px;
+}
+.hero-tag::before {
+  content: '';
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--blue);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .5; transform: scale(.7); }
+}
+
+.hero-title {
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-weight: 900;
+  font-size: clamp(80px, 11vw, 160px);
+  line-height: .9;
+  letter-spacing: -.02em;
+  color: var(--b);
+  margin-bottom: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hero-title .accent { color: var(--blue); }
+.hero-title .outline {
+  -webkit-text-stroke: 2px var(--b);
+  color: transparent;
+}
+
+.hero-foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding-top: 40px;
+  border-top: 1px solid var(--line);
+  margin-top: 40px;
+}
+
+.hero-desc {
+  font-size: 14px;
+  color: var(--mid);
+  line-height: 1.7;
+  max-width: 380px;
+  font-weight: 300;
+}
+
+.hero-cta {
+  flex-shrink: 0;
+  margin-left: 32px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--w);
+  background: var(--blue);
+  border: 2px solid var(--blue);
+  padding: 12px 24px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background .2s;
+}
+.hero-cta:hover { background: var(--blue-d); border-color: var(--blue-d); }
+
+.hero-right {
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-stat {
+  flex: 1;
+  padding: 32px 32px;
+  border-bottom: 2px solid var(--b);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.hero-stat:last-child { border-bottom: none; }
+
+.stat-big {
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-weight: 900;
+  font-size: 72px;
+  line-height: 1;
+  letter-spacing: -.03em;
+  color: var(--b);
+}
+.stat-big sup { font-size: .4em; color: var(--blue); }
+
+.stat-lbl {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-top: 8px;
+}
+
+/* ─── PRODUCTS ─── */
+.products {
+  border-bottom: 2px solid var(--b);
+}
+
+.sec-head {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  border-bottom: 2px solid var(--b);
+}
+
+.sec-head-label {
+  padding: 24px 40px;
+  border-right: 2px solid var(--b);
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-weight: 900;
+  font-size: 40px;
+  letter-spacing: -.01em;
+  color: var(--b);
+}
+
+.sec-head-desc {
+  padding: 24px 40px;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .06em;
+  color: var(--mid);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+}
+
+.prod-list { display: flex; flex-direction: column; }
+
+.prod-item {
+  display: grid;
+  grid-template-columns: 240px 1fr 200px;
+  border-bottom: 1px solid var(--line);
+  transition: background .15s;
+}
+.prod-item:hover { background: #eeede9; }
+.prod-item:last-child { border-bottom: none; }
+
+.prod-num {
+  padding: 32px 40px;
+  border-right: 2px solid var(--b);
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-weight: 900;
+  font-size: 64px;
+  letter-spacing: -.03em;
+  color: var(--line);
+  display: flex;
+  align-items: flex-start;
+}
+
+.prod-body {
+  padding: 32px 40px;
+  border-right: 1px solid var(--line);
+}
+
+.prod-name {
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-weight: 800;
+  font-size: 48px;
+  letter-spacing: -.02em;
+  line-height: 1;
+  color: var(--b);
+  margin-bottom: 12px;
+}
+
+.prod-tag {
+  display: inline-block;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  margin-bottom: 16px;
+  border: 1px solid var(--b);
+  color: var(--b);
+}
+.prod-tag.blue { border-color: var(--blue); color: var(--blue); background: rgba(33,85,255,.06); }
+
+.prod-desc {
+  font-size: 14px;
+  color: var(--mid);
+  line-height: 1.65;
+  font-weight: 300;
+  max-width: 480px;
+}
+
+.prod-side {
+  padding: 32px 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.prod-link {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .06em;
+  color: var(--b);
+  text-decoration: none;
+  border-bottom: 1px solid var(--b);
+  padding-bottom: 2px;
+  transition: color .2s, border-color .2s;
+  margin-top: auto;
+}
+.prod-link:hover { color: var(--blue); border-color: var(--blue); }
+
+/* ─── MISSION ─── */
+.mission {
+  background: var(--b);
+  color: var(--w);
+  border-bottom: 2px solid var(--b);
+}
+
+.mission-inner {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+}
+
+.mission-side {
+  border-right: 2px solid #1e1e1c;
+  padding: 56px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.mission-side-title {
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-weight: 900;
+  font-size: 40px;
+  letter-spacing: -.01em;
+  color: var(--w);
+}
+
+.mission-year {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .12em;
+  color: #404040;
+  text-transform: uppercase;
+}
+
+.mission-content {
+  padding: 56px 48px;
+}
+
+.mission-quote {
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-weight: 700;
+  font-size: clamp(36px, 4.5vw, 64px);
+  line-height: 1.05;
+  letter-spacing: -.02em;
+  color: var(--w);
+  margin-bottom: 56px;
+}
+.mission-quote .hi { color: var(--blue); }
+
+.mission-values {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border-top: 1px solid #1e1e1c;
+}
+
+.mval {
+  padding: 28px 0;
+  border-right: 1px solid #1e1e1c;
+  padding-right: 28px;
+  margin-right: 28px;
+}
+.mval:last-child { border-right: none; }
+
+.mval-n {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: .14em;
+  color: #404040;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.mval-t {
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--w);
+  margin-bottom: 8px;
+}
+
+.mval-d {
+  font-size: 12px;
+  color: #5a5a58;
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+/* ─── TEAM ─── */
+.team { border-bottom: 2px solid var(--b); }
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 2px solid var(--b);
+}
+
+.team-cell {
+  padding: 40px;
+  border-right: 1px solid var(--line);
+  transition: background .15s;
+}
+.team-cell:last-child { border-right: none; }
+.team-cell:hover { background: #eeede9; }
+
+.team-av {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .04em;
+  background: var(--line);
+  color: var(--mid);
+  margin-bottom: 24px;
+}
+
+.team-name {
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-weight: 800;
+  font-size: 32px;
+  letter-spacing: -.01em;
+  color: var(--b);
+  margin-bottom: 4px;
+}
+
+.team-role {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-bottom: 20px;
+}
+
+.team-bio {
+  font-size: 13px;
+  color: var(--mid);
+  line-height: 1.65;
+  font-weight: 300;
+}
+
+/* ─── CONTACT ─── */
+.contact {
+  background: var(--blue);
+  border-bottom: 2px solid var(--b);
+}
+
+.contact-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.contact-left {
+  padding: 64px 48px;
+  border-right: 2px solid var(--blue-d);
+}
+
+.contact-title {
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-weight: 900;
+  font-size: clamp(56px, 7vw, 96px);
+  line-height: .9;
+  letter-spacing: -.03em;
+  color: var(--w);
+  margin-bottom: 24px;
+}
+
+.contact-sub {
+  font-size: 14px;
+  color: rgba(244,243,239,.65);
+  line-height: 1.65;
+  max-width: 320px;
+  font-weight: 300;
+}
+
+.contact-right {
+  padding: 64px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.clink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  background: rgba(0,0,0,.15);
+  text-decoration: none;
+  color: var(--w);
+  border: 1px solid rgba(255,255,255,.1);
+  transition: background .2s;
+}
+.clink:hover { background: rgba(0,0,0,.25); }
+
+.clink-l { display: flex; flex-direction: column; gap: 2px; }
+.clink-type { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: rgba(244,243,239,.5); }
+.clink-val { font-size: 14px; color: var(--w); }
+
+.clink-arr { color: rgba(255,255,255,.4); transition: transform .2s, color .2s; }
+.clink:hover .clink-arr { transform: translateX(4px); color: var(--w); }
+
+.clink.hire {
+  background: rgba(255,255,255,.12);
+  border-color: rgba(255,255,255,.2);
+  margin-top: 4px;
+}
+.clink.hire:hover { background: rgba(255,255,255,.2); }
+.clink.hire .clink-val {
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: -.01em;
+}
+
+/* ─── FOOTER ─── */
+footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 40px;
+  border-top: none;
+}
+
+.footer-logo {
+  font-family: 'Big Shoulders Display', sans-serif;
+  font-weight: 900;
+  font-size: 18px;
+  letter-spacing: .02em;
+  color: var(--mid);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.footer-logo .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--blue); margin-bottom: 6px; display: inline-block; }
+
+.footer-copy { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--mid); letter-spacing: .06em; }
+
+.footer-nav { display: flex; gap: 24px; list-style: none; }
+.footer-nav a { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--mid); text-decoration: none; letter-spacing: .06em; transition: color .2s; }
+.footer-nav a:hover { color: var(--b); }
+
+@media (max-width: 1000px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .hero-main { grid-template-columns: 1fr; }
+  .hero-right { flex-direction: row; border-top: 2px solid var(--b); }
+  .hero-stat { border-bottom: none; border-right: 2px solid var(--b); }
+  .hero-stat:last-child { border-right: none; }
+  .hero-left { padding: 40px 24px; }
+  .sec-head { grid-template-columns: 1fr; }
+  .sec-head-label { border-right: none; border-bottom: 1px solid var(--line); }
+  .prod-item { grid-template-columns: 1fr; }
+  .prod-num { border-right: none; border-bottom: 1px solid var(--line); padding: 16px 24px; font-size: 36px; }
+  .prod-body { border-right: none; padding: 24px; }
+  .prod-side { padding: 16px 24px; border-top: 1px solid var(--line); }
+  .mission-inner { grid-template-columns: 1fr; }
+  .mission-side { border-right: none; border-bottom: 1px solid #1e1e1c; padding: 32px 24px; }
+  .mission-content { padding: 32px 24px; }
+  .mission-values { grid-template-columns: 1fr; }
+  .mval { border-right: none; border-bottom: 1px solid #1e1e1c; padding: 20px 0; margin-right: 0; }
+  .team-grid { grid-template-columns: 1fr; }
+  .team-cell { border-right: none; border-bottom: 1px solid var(--line); }
+  .contact-inner { grid-template-columns: 1fr; }
+  .contact-left { border-right: none; border-bottom: 2px solid var(--blue-d); padding: 40px 24px; }
+  .contact-right { padding: 40px 24px; }
+  footer { flex-direction: column; gap: 12px; padding: 20px 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <span class="logo-p">PRELIK</span><span class="logo-dot"></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#products">Products</a></li>
+    <li><a href="#mission">Mission</a></li>
+    <li><a href="#team">Team</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="#contact" class="nav-btn">Contact Us</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-banner">
+    <div class="ticker-track">
+      <span>dalforge</span><span class="hi">AI Infrastructure</span>
+      <span>VeilKey</span><span class="hi">Security Vault</span>
+      <span>Prelik Academy</span><span class="hi">Engineering Education</span>
+      <span>Seoul</span><span class="hi">Est. 2023</span>
+      <span>dalforge</span><span class="hi">AI Infrastructure</span>
+      <span>VeilKey</span><span class="hi">Security Vault</span>
+      <span>Prelik Academy</span><span class="hi">Engineering Education</span>
+      <span>Seoul</span><span class="hi">Est. 2023</span>
+    </div>
+  </div>
+
+  <div class="hero-main">
+    <div class="hero-left">
+      <div>
+        <div class="hero-tag r">AI 인프라 회사 · Seoul</div>
+        <h1 class="hero-title r d1">
+          <span>인프라를</span>
+          <span class="accent">소유하는</span>
+          <span class="outline">자가이긴다</span>
+        </h1>
+      </div>
+      <div class="hero-foot r d2">
+        <p class="hero-desc">Prelik은 AI 에이전트 인프라, 보안 크리덴셜 관리, 엔지니어링 교육을 통해 기술의 주도권을 다시 개발자에게 돌려줍니다.</p>
+        <a href="#products" class="hero-cta">제품 보기 →</a>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="hero-stat r d2">
+        <div class="stat-big"><span id="s1">0</span><sup>+</sup></div>
+        <div class="stat-lbl">Deployed<br>Agents</div>
+      </div>
+      <div class="hero-stat r d3">
+        <div class="stat-big"><span id="s2">0</span><sup>%</sup></div>
+        <div class="stat-lbl">Encryption<br>Rate</div>
+      </div>
+      <div class="hero-stat r d4">
+        <div class="stat-big"><span id="s3">0</span><sup>+</sup></div>
+        <div class="stat-lbl">Academy<br>Students</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<section class="products" id="products">
+  <div class="sec-head r">
+    <div class="sec-head-label">Products</div>
+    <div class="sec-head-desc">3 Products · AI Infrastructure Ecosystem</div>
+  </div>
+
+  <div class="prod-list">
+    <div class="prod-item r d1">
+      <div class="prod-num">01</div>
+      <div class="prod-body">
+        <div class="prod-name">dalforge</div>
+        <div class="prod-tag blue">Infrastructure</div>
+        <p class="prod-desc">LXC 기반 AI 에이전트 컨테이너 플랫폼. 격리된 실행 환경에서 에이전트를 안정적으로 배포하고 운영합니다. 자체 인프라 위에서 완전한 제어권을 가집니다.</p>
+      </div>
+      <div class="prod-side">
+        <a href="#" class="prod-link">dalforge.io</a>
+      </div>
+    </div>
+
+    <div class="prod-item r d2">
+      <div class="prod-num">02</div>
+      <div class="prod-body">
+        <div class="prod-name">VeilKey</div>
+        <div class="prod-tag">Security</div>
+        <p class="prod-desc">AES-256-GCM 기반 크리덴셜 보안 볼트. API 키, 비밀번호, 인증서 등 민감한 정보를 암호화하여 안전하게 보관하고 팀 전체가 접근할 수 있도록 관리합니다.</p>
+      </div>
+      <div class="prod-side">
+        <a href="#" class="prod-link">veilkey.io</a>
+      </div>
+    </div>
+
+    <div class="prod-item r d3">
+      <div class="prod-num">03</div>
+      <div class="prod-body">
+        <div class="prod-name">Academy</div>
+        <div class="prod-tag">Education</div>
+        <p class="prod-desc">AI 인프라 엔지니어링 실전 강의. 이론이 아닌 현장에서 바로 쓸 수 있는 기술을 가르칩니다. Prelik의 제품군을 직접 다루는 커리큘럼으로 구성됩니다.</p>
+      </div>
+      <div class="prod-side">
+        <a href="#" class="prod-link">academy.prelik.io</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MISSION -->
+<section class="mission" id="mission">
+  <div class="mission-inner">
+    <div class="mission-side">
+      <div class="mission-side-title r">Mission</div>
+      <div class="mission-year r">Est. 2023</div>
+    </div>
+    <div class="mission-content">
+      <blockquote class="mission-quote r d1">
+        AI 시대의 진짜 경쟁력은<br>
+        <span class="hi">인프라를 직접 소유하는 것</span>에서<br>
+        시작됩니다.
+      </blockquote>
+      <div class="mission-values r d2">
+        <div class="mval">
+          <div class="mval-n">01 — Principle</div>
+          <div class="mval-t">Ownership</div>
+          <p class="mval-d">클라우드 종속에서 벗어나 자체 인프라를 구축하고 운영하는 역량을 제공합니다.</p>
+        </div>
+        <div class="mval">
+          <div class="mval-n">02 — Principle</div>
+          <div class="mval-t">Security</div>
+          <p class="mval-d">암호화와 격리를 기본 원칙으로 삼아 모든 제품에 일관되게 적용합니다.</p>
+        </div>
+        <div class="mval">
+          <div class="mval-n">03 — Principle</div>
+          <div class="mval-t">Pragmatism</div>
+          <p class="mval-d">이론보다 실전. 현장에서 즉시 사용 가능한 도구와 교육을 만듭니다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section class="team" id="team">
+  <div class="sec-head r">
+    <div class="sec-head-label">Team</div>
+    <div class="sec-head-desc">3 Members · Building the Infrastructure Stack</div>
+  </div>
+  <div class="team-grid">
+    <div class="team-cell r d1">
+      <div class="team-av">JH</div>
+      <div class="team-name">정한</div>
+      <div class="team-role">CEO · Founder</div>
+      <p class="team-bio">인프라 엔지니어링과 AI 에이전트 시스템 설계를 이끕니다. Proxmox 기반 자체 인프라 운영 경험을 바탕으로 Prelik을 창립했습니다.</p>
+    </div>
+    <div class="team-cell r d2">
+      <div class="team-av">SY</div>
+      <div class="team-name">서연</div>
+      <div class="team-role">CTO</div>
+      <p class="team-bio">보안 시스템과 암호화 인프라를 담당합니다. VeilKey의 핵심 아키텍처를 설계했으며 엔터프라이즈 보안 경험을 보유하고 있습니다.</p>
+    </div>
+    <div class="team-cell r d3">
+      <div class="team-av">DJ</div>
+      <div class="team-name">대진</div>
+      <div class="team-role">Head of Education</div>
+      <p class="team-bio">Prelik Academy 커리큘럼을 총괄합니다. AI 인프라 엔지니어링 실전 교육 프로그램을 개발하고 운영합니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="contact-inner">
+    <div class="contact-left">
+      <h2 class="contact-title r">Let's<br>Build<br>Together</h2>
+      <p class="contact-sub r d1">파트너십, 도입 문의, 채용 등 무엇이든 편하게 연락 주세요.</p>
+    </div>
+    <div class="contact-right r d1">
+      <a href="mailto:hello@prelik.io" class="clink">
+        <div class="clink-l">
+          <span class="clink-type">General</span>
+          <span class="clink-val">hello@prelik.io</span>
+        </div>
+        <svg class="clink-arr" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+      <a href="mailto:press@prelik.io" class="clink">
+        <div class="clink-l">
+          <span class="clink-type">Press</span>
+          <span class="clink-val">press@prelik.io</span>
+        </div>
+        <svg class="clink-arr" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+      <a href="mailto:careers@prelik.io" class="clink hire">
+        <div class="clink-l">
+          <span class="clink-type">We're Hiring</span>
+          <span class="clink-val">careers@prelik.io</span>
+        </div>
+        <svg class="clink-arr" width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="#" class="footer-logo">PRELIK<span class="dot"></span></a>
+  <span class="footer-copy">© 2025 Prelik Inc.</span>
+  <ul class="footer-nav">
+    <li><a href="#">Privacy</a></li>
+    <li><a href="#">Terms</a></li>
+    <li><a href="#">dalforge</a></li>
+    <li><a href="#">VeilKey</a></li>
+    <li><a href="#">Academy</a></li>
+  </ul>
+</footer>
+
+<script>
+// Reveal
+const obs = new IntersectionObserver(
+  es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('on'); }),
+  { threshold: .08 }
+);
+document.querySelectorAll('.r').forEach(el => obs.observe(el));
+
+// Counters
+function countUp(id, to, dur) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const t0 = performance.now();
+  const tick = now => {
+    const p = Math.min((now - t0) / dur, 1);
+    el.textContent = Math.round((1 - Math.pow(1 - p, 3)) * to);
+    if (p < 1) requestAnimationFrame(tick);
+    else el.textContent = to;
+  };
+  requestAnimationFrame(tick);
+}
+
+let done = false;
+new IntersectionObserver(es => {
+  if (es[0].isIntersecting && !done) {
+    done = true;
+    countUp('s1', 240, 1400);
+    countUp('s2', 100, 1200);
+    countUp('s3', 180, 1600);
+  }
+}, { threshold: .3 }).observe(document.querySelector('.hero-right'));
+</script>
+</body>
+</html>

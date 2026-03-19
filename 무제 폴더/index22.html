@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prelik</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:     #090806;
+  --bg-1:   #0f0e0b;
+  --bg-2:   #161410;
+  --line:   rgba(255,255,255,.08);
+  --line-s: rgba(255,255,255,.04);
+  --text:   #f2eeea;
+  --text-2: #8a8278;
+  --text-3: #504b44;
+  --gold:   #c8963c;
+  --gold-l: rgba(200,150,60,.12);
+  --gold-d: #8a6420;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── REVEAL ─── */
+.r {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity .8s cubic-bezier(.16,1,.3,1), transform .8s cubic-bezier(.16,1,.3,1);
+}
+.r.on { opacity: 1; transform: none; }
+.d1 { transition-delay: .08s; }
+.d2 { transition-delay: .16s; }
+.d3 { transition-delay: .24s; }
+.d4 { transition-delay: .32s; }
+.d5 { transition-delay: .40s; }
+
+/* ─── NAV ─── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  height: 56px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 0 48px;
+  background: rgba(9,8,6,.9);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--line);
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.logo-mark {
+  width: 24px;
+  height: 24px;
+}
+
+.logo-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  font-size: 20px;
+  letter-spacing: .06em;
+  color: var(--text);
+}
+
+.nav-center {
+  display: flex;
+  gap: 32px;
+}
+
+.nav-center a {
+  font-size: 10px;
+  letter-spacing: .12em;
+  color: var(--text-3);
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color .2s;
+}
+.nav-center a:hover { color: var(--text-2); }
+
+.nav-right {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.nav-contact {
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-decoration: none;
+  border: 1px solid var(--gold-d);
+  padding: 6px 16px;
+  border-radius: 2px;
+  transition: background .2s, color .2s;
+}
+.nav-contact:hover { background: var(--gold-l); color: var(--gold); }
+
+/* ─── RULE ─── */
+.rule { border: none; border-top: 1px solid var(--line); }
+.rule-s { border: none; border-top: 1px solid var(--line-s); }
+
+/* ─── HERO ─── */
+.hero {
+  padding: 140px 48px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.hero-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 64px;
+}
+
+.hero-top-label {
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.hero-top-right {
+  font-size: 10px;
+  letter-spacing: .08em;
+  color: var(--text-3);
+  text-align: right;
+}
+.hero-top-right span { color: var(--gold); }
+
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(64px, 9vw, 130px);
+  line-height: .95;
+  letter-spacing: -.02em;
+  color: var(--text);
+  margin-bottom: 64px;
+  max-width: 1000px;
+}
+
+.hero-title strong {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--gold);
+}
+
+.hero-bottom {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  border-top: 1px solid var(--line);
+}
+
+.hero-col {
+  padding: 32px 0;
+  border-right: 1px solid var(--line);
+  padding-right: 32px;
+  margin-right: 32px;
+}
+.hero-col:first-child { padding-left: 0; }
+.hero-col:last-child { border-right: none; padding-right: 0; margin-right: 0; }
+
+.hero-col-label {
+  font-size: 9px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 10px;
+}
+
+.hero-col-text {
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.65;
+  font-weight: 300;
+}
+
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-decoration: none;
+  margin-top: 16px;
+  transition: gap .2s;
+}
+.hero-cta:hover { gap: 12px; }
+.hero-cta svg { flex-shrink: 0; }
+
+/* ─── PRODUCTS ─── */
+.products-section {
+  padding: 0 48px;
+  border-bottom: 1px solid var(--line);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 32px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: 48px;
+  letter-spacing: -.02em;
+  color: var(--text);
+}
+
+.section-num {
+  font-size: 10px;
+  letter-spacing: .1em;
+  color: var(--text-3);
+}
+
+.product-row {
+  display: grid;
+  grid-template-columns: 48px 1fr 3fr 1fr;
+  gap: 40px;
+  align-items: start;
+  padding: 40px 0;
+  border-bottom: 1px solid var(--line-s);
+  transition: background .2s;
+  cursor: default;
+}
+.product-row:hover { background: rgba(255,255,255,.012); }
+.product-row:last-child { border-bottom: none; }
+
+.product-row-num {
+  font-size: 10px;
+  letter-spacing: .08em;
+  color: var(--text-3);
+  padding-top: 3px;
+}
+
+.product-row-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  font-size: 28px;
+  letter-spacing: -.01em;
+  color: var(--text);
+  line-height: 1.1;
+}
+
+.product-row-sub {
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-top: 4px;
+}
+
+.product-row-desc {
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+.product-row-tag {
+  font-size: 9px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  border: 1px solid var(--gold-d);
+  padding: 4px 10px;
+  border-radius: 2px;
+  display: inline-block;
+  margin-top: 3px;
+  justify-self: end;
+}
+
+/* ─── MISSION ─── */
+.mission-section {
+  padding: 0 48px;
+  border-bottom: 1px solid var(--line);
+}
+
+.mission-body {
+  display: grid;
+  grid-template-columns: 1fr 1.8fr;
+  gap: 80px;
+  padding: 64px 0;
+  align-items: start;
+}
+
+.mission-side-label {
+  font-size: 9px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  height: fit-content;
+  margin-top: 8px;
+}
+
+.mission-quote-wrap {
+  padding-left: 40px;
+  border-left: 1px solid var(--line);
+}
+
+.mission-quote {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(28px, 3.5vw, 52px);
+  line-height: 1.25;
+  letter-spacing: -.02em;
+  color: var(--text);
+  margin-bottom: 48px;
+}
+.mission-quote em {
+  color: var(--gold);
+  font-style: normal;
+  font-weight: 600;
+}
+
+.values-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1px;
+  background: var(--line);
+}
+
+.value-item {
+  background: var(--bg);
+  padding: 24px 20px;
+}
+
+.value-num {
+  font-size: 9px;
+  letter-spacing: .12em;
+  color: var(--text-3);
+  margin-bottom: 12px;
+}
+
+.value-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  font-size: 20px;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.value-text {
+  font-size: 11px;
+  color: var(--text-3);
+  line-height: 1.65;
+  font-weight: 300;
+}
+
+/* ─── NUMBERS ─── */
+.numbers-section {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-bottom: 1px solid var(--line);
+}
+
+.number-cell {
+  padding: 48px;
+  border-right: 1px solid var(--line);
+  border-top: none;
+}
+.number-cell:last-child { border-right: none; }
+
+.number-val {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: 64px;
+  line-height: 1;
+  letter-spacing: -.04em;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.number-val sup {
+  font-size: .4em;
+  color: var(--gold);
+  vertical-align: super;
+}
+
+.number-label {
+  font-size: 9px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+/* ─── TEAM ─── */
+.team-section {
+  padding: 0 48px;
+  border-bottom: 1px solid var(--line);
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--line);
+  margin-top: 0;
+  border-top: 1px solid var(--line);
+}
+
+.team-cell {
+  background: var(--bg);
+  padding: 40px;
+  transition: background .2s;
+}
+.team-cell:hover { background: var(--bg-1); }
+
+.team-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  letter-spacing: .04em;
+  margin-bottom: 24px;
+  border: 1px solid var(--line);
+  color: var(--text-2);
+}
+
+.team-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  font-size: 24px;
+  letter-spacing: -.01em;
+  margin-bottom: 4px;
+}
+
+.team-role {
+  font-size: 9px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 20px;
+}
+
+.team-bio {
+  font-size: 11px;
+  color: var(--text-3);
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+/* ─── CONTACT ─── */
+.contact-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid var(--line);
+}
+
+.contact-left {
+  padding: 64px 48px;
+  border-right: 1px solid var(--line);
+}
+
+.contact-heading {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(40px, 5vw, 72px);
+  line-height: 1.05;
+  letter-spacing: -.02em;
+  color: var(--text);
+  margin-bottom: 24px;
+}
+
+.contact-desc {
+  font-size: 12px;
+  color: var(--text-3);
+  line-height: 1.7;
+  max-width: 320px;
+  font-weight: 300;
+}
+
+.contact-right {
+  padding: 64px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--line-s);
+}
+
+.contact-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background: var(--bg);
+  text-decoration: none;
+  color: var(--text);
+  transition: background .2s;
+}
+.contact-item:hover { background: var(--bg-1); }
+
+.contact-item-left {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.contact-item-type {
+  font-size: 9px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.contact-item-val {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.contact-item-arr {
+  color: var(--text-3);
+  transition: transform .2s, color .2s;
+}
+.contact-item:hover .contact-item-arr { transform: translateX(4px); color: var(--gold); }
+
+.hiring-row {
+  margin-top: 1px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background: var(--gold-l);
+  text-decoration: none;
+  border: 1px solid var(--gold-d);
+  transition: background .2s;
+}
+.hiring-row:hover { background: rgba(200,150,60,.18); }
+
+.hiring-label {
+  font-size: 9px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 3px;
+}
+
+.hiring-val {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--gold);
+}
+
+.hiring-arr {
+  color: var(--gold-d);
+  transition: transform .2s;
+}
+.hiring-row:hover .hiring-arr { transform: translateX(4px); color: var(--gold); }
+
+/* ─── FOOTER ─── */
+footer {
+  padding: 28px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--text-3);
+}
+.footer-logo-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: .06em;
+}
+
+.footer-copy {
+  font-size: 10px;
+  color: var(--text-3);
+  letter-spacing: .06em;
+}
+
+.footer-links {
+  display: flex;
+  gap: 24px;
+  list-style: none;
+}
+.footer-links a {
+  font-size: 10px;
+  color: var(--text-3);
+  text-decoration: none;
+  letter-spacing: .06em;
+  transition: color .2s;
+}
+.footer-links a:hover { color: var(--text-2); }
+
+@media (max-width: 1000px) {
+  nav { padding: 0 24px; }
+  .nav-center { display: none; }
+  .hero { padding: 100px 24px 0; }
+  .products-section, .mission-section, .team-section { padding: 0 24px; }
+  .product-row { grid-template-columns: 36px 1fr; gap: 16px; }
+  .product-row-desc { display: none; }
+  .product-row-tag { justify-self: start; }
+  .mission-body { grid-template-columns: 1fr; gap: 24px; }
+  .mission-side-label { writing-mode: horizontal-tb; transform: none; }
+  .mission-quote-wrap { padding-left: 0; border-left: none; border-top: 1px solid var(--line); padding-top: 24px; }
+  .values-grid { grid-template-columns: 1fr; }
+  .numbers-section { grid-template-columns: repeat(2, 1fr); }
+  .number-cell { padding: 32px 24px; }
+  .team-grid { grid-template-columns: 1fr; }
+  .contact-section { grid-template-columns: 1fr; }
+  .contact-left { border-right: none; border-bottom: 1px solid var(--line); padding: 40px 24px; }
+  .contact-right { padding: 40px 24px; }
+  footer { flex-direction: column; gap: 16px; text-align: center; padding: 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <svg class="logo-mark" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="lg" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#c8963c"/>
+          <stop offset="1" stop-color="#8a6420"/>
+        </linearGradient>
+      </defs>
+      <circle cx="9"  cy="10" r="6" stroke="url(#lg)" stroke-width="1.2" fill="none" opacity=".9"/>
+      <circle cx="15" cy="10" r="6" stroke="url(#lg)" stroke-width="1.2" fill="none" opacity=".55"/>
+      <circle cx="12" cy="16" r="6" stroke="url(#lg)" stroke-width="1.2" fill="none" opacity=".3"/>
+      <circle cx="12" cy="12" r="2.5" fill="url(#lg)"/>
+    </svg>
+    <span class="logo-name">PRELIK</span>
+  </a>
+
+  <div class="nav-center">
+    <a href="#products">Products</a>
+    <a href="#mission">Mission</a>
+    <a href="#team">Team</a>
+  </div>
+
+  <div class="nav-right">
+    <a href="#contact" class="nav-contact">Contact</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-top r">
+    <span class="hero-top-label">AI Infrastructure Company — Seoul</span>
+    <div class="hero-top-right">Est. <span>2023</span> &nbsp;/&nbsp; 3 Products</div>
+  </div>
+
+  <h1 class="hero-title r d1">
+    인프라를<br>
+    <strong>소유하는</strong><br>
+    자가 이긴다
+  </h1>
+
+  <div class="hero-bottom">
+    <div class="hero-col r d2">
+      <div class="hero-col-label">About</div>
+      <div class="hero-col-text">Prelik은 AI 에이전트 인프라, 보안, 그리고 엔지니어링 교육을 운영하는 테크 회사입니다.</div>
+    </div>
+    <div class="hero-col r d3">
+      <div class="hero-col-label">Focus</div>
+      <div class="hero-col-text">클라우드 의존에서 벗어나 조직이 직접 인프라를 소유하고 운영할 수 있도록 돕습니다.</div>
+    </div>
+    <div class="hero-col r d4">
+      <div class="hero-col-label">Products</div>
+      <div class="hero-col-text">dalforge · VeilKey · Prelik Academy</div>
+      <a href="#products" class="hero-cta">
+        제품 보기
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M1 6h10M7 2l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<section class="products-section" id="products">
+  <div class="section-header r">
+    <h2 class="section-title">Products</h2>
+    <span class="section-num">01 / 04</span>
+  </div>
+
+  <div class="product-row r d1">
+    <div class="product-row-num">01</div>
+    <div>
+      <div class="product-row-title">dalforge</div>
+      <div class="product-row-sub">Infrastructure</div>
+    </div>
+    <div class="product-row-desc">
+      LXC 기반 AI 에이전트 컨테이너 플랫폼. 격리된 실행 환경에서 에이전트를 안정적으로 배포하고 운영합니다. 자체 인프라 위에서 완전한 제어권을 가집니다.
+    </div>
+    <span class="product-row-tag">dalforge.io</span>
+  </div>
+
+  <div class="product-row r d2">
+    <div class="product-row-num">02</div>
+    <div>
+      <div class="product-row-title">VeilKey</div>
+      <div class="product-row-sub">Security</div>
+    </div>
+    <div class="product-row-desc">
+      AES-256-GCM 기반 크리덴셜 보안 볼트. API 키, 비밀번호, 인증서 등 민감한 정보를 암호화하여 안전하게 보관하고 팀 전체가 접근할 수 있도록 관리합니다.
+    </div>
+    <span class="product-row-tag">veilkey.io</span>
+  </div>
+
+  <div class="product-row r d3">
+    <div class="product-row-num">03</div>
+    <div>
+      <div class="product-row-title">Academy</div>
+      <div class="product-row-sub">Education</div>
+    </div>
+    <div class="product-row-desc">
+      AI 인프라 엔지니어링 실전 강의. 이론이 아닌 현장에서 바로 쓸 수 있는 기술을 가르칩니다. Prelik의 제품군을 직접 다루는 커리큘럼으로 구성됩니다.
+    </div>
+    <span class="product-row-tag">academy.prelik.io</span>
+  </div>
+</section>
+
+<!-- MISSION -->
+<section class="mission-section" id="mission">
+  <div class="section-header r">
+    <h2 class="section-title">Mission</h2>
+    <span class="section-num">02 / 04</span>
+  </div>
+
+  <div class="mission-body">
+    <div>
+      <div class="mission-side-label r">Our Belief</div>
+    </div>
+    <div class="mission-quote-wrap">
+      <blockquote class="mission-quote r d1">
+        AI 시대의 진짜 경쟁력은<br>
+        <em>인프라를 직접 소유하는 것</em>에서<br>
+        시작됩니다.
+      </blockquote>
+      <div class="values-grid r d2">
+        <div class="value-item">
+          <div class="value-num">01</div>
+          <div class="value-title">Ownership</div>
+          <div class="value-text">클라우드 종속에서 벗어나 자체 인프라를 구축하고 운영하는 역량을 제공합니다.</div>
+        </div>
+        <div class="value-item">
+          <div class="value-num">02</div>
+          <div class="value-title">Security</div>
+          <div class="value-text">암호화와 격리를 기본 원칙으로 삼아 모든 제품에 일관되게 적용합니다.</div>
+        </div>
+        <div class="value-item">
+          <div class="value-num">03</div>
+          <div class="value-title">Pragmatism</div>
+          <div class="value-text">이론보다 실전. 현장에서 즉시 사용 가능한 도구와 교육을 만듭니다.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NUMBERS -->
+<div class="numbers-section">
+  <div class="number-cell r">
+    <div class="number-val"><span id="n1">0</span><sup>+</sup></div>
+    <div class="number-label">Deployed Agents</div>
+  </div>
+  <div class="number-cell r d1">
+    <div class="number-val"><span id="n2">0</span><sup>%</sup></div>
+    <div class="number-label">Encryption Rate</div>
+  </div>
+  <div class="number-cell r d2">
+    <div class="number-val"><span id="n3">0</span><sup>+</sup></div>
+    <div class="number-label">Students</div>
+  </div>
+  <div class="number-cell r d3">
+    <div class="number-val"><span id="n4">0</span></div>
+    <div class="number-label">Products</div>
+  </div>
+</div>
+
+<!-- TEAM -->
+<section class="team-section" id="team">
+  <div class="section-header r">
+    <h2 class="section-title">Team</h2>
+    <span class="section-num">03 / 04</span>
+  </div>
+
+  <div class="team-grid">
+    <div class="team-cell r d1">
+      <div class="team-avatar">JH</div>
+      <div class="team-name">정한</div>
+      <div class="team-role">CEO · Founder</div>
+      <p class="team-bio">인프라 엔지니어링과 AI 에이전트 시스템 설계를 이끕니다. Proxmox 기반 자체 인프라 운영 경험을 바탕으로 Prelik을 창립했습니다.</p>
+    </div>
+    <div class="team-cell r d2">
+      <div class="team-avatar">SY</div>
+      <div class="team-name">서연</div>
+      <div class="team-role">CTO</div>
+      <p class="team-bio">보안 시스템과 암호화 인프라를 담당합니다. VeilKey의 핵심 아키텍처를 설계했으며 엔터프라이즈 보안 경험을 보유하고 있습니다.</p>
+    </div>
+    <div class="team-cell r d3">
+      <div class="team-avatar">DJ</div>
+      <div class="team-name">대진</div>
+      <div class="team-role">Head of Education</div>
+      <p class="team-bio">Prelik Academy 커리큘럼을 총괄합니다. AI 인프라 엔지니어링 실전 교육 프로그램을 개발하고 운영합니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact-section" id="contact">
+  <div class="contact-left">
+    <div class="section-num r" style="margin-bottom:24px">04 / 04</div>
+    <h2 class="contact-heading r d1">함께<br>만들어요</h2>
+    <p class="contact-desc r d2">파트너십, 도입 문의, 채용 — 무엇이든 편하게 연락 주세요.</p>
+  </div>
+  <div class="contact-right r d1">
+    <a href="mailto:hello@prelik.io" class="contact-item">
+      <div class="contact-item-left">
+        <span class="contact-item-type">General</span>
+        <span class="contact-item-val">hello@prelik.io</span>
+      </div>
+      <svg class="contact-item-arr" width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+    <a href="mailto:press@prelik.io" class="contact-item">
+      <div class="contact-item-left">
+        <span class="contact-item-type">Press</span>
+        <span class="contact-item-val">press@prelik.io</span>
+      </div>
+      <svg class="contact-item-arr" width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+    <a href="mailto:careers@prelik.io" class="hiring-row">
+      <div>
+        <div class="hiring-label">We're hiring</div>
+        <div class="hiring-val">careers@prelik.io</div>
+      </div>
+      <svg class="hiring-arr" width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="#" class="footer-logo">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <defs>
+        <linearGradient id="lg2" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#c8963c"/>
+          <stop offset="1" stop-color="#8a6420"/>
+        </linearGradient>
+      </defs>
+      <circle cx="9"  cy="10" r="6" stroke="url(#lg2)" stroke-width="1.2" fill="none" opacity=".9"/>
+      <circle cx="15" cy="10" r="6" stroke="url(#lg2)" stroke-width="1.2" fill="none" opacity=".55"/>
+      <circle cx="12" cy="16" r="6" stroke="url(#lg2)" stroke-width="1.2" fill="none" opacity=".3"/>
+      <circle cx="12" cy="12" r="2.5" fill="url(#lg2)"/>
+    </svg>
+    <span class="footer-logo-text">PRELIK</span>
+  </a>
+  <span class="footer-copy">© 2025 Prelik Inc. — Seoul</span>
+  <ul class="footer-links">
+    <li><a href="#">Privacy</a></li>
+    <li><a href="#">Terms</a></li>
+    <li><a href="#">dalforge</a></li>
+    <li><a href="#">VeilKey</a></li>
+    <li><a href="#">Academy</a></li>
+  </ul>
+</footer>
+
+<script>
+// Scroll reveal
+const obs = new IntersectionObserver(
+  es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('on'); }),
+  { threshold: .1 }
+);
+document.querySelectorAll('.r').forEach(el => obs.observe(el));
+
+// Counters
+function countUp(id, to, dur) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const t0 = performance.now();
+  const tick = now => {
+    const p = Math.min((now - t0) / dur, 1);
+    el.textContent = Math.round((1 - Math.pow(1 - p, 3)) * to);
+    if (p < 1) requestAnimationFrame(tick);
+    else el.textContent = to;
+  };
+  requestAnimationFrame(tick);
+}
+
+let fired = false;
+const statsObs = new IntersectionObserver(es => {
+  if (es[0].isIntersecting && !fired) {
+    fired = true;
+    countUp('n1', 240, 1400);
+    countUp('n2', 100, 1200);
+    countUp('n3', 180, 1600);
+    countUp('n4', 3,   800);
+  }
+}, { threshold: .3 });
+const ns = document.querySelector('.numbers-section');
+if (ns) statsObs.observe(ns);
+</script>
+</body>
+</html>

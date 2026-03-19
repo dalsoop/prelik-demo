@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prelik — Geometric Precision</title>
+<style>
+  :root {
+    --blue: #1A56FF;
+    --white: #FFFFFF;
+    --off: #F5F5F3;
+    --ink: #111111;
+    --light: #BEBEBE;
+    --faint: #E8E8E8;
+    --mono: 'Courier New', Courier, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  }
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--sans); background: var(--white); color: var(--ink); overflow-x: hidden; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top:0; left:0; right:0; z-index:100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.4rem 3rem;
+    background: var(--white);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s;
+  }
+  nav.scrolled { border-color: var(--faint); }
+  .logo {
+    font-family: var(--mono); font-size: 1rem; font-weight: 400;
+    letter-spacing: 0.08em; text-decoration: none; color: var(--ink);
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .logo-sq {
+    width: 18px; height: 18px; background: var(--blue);
+    display: inline-block;
+    animation: spinSq 6s linear infinite;
+  }
+  @keyframes spinSq { to { transform: rotate(360deg); } }
+  .nav-links { display:flex; gap:2.5rem; list-style:none; }
+  .nav-links a {
+    font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--ink); text-decoration: none;
+    position: relative; transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--blue); }
+  .nav-cta {
+    padding: 0.55rem 1.4rem;
+    border: 1px solid var(--ink);
+    font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--ink); text-decoration: none;
+    transition: background 0.25s, color 0.25s;
+  }
+  .nav-cta:hover { background: var(--ink); color: var(--white); }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    padding-top: 80px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr auto;
+    overflow: hidden;
+  }
+  .hero-left {
+    padding: 5rem 3rem 5rem;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    position: relative;
+  }
+  .hero-right {
+    background: var(--off);
+    position: relative; overflow: hidden;
+    display: flex; align-items: flex-end;
+  }
+  .hero-tag {
+    font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--blue);
+    margin-bottom: 2rem;
+    clip-path: inset(0 100% 0 0);
+    animation: clipReveal 0.8s cubic-bezier(0.22,1,0.36,1) 0.5s forwards;
+  }
+  @keyframes clipReveal { to { clip-path: inset(0 0% 0 0); } }
+
+  .hero-h1 {
+    font-family: var(--mono);
+    font-size: clamp(2.8rem, 6vw, 6.5rem);
+    font-weight: 400;
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+  }
+  .hero-h1 .word {
+    display: inline-block;
+    clip-path: inset(0 100% 0 0);
+    animation: clipReveal 0.7s cubic-bezier(0.22,1,0.36,1) forwards;
+  }
+  .hero-h1 .word:nth-child(1) { animation-delay: 0.7s; }
+  .hero-h1 .word:nth-child(2) { animation-delay: 0.85s; display:block; }
+  .hero-h1 .word:nth-child(3) { animation-delay: 1.0s; color: var(--blue); display:block; }
+
+  .hero-meta {
+    margin-top: 3.5rem;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    opacity: 0;
+    animation: fadeIn 0.6s ease 1.5s forwards;
+  }
+  @keyframes fadeIn { to { opacity: 1; } }
+
+  .meta-item-label {
+    font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--light); margin-bottom: 0.4rem;
+  }
+  .meta-item-val { font-size: 0.9rem; color: var(--ink); line-height: 1.5; }
+
+  .hero-actions {
+    display: flex; align-items: center; gap: 1.5rem;
+    margin-top: 3rem;
+    opacity: 0;
+    animation: fadeIn 0.6s ease 1.8s forwards;
+  }
+  .btn-fill {
+    padding: 0.9rem 2rem;
+    background: var(--blue); color: var(--white);
+    font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.12em;
+    text-transform: uppercase; text-decoration: none;
+    position: relative; overflow: hidden;
+    transition: color 0.3s;
+  }
+  .btn-fill::after {
+    content: ''; position: absolute;
+    inset: 0; background: var(--ink);
+    transform: translateY(101%);
+    transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+  }
+  .btn-fill:hover::after { transform: translateY(0); }
+  .btn-fill span { position: relative; z-index:1; }
+
+  .btn-outline {
+    padding: 0.9rem 2rem;
+    border: 1px solid var(--light);
+    font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.12em;
+    text-transform: uppercase; text-decoration: none; color: var(--ink);
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+
+  /* hero right geometric */
+  .geo-canvas {
+    position: absolute; inset: 0;
+  }
+  .geo-canvas svg { width: 100%; height: 100%; }
+
+  .hero-right-label {
+    position: absolute; bottom: 3rem; left: 3rem;
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--light);
+    writing-mode: vertical-rl;
+  }
+
+  .hero-stat-big {
+    position: absolute; bottom: 3rem; right: 3rem;
+    text-align: right;
+  }
+  .hero-stat-big .big-num {
+    font-family: var(--mono); font-size: 5rem; font-weight: 400;
+    line-height: 1; color: var(--ink);
+    opacity: 0; animation: fadeIn 0.8s ease 2s forwards;
+  }
+  .hero-stat-big .big-num span { color: var(--blue); }
+  .hero-stat-big .big-label {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--light);
+    opacity: 0; animation: fadeIn 0.8s ease 2.2s forwards;
+  }
+
+  /* hero bottom ticker */
+  .ticker-bar {
+    grid-column: 1 / -1;
+    border-top: 1px solid var(--faint);
+    overflow: hidden; display: flex; align-items: center;
+    height: 44px;
+  }
+  .ticker-track {
+    display: flex; gap: 0;
+    animation: tickerScroll 20s linear infinite;
+    white-space: nowrap;
+  }
+  @keyframes tickerScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .ticker-item {
+    font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--light);
+    padding: 0 2.5rem; border-right: 1px solid var(--faint);
+    line-height: 44px;
+    flex-shrink: 0;
+  }
+  .ticker-item.accent { color: var(--blue); }
+
+  /* ── REVEAL ── */
+  .rv {
+    opacity: 0; transform: translateY(30px);
+    transition: opacity 0.85s cubic-bezier(0.22,1,0.36,1),
+                transform 0.85s cubic-bezier(0.22,1,0.36,1);
+  }
+  .rv.vis { opacity:1; transform: translateY(0); }
+  .rv-d1 { transition-delay: 0.1s; }
+  .rv-d2 { transition-delay: 0.2s; }
+  .rv-d3 { transition-delay: 0.3s; }
+  .rv-d4 { transition-delay: 0.4s; }
+
+  /* ── ABOUT ── */
+  #about {
+    padding: 8rem 3rem;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 2rem;
+    align-items: start;
+  }
+  .about-num {
+    grid-column: 1 / 3;
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.18em;
+    color: var(--light); text-transform: uppercase; padding-top: 0.4rem;
+  }
+  .about-main { grid-column: 3 / 9; }
+  .about-side { grid-column: 10 / 13; }
+
+  .section-eyebrow {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--blue); margin-bottom: 1.5rem;
+  }
+  .h2-mono {
+    font-family: var(--mono);
+    font-size: clamp(2rem, 3.5vw, 3.5rem);
+    font-weight: 400; line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 2.5rem;
+  }
+  .h2-mono .hl { color: var(--blue); }
+
+  .body-text {
+    font-size: 0.97rem; line-height: 1.85; color: #555;
+    margin-bottom: 1.4rem;
+  }
+
+  .about-side-block {
+    border: 1px solid var(--faint);
+    padding: 2rem;
+  }
+  .side-big {
+    font-family: var(--mono); font-size: 3.5rem; font-weight: 400;
+    line-height: 1; letter-spacing: -0.03em; color: var(--ink);
+  }
+  .side-big .c { color: var(--blue); }
+  .side-label {
+    font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--light); margin-top: 0.5rem;
+  }
+  .side-divider { height: 1px; background: var(--faint); margin: 1.5rem 0; }
+
+  /* ── SERVICES ── */
+  #services { padding: 0 3rem 8rem; }
+
+  .services-top {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    border-bottom: 1px solid var(--faint); padding-bottom: 2rem;
+    margin-bottom: 0;
+  }
+  .services-top-right {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--light);
+  }
+
+  .services-list {}
+  .svc-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 1fr auto;
+    gap: 2rem; align-items: center;
+    padding: 2.2rem 0;
+    border-bottom: 1px solid var(--faint);
+    cursor: default;
+    position: relative;
+    transition: background 0.3s;
+  }
+  .svc-row::before {
+    content: ''; position: absolute;
+    left: 0; top: 50%; transform: translateY(-50%);
+    width: 3px; height: 0;
+    background: var(--blue);
+    transition: height 0.4s cubic-bezier(0.22,1,0.36,1);
+  }
+  .svc-row:hover::before { height: 100%; }
+  .svc-row:hover { background: #fafafa; padding-left: 1rem; transition: background 0.3s, padding 0.4s cubic-bezier(0.22,1,0.36,1); }
+
+  .svc-idx {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.16em;
+    color: var(--light);
+  }
+  .svc-name {
+    font-family: var(--mono); font-size: 1.25rem; font-weight: 400;
+    letter-spacing: -0.01em; color: var(--ink);
+    transition: color 0.2s;
+  }
+  .svc-row:hover .svc-name { color: var(--blue); }
+  .svc-desc { font-size: 0.87rem; line-height: 1.65; color: #888; }
+  .svc-tag {
+    font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.8rem;
+    border: 1px solid var(--faint);
+    color: var(--light);
+    white-space: nowrap;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .svc-row:hover .svc-tag { border-color: var(--blue); color: var(--blue); }
+
+  /* ── NUMBERS ── */
+  #numbers {
+    background: var(--ink); color: var(--white);
+    padding: 6rem 3rem;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+  }
+  .num-block {
+    padding: 3rem 2rem;
+    border-right: 1px solid rgba(255,255,255,0.07);
+    position: relative; overflow: hidden;
+  }
+  .num-block:last-child { border-right: none; }
+  .num-block::after {
+    content: ''; position: absolute;
+    bottom: 0; left: 0; width: 100%; height: 2px;
+    background: var(--blue);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.5s cubic-bezier(0.22,1,0.36,1);
+  }
+  .num-block:hover::after { transform: scaleX(1); }
+  .num-val {
+    font-family: var(--mono); font-size: clamp(2.5rem, 4vw, 4.5rem);
+    font-weight: 400; line-height: 1; letter-spacing: -0.03em;
+    color: var(--white);
+  }
+  .num-val .c { color: var(--blue); }
+  .num-key {
+    margin-top: 1rem;
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.18em;
+    text-transform: uppercase; color: rgba(255,255,255,0.35);
+  }
+  .num-sub {
+    margin-top: 0.6rem;
+    font-size: 0.82rem; color: rgba(255,255,255,0.2); line-height: 1.5;
+  }
+
+  /* ── TEAM ── */
+  #team { padding: 8rem 3rem; }
+  .team-head {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 4rem;
+  }
+  .team-head-right {
+    max-width: 32ch;
+    font-size: 0.88rem; line-height: 1.7; color: #888; text-align: right;
+  }
+
+  .team-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;
+  }
+  .t-card {
+    position: relative;
+    border: 1px solid var(--faint);
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .t-card:hover { border-color: var(--blue); transform: translateY(-4px); }
+  .t-img {
+    width: 100%; aspect-ratio: 1;
+    background: var(--off);
+    position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .t-card:nth-child(1) .t-img { background: #EEF2FF; }
+  .t-card:nth-child(2) .t-img { background: #F0F4F8; }
+  .t-card:nth-child(3) .t-img { background: #F5F0EE; }
+  .t-card:nth-child(4) .t-img { background: #EEF5F0; }
+
+  .t-mono-init {
+    font-family: var(--mono);
+    font-size: 3.5rem; font-weight: 400;
+    color: rgba(0,0,0,0.08);
+    user-select: none;
+  }
+  .t-bar {
+    height: 3px; background: var(--blue);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+  }
+  .t-card:hover .t-bar { transform: scaleX(1); }
+  .t-info { padding: 1.5rem; }
+  .t-name { font-family: var(--mono); font-size: 0.95rem; font-weight: 400; letter-spacing: -0.01em; }
+  .t-role {
+    font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--blue); margin-top: 0.3rem;
+  }
+  .t-bio { margin-top: 1rem; font-size: 0.8rem; line-height: 1.65; color: #888; }
+
+  /* ── CONTACT ── */
+  #contact { padding: 8rem 3rem; background: var(--off); }
+  .contact-grid {
+    display: grid; grid-template-columns: 1fr 1.2fr; gap: 8rem;
+    align-items: start;
+  }
+  .contact-left {}
+  .contact-h2 {
+    font-family: var(--mono);
+    font-size: clamp(2.2rem, 4vw, 4rem);
+    font-weight: 400; line-height: 1.0;
+    letter-spacing: -0.02em; margin-bottom: 2.5rem;
+  }
+  .contact-h2 .hl { color: var(--blue); }
+  .contact-meta { margin-top: 3rem; }
+  .c-row {
+    display: flex; gap: 1.5rem; align-items: flex-start;
+    padding: 1.3rem 0; border-bottom: 1px solid rgba(0,0,0,0.07);
+  }
+  .c-row:first-child { border-top: 1px solid rgba(0,0,0,0.07); }
+  .c-icon {
+    width: 32px; height: 32px; flex-shrink: 0;
+    background: var(--blue);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .c-icon svg { width: 14px; height: 14px; stroke: #fff; fill: none; stroke-width: 2; }
+  .c-label {
+    font-family: var(--mono); font-size: 0.58rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--light); margin-bottom: 0.3rem;
+  }
+  .c-val { font-size: 0.92rem; color: var(--ink); line-height: 1.5; }
+
+  .contact-form {}
+  .cf-group { margin-bottom: 1.2rem; }
+  .cf-group label {
+    display: block; font-family: var(--mono); font-size: 0.58rem;
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--light);
+    margin-bottom: 0.5rem;
+  }
+  .cf-group input,
+  .cf-group select,
+  .cf-group textarea {
+    width: 100%; padding: 0.85rem 1rem;
+    border: 1px solid var(--faint);
+    background: var(--white);
+    font-family: var(--sans); font-size: 0.9rem; color: var(--ink);
+    outline: none;
+    transition: border-color 0.25s;
+    appearance: none;
+  }
+  .cf-group input:focus,
+  .cf-group select:focus,
+  .cf-group textarea:focus { border-color: var(--blue); }
+  .cf-group textarea { resize: none; min-height: 110px; }
+
+  .cf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+  .cf-submit {
+    width: 100%;
+    padding: 1.1rem;
+    background: var(--blue); color: var(--white); border: none;
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.14em;
+    text-transform: uppercase; cursor: pointer;
+    position: relative; overflow: hidden;
+    transition: color 0.3s;
+    margin-top: 0.5rem;
+  }
+  .cf-submit::after {
+    content: ''; position: absolute; inset: 0; background: var(--ink);
+    transform: translateX(-101%);
+    transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+  }
+  .cf-submit:hover::after { transform: translateX(0); }
+  .cf-submit span { position: relative; z-index:1; }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 2rem 3rem;
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid var(--faint);
+    background: var(--white);
+  }
+  .f-logo {
+    font-family: var(--mono); font-size: 0.85rem; letter-spacing: 0.06em;
+    color: var(--ink); text-decoration: none;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .f-logo .f-sq { width: 12px; height: 12px; background: var(--blue); }
+  .f-copy { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.1em; color: var(--light); }
+  .f-links { display: flex; gap: 2rem; list-style: none; }
+  .f-links a {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--light); text-decoration: none;
+    transition: color 0.2s;
+  }
+  .f-links a:hover { color: var(--blue); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 960px) {
+    nav { padding: 1.2rem 1.5rem; }
+    .nav-links { display: none; }
+    #hero { grid-template-columns: 1fr; grid-template-rows: auto auto auto; }
+    .hero-left { padding: 3rem 1.5rem 2rem; }
+    .hero-right { min-height: 260px; }
+    #about { grid-template-columns: 1fr; padding: 5rem 1.5rem; }
+    .about-num { display: none; }
+    .about-main, .about-side { grid-column: 1 / -1; }
+    #services { padding: 0 1.5rem 5rem; }
+    .svc-row { grid-template-columns: 60px 1fr; }
+    .svc-desc, .svc-tag { display: none; }
+    #numbers { grid-template-columns: 1fr 1fr; padding: 4rem 1.5rem; }
+    .num-block { border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .num-block:nth-child(2n) { border-right: none; }
+    #team { padding: 5rem 1.5rem; }
+    .team-head { flex-direction: column; align-items: flex-start; gap: 1rem; }
+    .team-head-right { text-align: left; }
+    .team-grid { grid-template-columns: 1fr 1fr; }
+    #contact { padding: 5rem 1.5rem; }
+    .contact-grid { grid-template-columns: 1fr; gap: 4rem; }
+    .cf-row { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 1.2rem; padding: 1.8rem 1.5rem; }
+    .f-links { justify-content: center; }
+  }
+  @media (max-width: 560px) {
+    .team-grid { grid-template-columns: 1fr; }
+    #numbers { grid-template-columns: 1fr; }
+    .num-block { border-right: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav id="navbar">
+  <a href="#" class="logo"><span class="logo-sq"></span>PRELIK</a>
+  <ul class="nav-links">
+    <li><a href="#about">소개</a></li>
+    <li><a href="#services">서비스</a></li>
+    <li><a href="#team">팀</a></li>
+    <li><a href="#contact">연락처</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">문의하기</a>
+</nav>
+
+<!-- Hero -->
+<section id="hero">
+  <div class="hero-left">
+    <p class="hero-tag">// 전략 · 기술 · 성장</p>
+    <h1 class="hero-h1">
+      <span class="word">정밀한</span>
+      <span class="word">비즈니스</span>
+      <span class="word">솔루션</span>
+    </h1>
+    <div class="hero-meta">
+      <div>
+        <div class="meta-item-label">설립</div>
+        <div class="meta-item-val">2019년 · 서울</div>
+      </div>
+      <div>
+        <div class="meta-item-label">전문분야</div>
+        <div class="meta-item-val">디지털 전환 · 전략 컨설팅</div>
+      </div>
+      <div>
+        <div class="meta-item-label">규모</div>
+        <div class="meta-item-val">임직원 24명</div>
+      </div>
+      <div>
+        <div class="meta-item-label">산업</div>
+        <div class="meta-item-val">기업 솔루션 전반</div>
+      </div>
+    </div>
+    <div class="hero-actions">
+      <a href="#services" class="btn-fill"><span>서비스 보기</span></a>
+      <a href="#about" class="btn-outline">회사 소개</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="geo-canvas">
+      <svg viewBox="0 0 600 700" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <!-- Grid lines -->
+        <line x1="0" y1="100" x2="600" y2="100" stroke="#E8E8E8" stroke-width="1"/>
+        <line x1="0" y1="200" x2="600" y2="200" stroke="#E8E8E8" stroke-width="1"/>
+        <line x1="0" y1="300" x2="600" y2="300" stroke="#E8E8E8" stroke-width="1"/>
+        <line x1="0" y1="400" x2="600" y2="400" stroke="#E8E8E8" stroke-width="1"/>
+        <line x1="0" y1="500" x2="600" y2="500" stroke="#E8E8E8" stroke-width="1"/>
+        <line x1="0" y1="600" x2="600" y2="600" stroke="#E8E8E8" stroke-width="1"/>
+        <line x1="100" y1="0" x2="100" y2="700" stroke="#E8E8E8" stroke-width="1"/>
+        <line x1="200" y1="0" x2="200" y2="700" stroke="#E8E8E8" stroke-width="1"/>
+        <line x1="300" y1="0" x2="300" y2="700" stroke="#E8E8E8" stroke-width="1"/>
+        <line x1="400" y1="0" x2="400" y2="700" stroke="#E8E8E8" stroke-width="1"/>
+        <line x1="500" y1="0" x2="500" y2="700" stroke="#E8E8E8" stroke-width="1"/>
+        <!-- Big circle -->
+        <circle cx="300" cy="350" r="200" fill="none" stroke="#D8D8D8" stroke-width="1" stroke-dasharray="4 8">
+          <animateTransform attributeName="transform" type="rotate" from="0 300 350" to="360 300 350" dur="30s" repeatCount="indefinite"/>
+        </circle>
+        <!-- Accent shapes -->
+        <rect x="200" y="250" width="200" height="200" fill="none" stroke="#1A56FF" stroke-width="1.5" opacity="0.3">
+          <animateTransform attributeName="transform" type="rotate" from="0 300 350" to="-360 300 350" dur="20s" repeatCount="indefinite"/>
+        </rect>
+        <circle cx="300" cy="350" r="6" fill="#1A56FF"/>
+        <!-- Corner accents -->
+        <line x1="0" y1="0" x2="80" y2="0" stroke="#1A56FF" stroke-width="2"/>
+        <line x1="0" y1="0" x2="0" y2="80" stroke="#1A56FF" stroke-width="2"/>
+        <line x1="520" y1="0" x2="600" y2="0" stroke="#1A56FF" stroke-width="2"/>
+        <line x1="600" y1="0" x2="600" y2="80" stroke="#1A56FF" stroke-width="2"/>
+        <!-- Dots at intersections -->
+        <circle cx="100" cy="100" r="2.5" fill="#C8C8C8"/>
+        <circle cx="200" cy="100" r="2.5" fill="#C8C8C8"/>
+        <circle cx="300" cy="100" r="2.5" fill="#C8C8C8"/>
+        <circle cx="400" cy="100" r="2.5" fill="#C8C8C8"/>
+        <circle cx="500" cy="100" r="2.5" fill="#C8C8C8"/>
+        <circle cx="100" cy="200" r="2.5" fill="#C8C8C8"/>
+        <circle cx="500" cy="200" r="2.5" fill="#C8C8C8"/>
+        <circle cx="100" cy="500" r="2.5" fill="#C8C8C8"/>
+        <circle cx="500" cy="500" r="2.5" fill="#C8C8C8"/>
+        <!-- Animated line -->
+        <line x1="100" y1="600" x2="500" y2="100" stroke="#1A56FF" stroke-width="1" opacity="0.2">
+          <animate attributeName="opacity" values="0.05;0.3;0.05" dur="4s" repeatCount="indefinite"/>
+        </line>
+      </svg>
+    </div>
+    <div class="hero-stat-big">
+      <div class="big-num"><span class="count-up" data-t="98">0</span><span>%</span></div>
+      <div class="big-label">고객 만족도</div>
+    </div>
+    <div class="hero-right-label">PRELIK.CO.KR</div>
+  </div>
+  <!-- ticker -->
+  <div class="ticker-bar">
+    <div class="ticker-track" id="ticker"></div>
+  </div>
+</section>
+
+<!-- About -->
+<section id="about">
+  <div class="about-num rv">
+    <span>[ 01 ]</span><br><br>About
+  </div>
+  <div class="about-main">
+    <p class="section-eyebrow rv">// 회사 소개</p>
+    <h2 class="h2-mono rv rv-d1">기술로<br>경계를<br><span class="hl">허물다</span></h2>
+    <p class="body-text rv rv-d2">
+      Prelik은 디지털 전환 시대에 기업이 직면한 복잡한 과제를 해결하기 위해 설립되었습니다. 데이터 기반의 인사이트와 혁신적인 기술을 바탕으로, 클라이언트의 비즈니스 목표를 현실로 만들어드립니다.
+    </p>
+    <p class="body-text rv rv-d3">
+      2019년부터 지금까지, 50개 이상의 기업과 함께 성장해왔습니다. 단순한 서비스 제공을 넘어 진정한 파트너십을 구축하는 것이 Prelik의 핵심 철학입니다. 우리는 당신의 성공을 우리의 성공으로 여깁니다.
+    </p>
+    <p class="body-text rv rv-d4">
+      각 프로젝트는 철저한 분석과 전략적 계획을 통해 진행됩니다. 결과물은 측정 가능하고, 과정은 투명하며, 관계는 지속적입니다.
+    </p>
+  </div>
+  <div class="about-side">
+    <div class="about-side-block rv rv-d2">
+      <div class="side-big"><span class="count-up" data-t="50">0</span><span class="c">+</span></div>
+      <div class="side-label">협력 기업 수</div>
+      <div class="side-divider"></div>
+      <div class="side-big"><span class="count-up" data-t="6">0</span><span class="c">년</span></div>
+      <div class="side-label">업력</div>
+      <div class="side-divider"></div>
+      <div class="side-big"><span class="count-up" data-t="24">0</span><span class="c">명</span></div>
+      <div class="side-label">전문 인력</div>
+    </div>
+  </div>
+</section>
+
+<!-- Services -->
+<section id="services">
+  <div class="services-top rv">
+    <div>
+      <p class="section-eyebrow">// 서비스</p>
+      <h2 class="h2-mono" style="font-size:2rem; margin-bottom:0">제공 솔루션</h2>
+    </div>
+    <div class="services-top-right">총 06개 서비스</div>
+  </div>
+  <div class="services-list">
+    <div class="svc-row rv">
+      <span class="svc-idx">01 —</span>
+      <span class="svc-name">디지털 전환</span>
+      <span class="svc-desc">기존 비즈니스 프로세스를 디지털 환경으로 전환하여 운영 효율성을 극대화합니다.</span>
+      <span class="svc-tag">Strategy</span>
+    </div>
+    <div class="svc-row rv rv-d1">
+      <span class="svc-idx">02 —</span>
+      <span class="svc-name">데이터 분석</span>
+      <span class="svc-desc">방대한 데이터에서 핵심 인사이트를 추출하여 의사결정을 지원합니다.</span>
+      <span class="svc-tag">Analytics</span>
+    </div>
+    <div class="svc-row rv rv-d2">
+      <span class="svc-idx">03 —</span>
+      <span class="svc-name">글로벌 전략</span>
+      <span class="svc-desc">해외 시장 진출을 위한 전략 수립부터 현지화까지 지원합니다.</span>
+      <span class="svc-tag">Global</span>
+    </div>
+    <div class="svc-row rv rv-d3">
+      <span class="svc-idx">04 —</span>
+      <span class="svc-name">맞춤 소프트웨어</span>
+      <span class="svc-desc">비즈니스에 특화된 확장 가능한 소프트웨어를 개발합니다.</span>
+      <span class="svc-tag">Dev</span>
+    </div>
+    <div class="svc-row rv rv-d4">
+      <span class="svc-idx">05 —</span>
+      <span class="svc-name">브랜드 컨설팅</span>
+      <span class="svc-desc">브랜드 정체성부터 마케팅 전략까지 일관된 경험을 설계합니다.</span>
+      <span class="svc-tag">Brand</span>
+    </div>
+    <div class="svc-row rv rv-d4">
+      <span class="svc-idx">06 —</span>
+      <span class="svc-name">조직 혁신</span>
+      <span class="svc-desc">변화하는 환경에 적응하는 조직 문화와 역량 개발을 지원합니다.</span>
+      <span class="svc-tag">Org</span>
+    </div>
+  </div>
+</section>
+
+<!-- Numbers -->
+<section id="numbers">
+  <div class="num-block rv">
+    <div class="num-val"><span class="count-up" data-t="50">0</span><span class="c">+</span></div>
+    <div class="num-key">프로젝트 완료</div>
+    <div class="num-sub">국내외 다양한<br>산업 분야</div>
+  </div>
+  <div class="num-block rv rv-d1">
+    <div class="num-val"><span class="count-up" data-t="98">0</span><span class="c">%</span></div>
+    <div class="num-key">고객 만족도</div>
+    <div class="num-sub">지속적인 파트너십<br>재계약률 기준</div>
+  </div>
+  <div class="num-block rv rv-d2">
+    <div class="num-val"><span class="count-up" data-t="24">0</span><span class="c">명</span></div>
+    <div class="num-key">전문 인력</div>
+    <div class="num-sub">각 분야 최고의<br>전문가 구성</div>
+  </div>
+  <div class="num-block rv rv-d3">
+    <div class="num-val"><span class="count-up" data-t="6">0</span><span class="c">년</span></div>
+    <div class="num-key">업력</div>
+    <div class="num-sub">2019년 설립<br>꾸준한 성장</div>
+  </div>
+</section>
+
+<!-- Team -->
+<section id="team">
+  <div class="team-head rv">
+    <div>
+      <p class="section-eyebrow">// 팀</p>
+      <h2 class="h2-mono" style="margin-bottom:0">Prelik을<br>이끄는 사람들</h2>
+    </div>
+    <p class="team-head-right">각 분야 최고의 전문가들이 하나의 목표를 향해 함께합니다. 다양한 배경과 경험이 만나 새로운 가능성을 만들어냅니다.</p>
+  </div>
+  <div class="team-grid">
+    <div class="t-card rv">
+      <div class="t-img"><span class="t-mono-init">KJ</span></div>
+      <div class="t-bar"></div>
+      <div class="t-info">
+        <div class="t-name">김지원</div>
+        <div class="t-role">CEO · 대표이사</div>
+        <p class="t-bio">10년+ 전략 컨설팅 경험. 기술과 비즈니스의 교차점에서 새로운 가치를 창출합니다.</p>
+      </div>
+    </div>
+    <div class="t-card rv rv-d1">
+      <div class="t-img"><span class="t-mono-init">LM</span></div>
+      <div class="t-bar"></div>
+      <div class="t-info">
+        <div class="t-name">이민준</div>
+        <div class="t-role">CTO · 기술이사</div>
+        <p class="t-bio">실리콘밸리 출신 엔지니어. 확장 가능한 아키텍처와 기술 문화를 책임집니다.</p>
+      </div>
+    </div>
+    <div class="t-card rv rv-d2">
+      <div class="t-img"><span class="t-mono-init">PH</span></div>
+      <div class="t-bar"></div>
+      <div class="t-info">
+        <div class="t-name">박혜린</div>
+        <div class="t-role">CSO · 전략이사</div>
+        <p class="t-bio">글로벌 시장 전문가. 데이터 중심의 성장 전략을 수립하고 실행합니다.</p>
+      </div>
+    </div>
+    <div class="t-card rv rv-d3">
+      <div class="t-img"><span class="t-mono-init">CS</span></div>
+      <div class="t-bar"></div>
+      <div class="t-info">
+        <div class="t-name">최성민</div>
+        <div class="t-role">COO · 운영이사</div>
+        <p class="t-bio">프로세스 최적화 전문가. 효율적인 운영 시스템으로 조직의 성과를 높입니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section id="contact">
+  <div class="contact-grid">
+    <div class="contact-left">
+      <p class="section-eyebrow rv">// 연락처</p>
+      <h2 class="contact-h2 rv rv-d1">함께<br><span class="hl">시작</span><br>합시다</h2>
+      <p class="body-text rv rv-d2">새로운 프로젝트나 협업 기회에 대해 논의하고 싶으신가요? 언제든지 연락 주세요.</p>
+      <div class="contact-meta rv rv-d3">
+        <div class="c-row">
+          <div class="c-icon"><svg viewBox="0 0 14 14"><path d="M1 2.5h12v9H1z"/><path d="M1 2.5l6 5 6-5"/></svg></div>
+          <div><div class="c-label">이메일</div><div class="c-val">hello@prelik.co.kr</div></div>
+        </div>
+        <div class="c-row">
+          <div class="c-icon"><svg viewBox="0 0 14 14"><path d="M2 2h3l1.5 3.5-2 1.2a9 9 0 003.8 3.8l1.2-2L13 10v3c0 0-10 1-11-11z"/></svg></div>
+          <div><div class="c-label">전화</div><div class="c-val">02-1234-5678</div></div>
+        </div>
+        <div class="c-row">
+          <div class="c-icon"><svg viewBox="0 0 14 14"><path d="M7 1C4.2 1 2 3.2 2 6c0 4 5 7 5 7s5-3 5-7c0-2.8-2.2-5-5-5z"/><circle cx="7" cy="6" r="1.5"/></svg></div>
+          <div><div class="c-label">주소</div><div class="c-val">서울 강남구 테헤란로 427, 8층</div></div>
+        </div>
+        <div class="c-row">
+          <div class="c-icon"><svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="5"/><path d="M7 4v3l2 2"/></svg></div>
+          <div><div class="c-label">운영시간</div><div class="c-val">월–금 09:00–18:00</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="contact-form rv rv-d2">
+      <form onsubmit="handleSubmit(event)">
+        <div class="cf-row">
+          <div class="cf-group">
+            <label>성함</label>
+            <input type="text" placeholder="홍길동" required>
+          </div>
+          <div class="cf-group">
+            <label>이메일</label>
+            <input type="email" placeholder="you@company.com" required>
+          </div>
+        </div>
+        <div class="cf-row">
+          <div class="cf-group">
+            <label>회사명</label>
+            <input type="text" placeholder="주식회사 ○○">
+          </div>
+          <div class="cf-group">
+            <label>서비스 유형</label>
+            <select>
+              <option value="">선택</option>
+              <option>디지털 전환</option>
+              <option>데이터 분석</option>
+              <option>글로벌 전략</option>
+              <option>맞춤 소프트웨어</option>
+              <option>브랜드 컨설팅</option>
+              <option>조직 혁신</option>
+              <option>기타</option>
+            </select>
+          </div>
+        </div>
+        <div class="cf-group">
+          <label>문의 내용</label>
+          <textarea placeholder="프로젝트 또는 협업에 대해 소개해 주세요." required></textarea>
+        </div>
+        <button type="submit" class="cf-submit"><span id="submit-txt">문의 보내기 →</span></button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <a href="#" class="f-logo"><span class="f-sq"></span>PRELIK</a>
+  <p class="f-copy">© 2025 Prelik Co., Ltd. All rights reserved.</p>
+  <ul class="f-links">
+    <li><a href="#">개인정보처리방침</a></li>
+    <li><a href="#">이용약관</a></li>
+    <li><a href="#">채용</a></li>
+  </ul>
+</footer>
+
+<script>
+  /* Ticker */
+  const items = ['디지털 전환','데이터 분석','글로벌 전략','맞춤 소프트웨어','브랜드 컨설팅','조직 혁신','PRELIK.CO.KR','서울 강남구','설립 2019'];
+  const track = document.getElementById('ticker');
+  const full = [...items, ...items].map((t,i) =>
+    `<span class="ticker-item${i % 4 === 0 ? ' accent' : ''}">${t}</span>`
+  ).join('');
+  track.innerHTML = full + full;
+
+  /* Nav scroll */
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  /* Reveal */
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('vis'); obs.unobserve(e.target); }});
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.rv').forEach(el => obs.observe(el));
+
+  /* Count-up */
+  const countObs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { countUp(e.target); countObs.unobserve(e.target); }});
+  }, { threshold: 0.5 });
+  document.querySelectorAll('.count-up').forEach(el => countObs.observe(el));
+
+  function countUp(el) {
+    const t = parseInt(el.dataset.t), dur = 1600, s = performance.now();
+    function step(now) {
+      const p = Math.min((now - s) / dur, 1), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.floor(e * t);
+      if (p < 1) requestAnimationFrame(step); else el.textContent = t;
+    }
+    requestAnimationFrame(step);
+  }
+
+  /* Submit */
+  function handleSubmit(ev) {
+    ev.preventDefault();
+    const txt = document.getElementById('submit-txt');
+    txt.textContent = '전송 완료 ✓';
+    setTimeout(() => { txt.textContent = '문의 보내기 →'; ev.target.reset(); }, 3000);
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VeilKey — Every Secret Has a Shelf Life</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Victor+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --fg:#1c1917;
+  --fg2:#44403c;
+  --fg3:#78716c;
+  --fg4:#a8a29e;
+  --fg5:#d6d3d1;
+  --fg6:#e7e5e4;
+  --bg:#fafaf9;
+  --white:#fff;
+  --sand:#f5f0e8;
+  --terracotta:#c2410c;
+  --terra-soft:rgba(194,65,12,0.06);
+  --terra-line:rgba(194,65,12,0.18);
+  --forest:#15803d;
+  --forest-soft:rgba(21,128,61,0.06);
+  --forest-line:rgba(21,128,61,0.15);
+  --slate:#1e293b;
+  --display:'Crimson Pro',Georgia,serif;
+  --sans:'Plus Jakarta Sans',system-ui,sans-serif;
+  --code:'Victor Mono','SF Mono',monospace;
+}
+
+html{scroll-behavior:smooth;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;-webkit-font-smoothing:antialiased}
+body{overflow-x:hidden}
+::selection{background:var(--terracotta);color:white}
+a{color:inherit;text-decoration:none}
+
+.w{max-width:1080px;margin:0 auto;padding:0 clamp(1.5rem,4vw,3rem)}
+
+/* ═══ NAV ═══ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:300;
+  background:rgba(250,250,249,0.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid transparent;transition:border-color 0.3s;
+}
+nav.s{border-bottom-color:var(--fg6)}
+.ni{max-width:1080px;margin:0 auto;padding:0 clamp(1.5rem,4vw,3rem);display:flex;align-items:center;justify-content:space-between;height:56px}
+.logo{font-weight:800;font-size:0.92rem;display:flex;align-items:center;gap:0.5rem;letter-spacing:-0.01em}
+.logo-mark{
+  width:8px;height:8px;background:var(--terracotta);border-radius:50%;
+  box-shadow:0 0 0 3px var(--terra-soft),0 0 0 6px rgba(194,65,12,0.03);
+}
+.nk{display:flex;align-items:center;gap:2rem}
+.nk a{font-size:0.82rem;color:var(--fg3);font-weight:500;transition:color 0.15s}
+.nk a:hover{color:var(--fg)}
+.nk .nc{
+  font-size:0.82rem;font-weight:600;padding:0.4rem 1.1rem;
+  background:var(--fg);color:var(--white);border-radius:6px;transition:all 0.2s;
+}
+.nk .nc:hover{background:var(--slate);transform:translateY(-1px)}
+
+/* ═══ HERO ═══ */
+.hero{padding:10rem 0 5rem;position:relative}
+
+/* organic blob */
+.hero-blob{
+  position:absolute;top:10%;right:-10%;width:500px;height:500px;
+  background:radial-gradient(ellipse at 40% 40%,var(--terra-soft),transparent 65%);
+  border-radius:50% 60% 40% 50%;filter:blur(60px);pointer-events:none;
+  animation:blobDrift 12s ease-in-out infinite alternate;
+}
+
+.hero-inner{position:relative;z-index:1}
+
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:0.6rem;
+  font-size:0.72rem;font-weight:600;letter-spacing:0.06em;
+  color:var(--terracotta);margin-bottom:2rem;
+}
+.hero-eyebrow::before{
+  content:'';width:24px;height:1.5px;background:var(--terracotta);
+}
+
+.hero h1{
+  font-family:var(--display);
+  font-size:clamp(3rem,6vw,5rem);
+  font-weight:300;line-height:1.08;
+  margin-bottom:1.5rem;
+  max-width:700px;
+}
+.hero h1 strong{font-weight:600}
+.hero h1 em{font-style:italic;color:var(--terracotta)}
+
+.hero-p{
+  font-size:1.1rem;color:var(--fg3);max-width:480px;
+  line-height:1.85;margin-bottom:2.5rem;font-weight:400;
+}
+
+.hero-actions{display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:5rem}
+
+.btn{
+  font-family:var(--sans);font-size:0.88rem;font-weight:600;
+  padding:0.8rem 1.8rem;border:none;cursor:pointer;
+  display:inline-flex;align-items:center;gap:0.4rem;
+  transition:all 0.2s;border-radius:8px;
+}
+.btn-terra{background:var(--terracotta);color:white}
+.btn-terra:hover{background:#b53c09;transform:translateY(-1px);box-shadow:0 6px 20px rgba(194,65,12,0.15)}
+.btn-light{background:var(--white);color:var(--fg2);border:1.5px solid var(--fg6)}
+.btn-light:hover{border-color:var(--fg5);background:var(--sand)}
+
+/* ═══ HERO — THE SHREDDER ═══ */
+.shredder{
+  max-width:720px;
+  border:1px solid var(--fg6);border-radius:16px;
+  background:var(--white);
+  box-shadow:0 1px 3px rgba(0,0,0,0.03),0 20px 60px rgba(0,0,0,0.04);
+  overflow:hidden;
+}
+
+.shred-bar{
+  padding:0.6rem 1.2rem;display:flex;align-items:center;
+  border-bottom:1px solid var(--fg6);background:var(--sand);
+}
+.shred-dots{display:flex;gap:5px}
+.shred-dots span{width:10px;height:10px;border-radius:50%}
+.shred-dots span:nth-child(1){background:#ef4444}
+.shred-dots span:nth-child(2){background:#f59e0b}
+.shred-dots span:nth-child(3){background:#22c55e}
+.shred-title{margin-left:auto;font-family:var(--code);font-size:0.65rem;color:var(--fg4)}
+
+/* Input area — where you "paste" */
+.shred-input{
+  padding:1.5rem 1.8rem;border-bottom:1px solid var(--fg6);
+  min-height:100px;position:relative;
+}
+.shred-input-label{
+  font-family:var(--code);font-size:0.62rem;font-weight:600;
+  letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--fg4);margin-bottom:0.8rem;
+  display:flex;align-items:center;gap:0.4rem;
+}
+.shred-input-label .sil-dot{width:5px;height:5px;border-radius:50%;transition:background 0.3s}
+.sil-red{background:var(--terracotta)}
+.sil-green{background:var(--forest)}
+
+#shredInputArea{
+  font-family:var(--code);font-size:0.82rem;line-height:2;
+  min-height:60px;
+}
+.si-line{
+  display:flex;padding:0.05rem 0;
+  opacity:0;animation:fadeIn 0.3s ease forwards;
+}
+.si-key{color:var(--fg3)}
+.si-eq{color:var(--fg5)}
+.si-val{transition:all 0.4s;position:relative}
+.si-val.exposed{color:var(--terracotta);font-weight:500}
+.si-val.sealed{color:var(--forest);font-weight:600;font-style:italic}
+.si-val.shredding{
+  color:var(--fg4);
+  animation:shredChar 0.3s steps(3) forwards;
+}
+
+/* Output area */
+.shred-output{
+  padding:1.5rem 1.8rem;
+  min-height:100px;
+  background:var(--forest-soft);
+  position:relative;
+}
+.shred-output-label{
+  font-family:var(--code);font-size:0.62rem;font-weight:600;
+  letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--forest);margin-bottom:0.8rem;
+  display:flex;align-items:center;gap:0.4rem;
+}
+.shred-output-label .sol-icon{font-size:0.8rem}
+
+#shredOutputArea{
+  font-family:var(--code);font-size:0.82rem;line-height:2;
+  min-height:60px;
+}
+.so-line{
+  display:flex;padding:0.05rem 0;
+  opacity:0;animation:fadeIn 0.25s ease forwards;
+}
+.so-key{color:var(--fg3)}
+.so-eq{color:var(--fg5)}
+.so-val{color:var(--forest);font-weight:600}
+
+.shred-footer{
+  padding:0.6rem 1.2rem;border-top:1px solid var(--fg6);
+  display:flex;align-items:center;justify-content:space-between;
+  font-family:var(--code);font-size:0.68rem;color:var(--fg4);
+  background:var(--sand);
+}
+.shred-footer button{
+  background:none;border:1px solid var(--fg6);font-family:var(--code);
+  font-size:0.62rem;color:var(--fg4);padding:0.15rem 0.5rem;
+  border-radius:4px;cursor:pointer;transition:all 0.2s;
+}
+.shred-footer button:hover{border-color:var(--terra-line);color:var(--terracotta)}
+
+/* ═══ HORIZONTAL RULE ═══ */
+.hr{height:1px;background:var(--fg6);margin:0}
+
+/* ═══ EDITORIAL SECTION ═══ */
+.editorial{
+  padding:6rem 0;
+  display:grid;grid-template-columns:280px 1fr;
+  gap:4rem;align-items:start;
+}
+.editorial-side{
+  position:sticky;top:80px;
+}
+.editorial-side .sey{
+  font-family:var(--code);font-size:0.6rem;font-weight:600;
+  letter-spacing:0.15em;text-transform:uppercase;
+  color:var(--terracotta);margin-bottom:0.5rem;
+}
+.editorial-side h2{
+  font-family:var(--display);font-size:1.8rem;font-weight:400;line-height:1.2;
+}
+.editorial-side h2 em{font-style:italic;color:var(--terracotta)}
+.editorial-side p{
+  margin-top:0.8rem;font-size:0.9rem;color:var(--fg3);line-height:1.7;
+}
+
+.editorial-content{
+  display:flex;flex-direction:column;gap:0;
+}
+
+.ed-card{
+  padding:2.5rem 0;border-bottom:1px solid var(--fg6);
+  display:grid;grid-template-columns:48px 1fr;gap:1.2rem;
+  transition:background 0.2s;
+}
+.ed-card:last-child{border-bottom:none}
+.ed-card:hover{background:rgba(0,0,0,0.01);margin:0 -1rem;padding-left:1rem;padding-right:1rem;border-radius:8px}
+
+.ed-num{
+  font-family:var(--display);font-size:2rem;font-style:italic;
+  color:var(--fg5);line-height:1;
+}
+.ed-card:hover .ed-num{color:var(--terracotta)}
+.ed-body h3{font-size:1rem;font-weight:700;margin-bottom:0.3rem}
+.ed-body p{font-size:0.9rem;color:var(--fg3);line-height:1.7}
+.ed-body .ed-cmd{
+  margin-top:0.6rem;display:inline-block;
+  font-family:var(--code);font-size:0.72rem;font-style:italic;
+  color:var(--terracotta);
+}
+
+/* ═══ MOSAIC ═══ */
+.mosaic-section{
+  padding:6rem 0;background:var(--sand);
+  border-top:1px solid var(--fg6);border-bottom:1px solid var(--fg6);
+}
+
+.mosaic{
+  margin-top:3rem;
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  grid-template-rows:auto auto;
+  gap:1rem;
+}
+.mos{
+  background:var(--white);border:1px solid var(--fg6);border-radius:12px;
+  padding:1.8rem;transition:all 0.25s;position:relative;overflow:hidden;
+}
+.mos:hover{border-color:var(--fg5);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.04)}
+.mos-1{grid-column:span 2}
+.mos-2{grid-column:span 2}
+.mos-3{grid-column:span 2}
+.mos-4{grid-column:span 3}
+.mos-5{grid-column:span 3}
+
+.mos .mos-label{
+  font-family:var(--code);font-size:0.58rem;font-weight:600;
+  letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--terracotta);margin-bottom:0.8rem;
+}
+.mos h3{
+  font-family:var(--display);font-size:1.2rem;font-weight:400;
+  line-height:1.3;margin-bottom:0.5rem;
+}
+.mos h3 em{font-style:italic;color:var(--terracotta)}
+.mos p{font-size:0.85rem;color:var(--fg3);line-height:1.65}
+
+/* Architecture mini-nodes */
+.mos-nodes{
+  margin-top:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;
+}
+.mos-node{
+  font-family:var(--code);font-size:0.68rem;font-weight:500;
+  padding:0.3rem 0.7rem;
+  border:1px solid var(--fg6);border-radius:6px;color:var(--fg3);
+  transition:all 0.2s;
+}
+.mos-node:hover{border-color:var(--terra-line);color:var(--terracotta)}
+
+/* Encryption chain mini */
+.mos-chain{
+  margin-top:1rem;display:flex;align-items:center;gap:0.5rem;
+  font-family:var(--code);font-size:0.7rem;color:var(--fg3);
+}
+.mos-chain .mc-arrow{color:var(--fg5)}
+.mos-chain .mc-item{
+  padding:0.25rem 0.5rem;background:var(--terra-soft);
+  border-radius:4px;color:var(--terracotta);font-weight:500;
+}
+
+/* ═══ AI DIALOGUE ═══ */
+.dialogue-section{padding:6rem 0}
+
+.dialogue-layout{
+  margin-top:3rem;
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:3rem;align-items:center;
+}
+
+.dialogue-window{
+  border:1px solid var(--fg6);border-radius:14px;overflow:hidden;
+  background:var(--white);box-shadow:0 8px 24px rgba(0,0,0,0.03);
+}
+.dw-bar{
+  padding:0.5rem 1rem;display:flex;align-items:center;gap:0.4rem;
+  background:var(--sand);border-bottom:1px solid var(--fg6);
+}
+.dw-bar .dwd{width:7px;height:7px;border-radius:50%;background:var(--fg6)}
+.dw-bar span{margin-left:auto;font-family:var(--code);font-size:0.6rem;color:var(--fg4)}
+
+.dialogue-msgs{padding:1rem;display:flex;flex-direction:column;gap:0.7rem}
+.dm{max-width:88%;padding:0.7rem 1rem;border-radius:12px;font-size:0.85rem;line-height:1.6}
+.dm-u{align-self:flex-end;background:var(--fg);color:var(--white);border-bottom-right-radius:3px}
+.dm-a{
+  align-self:flex-start;background:var(--sand);
+  border:1px solid var(--fg6);color:var(--fg2);
+  border-bottom-left-radius:3px;
+}
+.dm code{
+  font-family:var(--code);font-size:0.76rem;
+  background:var(--forest-soft);color:var(--forest);
+  padding:0.05rem 0.3rem;border-radius:3px;
+}
+
+.dialogue-text .dt-list{
+  list-style:none;margin-top:1.2rem;display:flex;flex-direction:column;gap:0.5rem;
+}
+.dt-list li{
+  font-size:0.9rem;color:var(--fg2);line-height:1.55;
+  display:flex;align-items:flex-start;gap:0.5rem;
+}
+.dt-list li::before{
+  content:'';flex-shrink:0;margin-top:0.5em;
+  width:6px;height:6px;border-radius:50%;
+  background:var(--terra-soft);border:1.5px solid var(--terracotta);
+}
+
+/* ═══ INSTALL ═══ */
+.install{
+  padding:6rem 0;background:var(--fg);color:white;position:relative;
+}
+.install .sey{color:rgba(255,255,255,0.25)}
+.install h2{font-family:var(--display);font-size:clamp(1.8rem,3vw,2.4rem);font-weight:300;color:white;line-height:1.2}
+.install h2 em{font-style:italic;color:var(--terracotta);filter:brightness(1.3)}
+
+.install-block{
+  margin-top:2.5rem;max-width:580px;
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);
+  border-radius:12px;overflow:hidden;
+}
+.ib-bar{
+  padding:0.5rem 1rem;display:flex;align-items:center;gap:0.4rem;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.ib-bar .dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.08)}
+.ib-bar span{margin-left:auto;font-family:var(--code);font-size:0.6rem;color:rgba(255,255,255,0.2)}
+.ib-body{
+  padding:1.3rem 1.6rem;font-family:var(--code);font-size:0.78rem;
+  line-height:2.2;color:rgba(255,255,255,0.45);
+}
+.ib-body .p{color:rgba(255,255,255,0.18)}
+.ib-body .c{color:rgba(255,255,255,0.8)}
+.ib-body .f{color:#fb923c}
+.ib-body .g{color:#4ade80}
+.ib-body .d{color:rgba(255,255,255,0.18)}
+
+/* ═══ CTA ═══ */
+.cta{padding:8rem 0;text-align:center}
+.cta h2{
+  font-family:var(--display);font-size:clamp(2.2rem,5vw,3.6rem);
+  font-weight:300;line-height:1.08;margin-bottom:1rem;
+}
+.cta h2 em{font-style:italic;color:var(--terracotta)}
+.cta>p{color:var(--fg3);max-width:400px;margin:0 auto 2.5rem;font-size:1.05rem;line-height:1.8}
+.cta-btns{display:flex;justify-content:center;gap:0.6rem;flex-wrap:wrap}
+.cta-meta{margin-top:3rem;display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap}
+.cta-meta span{font-size:0.78rem;color:var(--fg4)}
+
+footer{border-top:1px solid var(--fg6);padding:1.5rem 0}
+.ft{display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;color:var(--fg4)}
+.ft a{color:var(--fg3);transition:color 0.15s}
+.ft a:hover{color:var(--terracotta)}
+
+/* ═══ ANIM ═══ */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes shredChar{
+  0%{opacity:1;transform:none}
+  33%{opacity:0.6;transform:translateY(-2px);letter-spacing:0.1em}
+  66%{opacity:0.3;transform:translateY(1px);letter-spacing:0.2em}
+  100%{opacity:0;transform:translateY(4px);letter-spacing:0.3em;filter:blur(2px)}
+}
+@keyframes blobDrift{0%{transform:translate(0,0) rotate(0deg)}100%{transform:translate(-40px,30px) rotate(15deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}
+
+.rv{opacity:0;transform:translateY(20px);transition:opacity 0.6s ease,transform 0.6s ease}
+.rv.vis{opacity:1;transform:translateY(0)}
+
+@media(max-width:900px){
+  .editorial{grid-template-columns:1fr}
+  .editorial-side{position:static}
+  .mosaic{grid-template-columns:1fr}
+  .mos{grid-column:span 1!important}
+  .dialogue-layout{grid-template-columns:1fr}
+  .nk a:not(.nc){display:none}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav"><div class="ni">
+  <a href="#" class="logo"><span class="logo-mark"></span>VeilKey</a>
+  <div class="nk">
+    <a href="#how">How</a>
+    <a href="#features">Features</a>
+    <a href="#ai">AI</a>
+    <a href="https://github.com/veilkey/veilkey-selfhosted" class="nc">GitHub →</a>
+  </div>
+</div></nav>
+
+<section class="hero">
+  <div class="hero-blob"></div>
+  <div class="w">
+    <div class="hero-inner">
+      <div class="hero-eyebrow">Open Source · Self-Hosted</div>
+      <h1><strong>Every secret</strong> has a <em>shelf life.</em></h1>
+      <p class="hero-p">
+        VeilKey shreds plaintext at the point of entry and leaves behind
+        an encrypted reference. Safe for configs. Safe for AI. Safe for git.
+      </p>
+      <div class="hero-actions">
+        <a href="https://github.com/veilkey/veilkey-selfhosted" class="btn btn-terra">Get Started →</a>
+        <a href="https://github.com/veilkey/veilkey-selfhosted/blob/main/docs/architecture.md" class="btn btn-light">Documentation</a>
+      </div>
+
+      <!-- THE SHREDDER -->
+      <div class="shredder" id="shredder">
+        <div class="shred-bar">
+          <div class="shred-dots"><span></span><span></span><span></span></div>
+          <span class="shred-title">veilkey filter</span>
+        </div>
+        <div class="shred-input">
+          <div class="shred-input-label">
+            <span class="sil-dot sil-red" id="silDot"></span>
+            <span id="silText">input — plaintext detected</span>
+          </div>
+          <div id="shredInputArea"></div>
+        </div>
+        <div class="shred-output">
+          <div class="shred-output-label">
+            <span class="sol-icon">↓</span>
+            <span id="solText">output — sealed references</span>
+          </div>
+          <div id="shredOutputArea"></div>
+        </div>
+        <div class="shred-footer">
+          <span id="shredStatus">ready</span>
+          <button id="shredReplay">↻ replay</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="hr"></div>
+
+<!-- ═══ HOW ═══ -->
+<section id="how">
+  <div class="w">
+    <div class="editorial rv">
+      <div class="editorial-side">
+        <div class="sey">Workflow</div>
+        <h2>Four moves to <em>zero</em> plaintext.</h2>
+        <p>Every secret follows the same lifecycle. Detect, encrypt, mask, resolve. No exceptions.</p>
+      </div>
+      <div class="editorial-content">
+        <div class="ed-card">
+          <div class="ed-num">1</div>
+          <div class="ed-body"><h3>Scan</h3><p>222+ built-in patterns detect AWS keys, GitHub tokens, private keys, JWTs, database URLs. Runs fully offline — no API calls.</p><span class="ed-cmd">vk scan .env config/</span></div>
+        </div>
+        <div class="ed-card">
+          <div class="ed-num">2</div>
+          <div class="ed-body"><h3>Filter</h3><p>Replace each detected secret with an AES-256-GCM encrypted VK: reference. The original plaintext is destroyed immediately.</p><span class="ed-cmd">vk filter .env</span></div>
+        </div>
+        <div class="ed-card">
+          <div class="ed-num">3</div>
+          <div class="ed-body"><h3>Wrap</h3><p>Execute commands with automatic output masking. If a secret appears in stdout or stderr, it's replaced before reaching the terminal.</p><span class="ed-cmd">vk wrap ./deploy.sh</span></div>
+        </div>
+        <div class="ed-card">
+          <div class="ed-num">4</div>
+          <div class="ed-body"><h3>Exec</h3><p>Resolve VK: tokens at launch time. Decrypted values are injected into process memory — never written to disk or passed as env vars.</p><span class="ed-cmd">vk exec ./my-app</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="hr"></div>
+
+<!-- ═══ FEATURES ═══ -->
+<section id="features" class="mosaic-section">
+  <div class="w">
+    <div style="text-align:center" class="rv">
+      <div class="sey" style="color:var(--terracotta)">Capabilities</div>
+      <h2 style="font-family:var(--display);font-size:clamp(1.8rem,3vw,2.4rem);font-weight:300">Built for operators <em style="font-style:italic;color:var(--terracotta)">and</em> their AI.</h2>
+    </div>
+    <div class="mosaic rv">
+      <div class="mos mos-1">
+        <div class="mos-label">Architecture</div>
+        <h3>Hub-and-spoke. Every node <em>isolated.</em></h3>
+        <p>One KeyCenter controls policy. LocalVault nodes hold only ciphertext. Compromise a node — the rest stay sealed.</p>
+        <div class="mos-nodes">
+          <span class="mos-node">KeyCenter :10181</span>
+          <span class="mos-node">LocalVault :10180</span>
+          <span class="mos-node">Proxy :18080</span>
+          <span class="mos-node">CLI</span>
+        </div>
+      </div>
+      <div class="mos mos-2">
+        <div class="mos-label">Encryption</div>
+        <h3>Three-layer <em>key hierarchy.</em></h3>
+        <p>Password → KEK → DEK → ciphertext. Each layer independently rotatable.</p>
+        <div class="mos-chain">
+          <span class="mc-item">KEK</span><span class="mc-arrow">→</span>
+          <span class="mc-item">DEK</span><span class="mc-arrow">→</span>
+          <span class="mc-item">VK:REF</span>
+        </div>
+      </div>
+      <div class="mos mos-3">
+        <div class="mos-label">AI Safety</div>
+        <h3>AI sees references. <em>Never</em> real keys.</h3>
+        <p>Claude, Codex, or any agent works with VK: tokens. Everything functions — zero exposure.</p>
+      </div>
+      <div class="mos mos-4">
+        <div class="mos-label">Rotation</div>
+        <h3>Zero-downtime key <em>rotation.</em></h3>
+        <p>KeyCenter schedules. Each node re-encrypts independently with its own DEK. No restarts, no coordination, no downtime. Rotation is a background operation.</p>
+      </div>
+      <div class="mos mos-5">
+        <div class="mos-label">Self-Hosted</div>
+        <h3>Your infra. Your <em>rules.</em></h3>
+        <p>SQLite backend, zero cloud dependencies. macOS launchd or Linux systemd. Passwords from files only — never environment variables. AGPL-3.0 licensed.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ AI ═══ -->
+<section id="ai" class="dialogue-section">
+  <div class="w">
+    <div class="dialogue-layout rv">
+      <div class="dialogue-window">
+        <div class="dw-bar"><span class="dwd"></span><span class="dwd"></span><span class="dwd"></span><span>AI Agent</span></div>
+        <div class="dialogue-msgs">
+          <div class="dm dm-u">Deploy this app. Secrets are in .env.production</div>
+          <div class="dm dm-a">Config loaded:<br><code>DB=VK:LOCAL:db01</code><br><code>SK=VK:LOCAL:st4c</code><br><br>Running <code>vk exec deploy.sh</code> — secrets resolve at runtime. I don't need the real values.</div>
+          <div class="dm dm-u">Did the deploy succeed?</div>
+          <div class="dm dm-a">✓ 2 refs resolved. App is running with real credentials, but I only ever handled the references.</div>
+        </div>
+      </div>
+      <div class="dialogue-text">
+        <div class="sey" style="color:var(--terracotta)">AI Safety</div>
+        <h2 style="font-family:var(--display);font-size:clamp(1.6rem,2.5vw,2rem);font-weight:300;line-height:1.2;margin-bottom:0.8rem">Your AI never handles <em style="font-style:italic;color:var(--terracotta)">real credentials.</em></h2>
+        <p style="font-size:0.95rem;color:var(--fg3);line-height:1.8">
+          AI agents work with VK: references throughout. Real secrets only exist in process memory at exec time.
+        </p>
+        <ul class="dt-list">
+          <li>AI reads VK:LOCAL:xxxx — works normally</li>
+          <li>Real secret injected at exec, never on disk</li>
+          <li>Zero exposure in chat logs or git history</li>
+          <li>No workflow changes required</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ INSTALL ═══ -->
+<section class="install">
+  <div class="w rv">
+    <div class="sey">Quick Start</div>
+    <h2>Sealed in <em>five minutes.</em></h2>
+    <div class="install-block">
+      <div class="ib-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>macOS</span></div>
+      <div class="ib-body">
+<span class="p">$</span> <span class="c">git clone</span> <span class="f">https://github.com/veilkey/veilkey-selfhosted.git</span>
+<span class="p">$</span> <span class="c">cd</span> veilkey-selfhosted
+<span class="p">$</span> <span class="c">./installer/scripts/install-mac.sh</span> <span class="f">install</span>
+<span class="d">  [OK] Go · 5 binaries · KeyCenter · LocalVault</span>
+<span class="p">$</span> <span class="c">./installer/scripts/install-mac.sh</span> <span class="f">start</span>
+<span class="g">  ✓ KeyCenter :10181 · LocalVault :10180</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ═══ -->
+<section class="cta">
+  <div class="w rv">
+    <h2>Plaintext expires<br>the moment it <em>arrives.</em></h2>
+    <p>One repo. One command. Every secret encrypted before it touches disk.</p>
+    <div class="cta-btns">
+      <a href="https://github.com/veilkey/veilkey-selfhosted" class="btn btn-terra">View on GitHub →</a>
+      <a href="https://github.com/veilkey/veilkey-selfhosted/blob/main/docs/installation.md" class="btn btn-light">Install Guide</a>
+    </div>
+    <div class="cta-meta"><span>AGPL-3.0</span><span>Go + SQLite</span><span>AES-256-GCM</span><span>macOS + Linux</span></div>
+  </div>
+</section>
+
+<footer><div class="w"><div class="ft"><span>VeilKey</span><a href="https://github.com/veilkey/veilkey-selfhosted">github.com/veilkey</a></div></div></footer>
+
+<script>
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('s',scrollY>30));
+
+// ═══ THE SHREDDER ═══
+const secrets=[
+  {k:'DATABASE_URL',d:'postgres://admin:s3cret@db:5432',s:'VK:LOCAL:db01a2b3'},
+  {k:'AWS_SECRET',d:'wJalrXUtnFEMI/K7MDENG',s:'VK:LOCAL:aws4c5d6'},
+  {k:'GITHUB_TOKEN',d:'ghp_abc123def456ghi789',s:'VK:LOCAL:gh7e8f9a'},
+  {k:'STRIPE_SK',d:'sk_live_51HG8axYzKlMnOp',s:'VK:LOCAL:st0b1c2d'},
+  {k:'JWT_SECRET',d:'super-secret-jwt-2024!',s:'VK:LOCAL:jw3e4f5a'},
+];
+
+const sl=ms=>new Promise(r=>setTimeout(r,ms));
+
+async function playShredder(){
+  const inp=document.getElementById('shredInputArea');
+  const out=document.getElementById('shredOutputArea');
+  const dot=document.getElementById('silDot');
+  const silText=document.getElementById('silText');
+  const status=document.getElementById('shredStatus');
+
+  inp.innerHTML='';out.innerHTML='';
+  dot.className='sil-dot sil-red';
+  silText.textContent='input — plaintext detected';
+  status.textContent='ready';
+
+  await sl(500);
+
+  // Type input lines
+  for(let i=0;i<secrets.length;i++){
+    const line=document.createElement('div');
+    line.className='si-line';
+    line.style.animationDelay=(i*50)+'ms';
+    line.innerHTML=`<span class="si-key">${secrets[i].k}</span><span class="si-eq">=</span><span class="si-val exposed" id="si-${i}">${secrets[i].d}</span>`;
+    inp.appendChild(line);
+    await sl(150);
+  }
+
+  status.textContent=`${secrets.length} secrets detected`;
+  await sl(1200);
+
+  // Shred one by one — input dissolves, output appears
+  status.textContent='shredding...';
+
+  for(let i=0;i<secrets.length;i++){
+    // Dissolve input
+    const siVal=document.getElementById('si-'+i);
+    siVal.classList.remove('exposed');
+    siVal.classList.add('shredding');
+
+    await sl(300);
+
+    // sealed text replaces
+    siVal.classList.remove('shredding');
+    siVal.classList.add('sealed');
+    siVal.textContent=secrets[i].s;
+    siVal.style.opacity='1';
+
+    // Output line appears
+    const oLine=document.createElement('div');
+    oLine.className='so-line';
+    oLine.innerHTML=`<span class="so-key">${secrets[i].k}</span><span class="so-eq">=</span><span class="so-val">${secrets[i].s}</span>`;
+    out.appendChild(oLine);
+
+    await sl(300);
+  }
+
+  dot.className='sil-dot sil-green';
+  silText.textContent='input — all plaintext destroyed';
+  status.textContent=`✓ ${secrets.length} secrets shredded and sealed`;
+
+  await sl(5000);
+  playShredder();
+}
+
+document.getElementById('shredReplay').addEventListener('click',playShredder);
+setTimeout(playShredder,800);
+
+// ═══ REVEAL ═══
+const obs=new IntersectionObserver(es=>{
+  es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis')});
+},{threshold:0.06,rootMargin:'0px 0px -20px 0px'});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+</script>
+
+</body>
+</html>

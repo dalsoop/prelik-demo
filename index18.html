@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prelik — AI 서비스 기업</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --fg:#111;--fg2:#333;--fg3:#666;--fg4:#999;--fg5:#ccc;--fg6:#e5e5e5;
+  --bg:#fff;--off:#f5f5f3;--dark:#0f0f12;--dark2:#1a1a1e;
+  --accent:#4f46e5;--accent2:#7c3aed;
+  --g1:linear-gradient(135deg,#4f46e5,#7c3aed);
+  --g2:linear-gradient(135deg,#0ea5e9,#06b6d4);
+  --g3:linear-gradient(135deg,#f59e0b,#ef4444);
+  --g4:linear-gradient(135deg,#10b981,#059669);
+  --g5:linear-gradient(135deg,#ec4899,#f43f5e);
+  --g6:linear-gradient(135deg,#6366f1,#8b5cf6);
+  --g7:linear-gradient(135deg,#f97316,#fbbf24);
+  --g8:linear-gradient(135deg,#14b8a6,#3b82f6);
+  --sans:'Inter','Noto Sans KR',system-ui,sans-serif;
+  --code:'JetBrains Mono',monospace;
+}
+
+html{scroll-behavior:smooth;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;-webkit-font-smoothing:antialiased}
+body{overflow-x:hidden}
+::selection{background:var(--accent);color:white}
+a{color:inherit;text-decoration:none}
+.w{max-width:1280px;margin:0 auto;padding:0 clamp(1.5rem,4vw,4rem)}
+
+/* ═══ NAV ═══ */
+nav{position:fixed;top:0;left:0;right:0;z-index:300;background:rgba(255,255,255,0.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--fg6);transition:background 0.3s}
+.ni{max-width:1280px;margin:0 auto;padding:0 clamp(1.5rem,4vw,4rem);display:flex;align-items:center;justify-content:space-between;height:68px}
+.logo{display:flex;align-items:center;gap:0.6rem}
+.logo-mark{width:32px;height:32px;border-radius:8px;background:var(--g1);display:grid;place-items:center;font-weight:900;font-size:0.75rem;color:white}
+.logo-text{font-weight:800;font-size:1.15rem;letter-spacing:-0.02em}
+
+.nav-menu{display:flex;gap:0;align-items:center}
+.nav-item{
+  font-size:0.9rem;font-weight:600;color:var(--fg2);
+  padding:0.5rem 1rem;transition:color 0.15s;
+  position:relative;
+}
+.nav-item:hover{color:var(--fg)}
+.nav-item::after{
+  content:'';position:absolute;bottom:0;left:1rem;right:1rem;
+  height:2px;background:var(--accent);
+  transform:scaleX(0);transition:transform 0.2s;
+}
+.nav-item:hover::after{transform:scaleX(1)}
+
+.nav-cta{
+  margin-left:1rem;font-size:0.88rem;font-weight:700;
+  padding:0.55rem 1.5rem;background:var(--dark);color:white;
+  border-radius:8px;transition:all 0.2s;
+}
+.nav-cta:hover{background:var(--dark2);transform:translateY(-1px)}
+
+/* ═══ HERO — full-screen video/image style ═══ */
+.hero{
+  min-height:100vh;display:flex;align-items:center;
+  position:relative;overflow:hidden;
+  background:var(--dark);color:white;
+}
+
+/* animated gradient background like a slow-moving aurora */
+.hero-aurora{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse at 20% 50%,rgba(79,70,229,0.3),transparent 50%),
+    radial-gradient(ellipse at 80% 50%,rgba(124,58,237,0.2),transparent 50%),
+    radial-gradient(ellipse at 50% 80%,rgba(14,165,233,0.15),transparent 40%);
+  animation:auroraDrift 15s ease-in-out infinite alternate;
+}
+.hero-aurora::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(15,15,18,0.3),rgba(15,15,18,0.8));
+}
+
+.hero-inner{position:relative;z-index:1;width:100%}
+
+/* Slide system */
+.hero-slides{position:relative;min-height:50vh}
+.hero-slide{
+  position:absolute;inset:0;
+  display:flex;align-items:center;
+  opacity:0;transform:translateY(20px);
+  transition:opacity 0.6s,transform 0.6s;
+  pointer-events:none;
+}
+.hero-slide.active{opacity:1;transform:translateY(0);pointer-events:auto}
+
+.hs-content{max-width:680px}
+.hs-badge{
+  display:inline-flex;align-items:center;gap:0.4rem;
+  font-size:0.7rem;font-weight:600;letter-spacing:0.06em;
+  padding:0.3rem 0.8rem;border:1px solid rgba(255,255,255,0.15);
+  border-radius:100px;margin-bottom:1.5rem;
+  color:rgba(255,255,255,0.6);
+}
+.hs-badge .hsb-dot{width:6px;height:6px;border-radius:50%;animation:pulse 2s ease-in-out infinite}
+
+.hs-heading{
+  font-size:clamp(2.4rem,5vw,4rem);
+  font-weight:900;line-height:1.1;letter-spacing:-0.03em;
+  margin-bottom:1.2rem;
+}
+.hs-heading em{font-style:normal;opacity:0.5}
+
+.hs-desc{
+  font-size:1.1rem;color:rgba(255,255,255,0.6);
+  line-height:1.8;margin-bottom:2rem;max-width:500px;
+}
+
+.hs-btn{
+  display:inline-flex;align-items:center;gap:0.4rem;
+  font-size:0.9rem;font-weight:700;
+  padding:0.8rem 2rem;border-radius:8px;
+  transition:all 0.2s;
+}
+.hs-btn-white{background:white;color:var(--dark)}
+.hs-btn-white:hover{box-shadow:0 4px 16px rgba(255,255,255,0.2);transform:translateY(-1px)}
+
+/* slide indicators */
+.hero-indicators{
+  position:absolute;bottom:3rem;left:0;z-index:2;
+  display:flex;gap:0.8rem;align-items:center;
+}
+.hi-dot{
+  width:40px;height:3px;border-radius:2px;
+  background:rgba(255,255,255,0.2);
+  cursor:pointer;transition:all 0.3s;
+  position:relative;overflow:hidden;
+}
+.hi-dot.active{background:rgba(255,255,255,0.15)}
+.hi-dot.active::after{
+  content:'';position:absolute;inset:0;
+  background:white;border-radius:2px;
+  animation:indicatorFill 5s linear forwards;
+}
+.hi-counter{
+  font-family:var(--code);font-size:0.7rem;
+  color:rgba(255,255,255,0.3);margin-left:0.5rem;
+}
+
+/* ═══ VALUE PROPS ═══ */
+.values-section{padding:6rem 0;border-bottom:1px solid var(--fg6)}
+.values-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:0;
+}
+.value-card{
+  padding:3.5rem;
+  border-right:1px solid var(--fg6);
+  border-bottom:1px solid var(--fg6);
+  transition:background 0.3s;
+  position:relative;overflow:hidden;
+}
+.value-card:nth-child(2n){border-right:none}
+.value-card:nth-child(n+3){border-bottom:none}
+.value-card:hover{background:var(--off)}
+
+.value-card .vc-num{
+  font-size:4rem;font-weight:900;
+  opacity:0.04;position:absolute;top:1.5rem;right:2rem;
+  line-height:1;
+}
+.value-card .vc-icon{
+  width:48px;height:48px;border-radius:12px;
+  display:grid;place-items:center;font-size:1.3rem;
+  margin-bottom:1.2rem;
+}
+.value-card h3{font-size:1.3rem;font-weight:800;margin-bottom:0.5rem;letter-spacing:-0.02em}
+.value-card p{font-size:0.95rem;color:var(--fg2);line-height:1.8}
+
+/* ═══ BUSINESS AREA — product grid ═══ */
+.biz-section{padding:6rem 0}
+
+.biz-header{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  margin-bottom:3rem;
+}
+.biz-header h2{font-size:1.8rem;font-weight:900;letter-spacing:-0.03em}
+.biz-header .bh-sub{font-size:0.92rem;color:var(--fg3);max-width:400px;text-align:right;line-height:1.6}
+
+.biz-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:1rem;
+}
+
+.biz-card{
+  border-radius:16px;overflow:hidden;
+  position:relative;min-height:280px;
+  cursor:pointer;
+  transition:transform 0.4s,box-shadow 0.4s;
+  color:white;
+  display:flex;flex-direction:column;
+}
+.biz-card:hover{transform:translateY(-6px);box-shadow:0 20px 50px rgba(0,0,0,0.12)}
+
+.biz-card::before{content:'';position:absolute;inset:0;z-index:0;transition:opacity 0.4s}
+.biz-card::after{
+  content:'';position:absolute;inset:0;z-index:1;
+  background:linear-gradient(180deg,rgba(0,0,0,0) 40%,rgba(0,0,0,0.6));
+}
+.biz-card:hover::before{opacity:0.85}
+
+.biz-card>*{position:relative;z-index:2}
+
+/* geometric overlay */
+.biz-geo{
+  position:absolute;z-index:1;
+  width:200px;height:200px;border-radius:30%;
+  background:rgba(255,255,255,0.05);
+  right:-50px;top:-50px;transform:rotate(20deg);
+  transition:transform 0.4s;
+}
+.biz-card:hover .biz-geo{transform:rotate(30deg) scale(1.1)}
+
+.biz-card .bc-badge{
+  display:inline-flex;
+  font-size:0.55rem;font-weight:700;letter-spacing:0.06em;
+  padding:0.2rem 0.6rem;border-radius:100px;
+  background:rgba(255,255,255,0.15);
+  text-transform:uppercase;
+  margin-bottom:auto;align-self:flex-start;
+}
+.biz-card .bc-bottom{margin-top:auto;padding:1.5rem}
+.biz-card .bc-name{font-size:1.1rem;font-weight:800;margin-bottom:0.2rem}
+.biz-card .bc-tag{font-size:0.82rem;opacity:0.7;margin-bottom:0.8rem}
+.biz-card .bc-more{
+  display:inline-flex;align-items:center;gap:0.3rem;
+  font-size:0.78rem;font-weight:700;opacity:0;
+  transform:translateY(8px);
+  transition:opacity 0.3s,transform 0.3s;
+}
+.biz-card:hover .bc-more{opacity:1;transform:translateY(0)}
+
+/* large first card */
+.biz-card.biz-lg{grid-column:span 2;grid-row:span 2;min-height:580px}
+.biz-card.biz-lg .bc-name{font-size:1.5rem}
+.biz-card.biz-lg .bc-tag{font-size:0.92rem}
+
+/* ═══ TECH SECTION ═══ */
+.tech-section{
+  padding:6rem 0;background:var(--dark);color:white;
+  position:relative;overflow:hidden;
+}
+.tech-section::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 20% 40%,rgba(79,70,229,0.12),transparent 40%),
+    radial-gradient(circle at 80% 60%,rgba(14,184,166,0.08),transparent 35%);
+  pointer-events:none;
+}
+
+.tech-inner{position:relative;z-index:1}
+.tech-layout{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
+
+.tech-text h2{font-size:2rem;font-weight:900;letter-spacing:-0.03em;margin-bottom:1rem;line-height:1.2}
+.tech-text h2 span{opacity:0.4}
+.tech-text p{font-size:1rem;color:rgba(255,255,255,0.5);line-height:1.8;margin-bottom:2rem;max-width:420px}
+
+.tech-stats{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.ts-item .ts-num{font-size:2.2rem;font-weight:900;letter-spacing:-0.03em;line-height:1}
+.ts-item .ts-label{font-size:0.78rem;color:rgba(255,255,255,0.4);margin-top:0.2rem}
+
+.tech-stack{display:flex;flex-wrap:wrap;gap:0.5rem}
+.tech-chip{
+  font-family:var(--code);font-size:0.72rem;font-weight:500;
+  padding:0.4rem 0.9rem;
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;color:rgba(255,255,255,0.5);
+  transition:all 0.2s;cursor:default;
+}
+.tech-chip:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.8)}
+
+/* ═══ NEWS ═══ */
+.news-section{padding:6rem 0;border-bottom:1px solid var(--fg6)}
+.news-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2.5rem}
+.news-header h2{font-size:1.5rem;font-weight:900;letter-spacing:-0.02em}
+.news-header a{font-size:0.85rem;font-weight:600;color:var(--fg3);transition:color 0.15s}
+.news-header a:hover{color:var(--fg)}
+
+.news-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+.news-card{
+  border:1px solid var(--fg6);border-radius:14px;overflow:hidden;
+  transition:all 0.3s;cursor:pointer;
+}
+.news-card:hover{border-color:var(--fg5);transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.04)}
+
+.nc-img{height:180px;position:relative;overflow:hidden}
+.nc-img::before{content:'';position:absolute;inset:0;z-index:0}
+.nc-img::after{
+  content:'';position:absolute;z-index:0;
+  width:150px;height:150px;border-radius:30%;
+  background:rgba(255,255,255,0.06);right:-30px;bottom:-30px;
+}
+.nc-img .nc-cat{
+  position:absolute;bottom:1rem;left:1rem;z-index:1;
+  font-size:0.6rem;font-weight:700;letter-spacing:0.06em;
+  padding:0.2rem 0.6rem;border-radius:100px;
+  background:rgba(255,255,255,0.2);color:white;text-transform:uppercase;
+}
+
+.nc-body{padding:1.5rem}
+.nc-date{font-size:0.72rem;color:var(--fg4);margin-bottom:0.5rem}
+.nc-title{font-size:1rem;font-weight:700;line-height:1.5;margin-bottom:0.5rem}
+.nc-desc{font-size:0.85rem;color:var(--fg3);line-height:1.6}
+
+/* ═══ CONTACT BANNER ═══ */
+.contact-banner{
+  margin:4rem clamp(0.5rem,2vw,1.5rem);
+  padding:4rem;border-radius:20px;
+  background:var(--dark);color:white;
+  display:grid;grid-template-columns:1fr auto;gap:3rem;align-items:center;
+  position:relative;overflow:hidden;
+}
+.contact-banner::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 10% 50%,rgba(79,70,229,0.15),transparent 40%),
+    radial-gradient(circle at 90% 50%,rgba(236,72,153,0.1),transparent 35%);
+  pointer-events:none;
+}
+.contact-banner>*{position:relative;z-index:1}
+.cb-text h2{font-size:1.8rem;font-weight:900;letter-spacing:-0.03em;margin-bottom:0.5rem}
+.cb-text p{font-size:1rem;color:rgba(255,255,255,0.5);line-height:1.7;max-width:500px}
+.cb-actions{display:flex;gap:0.6rem;flex-wrap:wrap}
+.cb-btn{
+  font-family:var(--sans);font-size:0.9rem;font-weight:700;
+  padding:0.8rem 2rem;border:none;cursor:pointer;
+  border-radius:10px;transition:all 0.2s;
+}
+.cb-btn-white{background:white;color:var(--dark)}
+.cb-btn-white:hover{box-shadow:0 4px 16px rgba(255,255,255,0.15);transform:translateY(-1px)}
+.cb-btn-ghost{background:transparent;border:1.5px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7)}
+.cb-btn-ghost:hover{background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.25)}
+
+/* ═══ FOOTER ═══ */
+footer{padding:3rem 0 2rem;border-top:1px solid var(--fg6)}
+.ft-grid{display:grid;grid-template-columns:2.5fr 1fr 1fr 1fr 1fr;gap:2rem;margin-bottom:2rem}
+.ft-brand .fb-name{font-weight:800;font-size:1.1rem;margin-bottom:0.4rem;display:flex;align-items:center;gap:0.5rem}
+.ft-brand p{font-size:0.82rem;color:var(--fg3);line-height:1.7;max-width:240px}
+.ft-col h4{font-size:0.68rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--fg4);margin-bottom:0.6rem}
+.ft-col a{display:block;font-size:0.85rem;color:var(--fg3);padding:0.25rem 0;transition:color 0.15s}
+.ft-col a:hover{color:var(--fg)}
+.ft-bottom{padding-top:1.5rem;border-top:1px solid var(--fg6);display:flex;justify-content:space-between;font-size:0.78rem;color:var(--fg4);flex-wrap:wrap;gap:0.5rem}
+
+/* ═══ ANIM ═══ */
+@keyframes auroraDrift{0%{transform:scale(1) translate(0,0)}50%{transform:scale(1.1) translate(-3%,2%)}100%{transform:scale(1) translate(2%,-1%)}}
+@keyframes indicatorFill{from{width:0}to{width:100%}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+.rv{opacity:0;transform:translateY(18px);transition:opacity 0.6s,transform 0.6s}
+.rv.vis{opacity:1;transform:translateY(0)}
+
+@media(max-width:1000px){
+  .values-grid{grid-template-columns:1fr}
+  .value-card{border-right:none!important;border-bottom:1px solid var(--fg6)!important}
+  .value-card:last-child{border-bottom:none!important}
+  .biz-grid{grid-template-columns:1fr 1fr}
+  .biz-card.biz-lg{grid-column:span 2;min-height:300px}
+  .tech-layout{grid-template-columns:1fr}
+  .news-grid{grid-template-columns:1fr}
+  .contact-banner{grid-template-columns:1fr}
+  .ft-grid{grid-template-columns:1fr 1fr}
+  .nav-menu{display:none}
+}
+@media(max-width:700px){
+  .biz-grid{grid-template-columns:1fr}
+  .biz-card.biz-lg{grid-column:span 1}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav"><div class="ni">
+  <a href="#" class="logo"><div class="logo-mark">P</div><span class="logo-text">Prelik</span></a>
+  <div class="nav-menu">
+    <a href="#biz" class="nav-item">사업영역</a>
+    <a href="#about" class="nav-item">기업소개</a>
+    <a href="#tech" class="nav-item">기술역량</a>
+    <a href="#news" class="nav-item">뉴스</a>
+  </div>
+  <a href="#contact" class="nav-cta">문의하기</a>
+</div></nav>
+
+<!-- ═══ HERO SLIDES ═══ -->
+<section class="hero">
+  <div class="hero-aurora"></div>
+  <div class="w">
+    <div class="hero-inner">
+      <div class="hero-slides" id="heroSlides">
+        <div class="hero-slide active" data-idx="0">
+          <div class="hs-content">
+            <div class="hs-badge"><span class="hsb-dot" style="background:#7c5bf5"></span>AI Services</div>
+            <div class="hs-heading">AI가 만드는<br>새로운 <em>서비스의 시작.</em></div>
+            <p class="hs-desc">Prelik은 AI 기반 서비스를 설계, 개발, 운영하는 기술 기업입니다. 보안부터 자동화까지, 레거시가 되기 전에 만듭니다.</p>
+            <a href="#biz" class="hs-btn hs-btn-white">사업영역 보기 →</a>
+          </div>
+        </div>
+        <div class="hero-slide" data-idx="1">
+          <div class="hs-content">
+            <div class="hs-badge"><span class="hsb-dot" style="background:#0ea5e9"></span>Open Source</div>
+            <div class="hs-heading">오픈소스로<br>함께 <em>만들어갑니다.</em></div>
+            <p class="hs-desc">VeilKey, SparkAgent를 비롯한 핵심 제품을 오픈소스로 공개합니다. AGPL-3.0 라이센스, 누구나 자유롭게.</p>
+            <a href="https://github.com/prelik" class="hs-btn hs-btn-white">GitHub 방문 →</a>
+          </div>
+        </div>
+        <div class="hero-slide" data-idx="2">
+          <div class="hs-content">
+            <div class="hs-badge"><span class="hsb-dot" style="background:#10b981"></span>Self-Hosted</div>
+            <div class="hs-heading">당신의 인프라에서<br><em>직접 운영하세요.</em></div>
+            <p class="hs-desc">클라우드 의존 없이, 자체 서버에서 모든 것을 운영합니다. Proxmox, Docker, macOS — 어디서든.</p>
+            <a href="#tech" class="hs-btn hs-btn-white">기술역량 보기 →</a>
+          </div>
+        </div>
+      </div>
+      <div class="hero-indicators" id="heroIndicators"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ VALUES ═══ -->
+<section id="about" class="values-section">
+  <div class="w">
+    <div class="values-grid rv">
+      <div class="value-card">
+        <span class="vc-num">01</span>
+        <div class="vc-icon" style="background:rgba(79,70,229,0.06)">🎯</div>
+        <h3>고객을 위한 Planning</h3>
+        <p>고객의 문제를 정확히 이해하고, AI 기술로 해결 가능한 경로를 설계합니다. 기술이 아닌 가치에서 시작합니다.</p>
+      </div>
+      <div class="value-card">
+        <span class="vc-num">02</span>
+        <div class="vc-icon" style="background:rgba(14,165,233,0.06)">⚡</div>
+        <h3>사용자를 위한 Making</h3>
+        <p>실제 사용자가 매일 쓸 수 있는 도구를 만듭니다. 복잡한 기술을 단순한 경험으로 바꾸는 것이 우리의 일입니다.</p>
+      </div>
+      <div class="value-card">
+        <span class="vc-num">03</span>
+        <div class="vc-icon" style="background:rgba(16,185,129,0.06)">🔐</div>
+        <h3>보안을 위한 Building</h3>
+        <p>평문 비밀은 존재하지 않습니다. 모든 데이터는 AES-256-GCM으로 암호화되고, 키 계층 구조로 격리됩니다.</p>
+      </div>
+      <div class="value-card">
+        <span class="vc-num">04</span>
+        <div class="vc-icon" style="background:rgba(245,158,11,0.06)">🌐</div>
+        <h3>오픈소스로 Sharing</h3>
+        <p>핵심 기술을 공개하고, 커뮤니티와 함께 성장합니다. AGPL-3.0 라이센스, 포크하고, 기여하고, 함께 만들어갑니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ BUSINESS AREA ═══ -->
+<section id="biz" class="biz-section">
+  <div class="w">
+    <div class="biz-header rv">
+      <h2>사업영역</h2>
+      <div class="bh-sub">AI 에이전트부터 인프라 플랫폼까지, 8개 제품으로 구성된 통합 서비스를 제공합니다.</div>
+    </div>
+    <div class="biz-grid rv" id="bizGrid"></div>
+  </div>
+</section>
+
+<!-- ═══ TECH ═══ -->
+<section id="tech" class="tech-section">
+  <div class="tech-inner">
+    <div class="w">
+      <div class="tech-layout rv">
+        <div class="tech-text">
+          <h2>기술역량 <span>/ Technology</span></h2>
+          <p>Go, Python, TypeScript 기반의 풀스택 개발 역량과 자체 AI 인프라 운영 경험을 보유하고 있습니다.</p>
+          <div class="tech-stats">
+            <div class="ts-item"><div class="ts-num">8</div><div class="ts-label">자체 개발 제품</div></div>
+            <div class="ts-item"><div class="ts-num">30+</div><div class="ts-label">운영 서비스</div></div>
+            <div class="ts-item"><div class="ts-num">222+</div><div class="ts-label">보안 탐지 패턴</div></div>
+            <div class="ts-item"><div class="ts-num">24/7</div><div class="ts-label">셀프호스팅</div></div>
+          </div>
+        </div>
+        <div class="tech-stack">
+          <span class="tech-chip">Go</span><span class="tech-chip">Python</span><span class="tech-chip">TypeScript</span>
+          <span class="tech-chip">Laravel</span><span class="tech-chip">React</span><span class="tech-chip">Vue</span>
+          <span class="tech-chip">Proxmox</span><span class="tech-chip">Docker</span><span class="tech-chip">Temporal</span>
+          <span class="tech-chip">Claude API</span><span class="tech-chip">Ollama</span><span class="tech-chip">PostgreSQL</span>
+          <span class="tech-chip">SQLite</span><span class="tech-chip">Grafana</span><span class="tech-chip">GitLab CI</span>
+          <span class="tech-chip">GitHub Actions</span><span class="tech-chip">Playwright</span><span class="tech-chip">Elasticsearch</span>
+          <span class="tech-chip">Kestra</span><span class="tech-chip">Mattermost</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ NEWS ═══ -->
+<section id="news" class="news-section">
+  <div class="w">
+    <div class="news-header rv"><h2>뉴스</h2><a href="#">전체보기 →</a></div>
+    <div class="news-grid rv" id="newsGrid"></div>
+  </div>
+</section>
+
+<!-- ═══ CONTACT BANNER ═══ -->
+<div id="contact" class="contact-banner rv">
+  <div class="cb-text">
+    <h2>프로젝트를 시작하세요</h2>
+    <p>AI 서비스 개발, 보안 솔루션, 인프라 구축 — 무엇이든 함께 만들어드립니다. 먼저 이야기를 들려주세요.</p>
+  </div>
+  <div class="cb-actions">
+    <a href="mailto:hello@prelik.com" class="cb-btn cb-btn-white">문의하기 →</a>
+    <a href="https://github.com/prelik" class="cb-btn cb-btn-ghost">GitHub</a>
+  </div>
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+<footer><div class="w">
+  <div class="ft-grid">
+    <div class="ft-brand">
+      <div class="fb-name"><div class="logo-mark" style="width:24px;height:24px;border-radius:6px;font-size:0.6rem">P</div>Prelik</div>
+      <p>AI 서비스 전문 기업. Pre × Relik — 레거시가 되기 전에 만듭니다.</p>
+    </div>
+    <div class="ft-col"><h4>사업영역</h4><a href="#">AI 에이전트</a><a href="#">보안 솔루션</a><a href="#">워크플로 자동화</a><a href="#">인프라 플랫폼</a></div>
+    <div class="ft-col"><h4>제품</h4><a href="#">VeilKey</a><a href="#">SparkAgent</a><a href="#">FlowForge</a><a href="#">LensView</a></div>
+    <div class="ft-col"><h4>기업정보</h4><a href="#">회사소개</a><a href="#">기술역량</a><a href="#">뉴스</a><a href="#">채용</a></div>
+    <div class="ft-col"><h4>링크</h4><a href="https://github.com/prelik">GitHub</a><a href="https://github.com/veilkey">VeilKey GitHub</a><a href="#">Blog</a><a href="#">Contact</a></div>
+  </div>
+  <div class="ft-bottom">
+    <span>© 2026 Prelik. All rights reserved.</span>
+    <span>Pre × Relik · AI 서비스 기업</span>
+  </div>
+</div></footer>
+
+<script>
+// ═══ PRODUCTS DATA ═══
+const P=[
+  {name:'VeilKey',icon:'🔐',tag:'비밀 생명주기 관리',status:'Open Source',grad:'var(--g1)',featured:true,link:'https://github.com/veilkey/veilkey-selfhosted'},
+  {name:'SparkAgent',icon:'🤖',tag:'자율 AI 에이전트',status:'Beta',grad:'var(--g7)',featured:true,link:'#'},
+  {name:'FlowForge',icon:'⚡',tag:'워크플로 자동화',status:'Beta',grad:'var(--g2)',link:'#'},
+  {name:'LensView',icon:'📊',tag:'AI 관측 플랫폼',status:'GA',grad:'var(--g4)',link:'#'},
+  {name:'CastDeploy',icon:'🚀',tag:'원클릭 배포',status:'GA',grad:'var(--g5)',link:'#'},
+  {name:'ShieldAI',icon:'🛡️',tag:'보안 모니터링',status:'Coming Soon',grad:'var(--g3)',link:'#'},
+  {name:'WaveDB',icon:'🗄️',tag:'벡터 + 관계형 DB',status:'Alpha',grad:'var(--g6)',link:'#'},
+  {name:'CoreStack',icon:'🏗️',tag:'인프라 플랫폼',status:'Enterprise',grad:'var(--g8)',link:'#'},
+];
+
+// ═══ BIZ GRID ═══
+const biz=document.getElementById('bizGrid');
+P.forEach((p,i)=>{
+  const lg=p.featured&&i===0;
+  const c=document.createElement('div');
+  c.className='biz-card'+(lg?' biz-lg':'');
+  c.innerHTML=`
+    <div style="position:absolute;inset:0;background:${p.grad};z-index:0"></div>
+    <div class="biz-geo"></div>
+    <div style="padding:1.5rem;z-index:2;position:relative"><span class="bc-badge">${p.status}</span></div>
+    <div class="bc-bottom" style="z-index:2;position:relative">
+      <div style="font-size:${lg?'2rem':'1.3rem'};margin-bottom:0.5rem">${p.icon}</div>
+      <div class="bc-name">${p.name}</div>
+      <div class="bc-tag">${p.tag}</div>
+      <div class="bc-more">자세히 보기 →</div>
+    </div>
+  `;
+  c.onclick=()=>window.open(p.link,'_blank');
+  biz.appendChild(c);
+});
+
+// ═══ NEWS ═══
+const newsData=[
+  {cat:'Product',date:'2026.03.17',title:'VeilKey 오픈소스 공개',desc:'비밀 생명주기 관리 도구 VeilKey를 AGPL-3.0으로 GitHub에 공개합니다.',grad:'var(--g1)'},
+  {cat:'Tech',date:'2026.03.15',title:'SparkAgent 베타 출시',desc:'자율 AI 에이전트 플랫폼 SparkAgent의 퍼블릭 베타를 시작합니다.',grad:'var(--g7)'},
+  {cat:'Company',date:'2026.03.10',title:'Prelik 공식 런칭',desc:'AI 서비스 전문 기업 Prelik이 공식 출범합니다. Pre × Relik.',grad:'var(--g6)'},
+];
+const ng=document.getElementById('newsGrid');
+newsData.forEach(n=>{
+  const c=document.createElement('div');c.className='news-card';
+  c.innerHTML=`
+    <div class="nc-img" style="background:${n.grad}"><span class="nc-cat">${n.cat}</span></div>
+    <div class="nc-body"><div class="nc-date">${n.date}</div><div class="nc-title">${n.title}</div><div class="nc-desc">${n.desc}</div></div>
+  `;
+  ng.appendChild(c);
+});
+
+// ═══ HERO SLIDER ═══
+const slides=document.querySelectorAll('.hero-slide');
+const indWrap=document.getElementById('heroIndicators');
+let current=0,timer;
+
+slides.forEach((_,i)=>{
+  const dot=document.createElement('div');dot.className='hi-dot'+(i===0?' active':'');
+  dot.onclick=()=>goSlide(i);
+  indWrap.appendChild(dot);
+});
+const counter=document.createElement('span');counter.className='hi-counter';
+counter.textContent=`01 / 0${slides.length}`;
+indWrap.appendChild(counter);
+
+function goSlide(n){
+  slides[current].classList.remove('active');
+  indWrap.children[current].classList.remove('active');
+  current=n;
+  slides[current].classList.add('active');
+  indWrap.children[current].classList.add('active');
+  counter.textContent=`0${current+1} / 0${slides.length}`;
+  clearInterval(timer);startTimer();
+}
+function nextSlide(){goSlide((current+1)%slides.length)}
+function startTimer(){timer=setInterval(nextSlide,5000)}
+startTimer();
+
+// ═══ REVEAL ═══
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis')})},{threshold:.05,rootMargin:'0px 0px -20px 0px'});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+</script>
+
+</body>
+</html>

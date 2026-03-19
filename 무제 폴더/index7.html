@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dalforge — 레포마다 AI. 컨테이너로.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Black+Han+Sans&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:      #0e0e0c;
+  --bg2:     #161614;
+  --bg3:     #1e1e1c;
+  --bg4:     #252520;
+  --dim:     #303028;
+  --dim2:    #464640;
+  --dim3:    #605f58;
+  --cream:   #ede8df;
+  --cream2:  #c4bfb6;
+  --cream3:  #8a857c;
+  --orange:  #f04600;
+  --orange2: #ff6830;
+  --orange3: #ff9060;
+  --orangebg:#1a0d06;
+  --f-latin: 'Bebas Neue', sans-serif;
+  --f-kr:    'Black Han Sans', sans-serif;
+  --f-mono:  'JetBrains Mono', monospace;
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--cream);
+  font-family: var(--f-mono); font-size: 13px; line-height: 1.65;
+  overflow-x: hidden; cursor: default;
+}
+::selection { background: var(--orange); color: #fff; }
+a { text-decoration: none; color: inherit; }
+::-webkit-scrollbar { width: 2px; }
+::-webkit-scrollbar-thumb { background: var(--orange); }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+  height: 52px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 36px;
+  border-bottom: 1px solid var(--dim);
+  background: rgba(14,14,12,.95); backdrop-filter: blur(16px);
+}
+.nav-logo {
+  font-family: var(--f-latin); font-size: 26px; letter-spacing: .08em;
+  color: var(--cream);
+}
+.nav-logo em { color: var(--orange); font-style: normal; }
+.nav-links { display: flex; align-items: center; gap: 28px; }
+.nav-link {
+  font-size: 10px; letter-spacing: .15em; text-transform: uppercase;
+  color: var(--cream3); transition: color .2s;
+}
+.nav-link:hover { color: var(--orange2); }
+.nav-btn {
+  font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+  padding: 7px 18px; border: 1px solid var(--orange); color: var(--orange);
+  transition: background .2s, color .2s;
+}
+.nav-btn:hover { background: var(--orange); color: #fff; }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh; padding-top: 52px;
+  display: flex; flex-direction: column;
+  position: relative; overflow: hidden;
+}
+.hero-body {
+  flex: 1; display: grid;
+  grid-template-columns: 1fr 420px;
+  align-items: stretch;
+}
+.hero-left {
+  padding: 72px 64px 64px;
+  display: flex; flex-direction: column; justify-content: space-between;
+  border-right: 1px solid var(--dim);
+  position: relative;
+}
+.hero-eyebrow {
+  font-size: 10px; letter-spacing: .25em; text-transform: uppercase;
+  color: var(--orange); margin-bottom: 32px;
+  display: flex; align-items: center; gap: 12px;
+}
+.hero-eyebrow::before {
+  content: ''; display: block; width: 32px; height: 1px; background: var(--orange);
+}
+.hero-headline {
+  font-family: var(--f-kr);
+  font-size: clamp(72px, 11vw, 160px);
+  line-height: .88; letter-spacing: -.02em;
+  color: var(--cream);
+}
+.hero-headline .hl { color: var(--orange); display: block; }
+.hero-sub {
+  font-family: var(--f-latin);
+  font-size: clamp(36px, 5vw, 68px);
+  line-height: 1; letter-spacing: .04em;
+  color: var(--cream2); margin-top: 16px;
+}
+.hero-bottom {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  margin-top: 48px;
+}
+.hero-desc {
+  font-size: 13px; color: var(--cream3); line-height: 1.8; max-width: 420px;
+}
+.hero-actions { display: flex; gap: 12px; align-items: center; flex-shrink: 0; }
+.btn {
+  font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em;
+  padding: 11px 24px; display: inline-flex; align-items: center; gap: 8px;
+  transition: background .2s, color .2s, border-color .2s;
+}
+.btn-primary { background: var(--orange); color: #fff; }
+.btn-primary:hover { background: var(--orange2); }
+.btn-outline { border: 1px solid var(--dim2); color: var(--cream2); }
+.btn-outline:hover { border-color: var(--cream2); color: var(--cream); }
+
+.hero-right {
+  display: flex; flex-direction: column;
+  background: var(--bg2);
+}
+.hero-counter-block {
+  flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+}
+.hc {
+  padding: 32px 28px;
+  border-bottom: 1px solid var(--dim);
+  position: relative; overflow: hidden;
+}
+.hc:nth-child(odd) { border-right: 1px solid var(--dim); }
+.hc-val {
+  font-family: var(--f-latin); font-size: 64px; line-height: 1;
+  color: var(--orange); margin-bottom: 6px; display: block;
+}
+.hc-label {
+  font-size: 9px; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--cream3);
+}
+.hc-bg {
+  position: absolute; bottom: -16px; right: -8px;
+  font-family: var(--f-latin); font-size: 80px; color: var(--dim);
+  line-height: 1; pointer-events: none; user-select: none;
+}
+.hero-dal-id {
+  padding: 20px 28px;
+  border-top: 1px solid var(--dim);
+  background: var(--orangebg);
+}
+.dal-id-label { font-size: 9px; letter-spacing: .18em; color: var(--orange3); margin-bottom: 8px; }
+.dal-id-val {
+  font-family: var(--f-mono); font-size: 12px; color: var(--orange2);
+  word-break: break-all;
+}
+.dal-id-sub { font-size: 10px; color: var(--dim3); margin-top: 4px; }
+
+/* ── TICKER ── */
+.ticker-wrap {
+  border-top: 1px solid var(--dim); overflow: hidden;
+  background: var(--bg2); padding: 0;
+  position: relative;
+}
+.ticker-wrap::before, .ticker-wrap::after {
+  content: ''; position: absolute; top: 0; bottom: 0; width: 80px; z-index: 10;
+}
+.ticker-wrap::before { left: 0; background: linear-gradient(to right, var(--bg2), transparent); }
+.ticker-wrap::after { right: 0; background: linear-gradient(to left, var(--bg2), transparent); }
+.ticker-inner {
+  display: flex; align-items: center;
+  padding: 14px 0; white-space: nowrap;
+  animation: ticker 28s linear infinite;
+}
+.ticker-item {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 0 28px; font-size: 11px; color: var(--cream3);
+  border-right: 1px solid var(--dim);
+}
+.t-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.t-dot.on  { background: #4ade80; box-shadow: 0 0 5px #4ade80; }
+.t-dot.idle { background: var(--dim2); }
+.t-dot.off  { background: #f87171; }
+.t-repo { color: var(--cream2); }
+.t-agent { color: var(--orange2); }
+.t-sep { color: var(--dim2); }
+@keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* ── SECTION FRAME ── */
+.sec {
+  position: relative; overflow: hidden;
+  border-top: 1px solid var(--dim);
+}
+.sec-bg-num {
+  position: absolute; top: -60px; left: 28px;
+  font-family: var(--f-latin); font-size: clamp(180px, 26vw, 360px);
+  color: rgba(255,255,255,.025); line-height: 1;
+  pointer-events: none; user-select: none; z-index: 0;
+}
+.sec-inner { position: relative; z-index: 1; padding: 100px 64px 80px; }
+.sec-label {
+  font-size: 9px; letter-spacing: .25em; text-transform: uppercase;
+  color: var(--orange); margin-bottom: 20px;
+  display: flex; align-items: center; gap: 12px;
+}
+.sec-label::before { content: ''; width: 24px; height: 1px; background: var(--orange); }
+
+/* ── PROBLEM ── */
+.problem-headline {
+  font-family: var(--f-kr);
+  font-size: clamp(40px, 6vw, 88px);
+  line-height: .9; letter-spacing: -.01em;
+  color: var(--cream); margin-bottom: 64px;
+}
+.versus {
+  display: grid; grid-template-columns: 1fr 48px 1fr; gap: 0;
+  align-items: start;
+}
+.vs-side {
+  padding: 36px;
+}
+.vs-side.before { background: var(--bg2); border: 1px solid var(--dim); }
+.vs-side.after  { background: var(--orangebg); border: 1px solid rgba(240,70,0,.25); }
+.vs-title {
+  font-family: var(--f-latin); font-size: 22px; letter-spacing: .06em;
+  margin-bottom: 24px;
+}
+.vs-title.bad { color: var(--cream3); }
+.vs-title.good { color: var(--orange); }
+.vs-list { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+.vs-item {
+  display: grid; grid-template-columns: 20px 1fr; gap: 10px;
+  font-size: 12px; color: var(--cream2); line-height: 1.6;
+}
+.vs-item-icon { color: var(--dim3); margin-top: 2px; }
+.vs-item-icon.check { color: var(--orange2); }
+.vs-mid {
+  display: flex; align-items: center; justify-content: center;
+  padding-top: 120px;
+}
+.vs-arrow {
+  width: 48px; height: 48px;
+  border: 1px solid var(--orange);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--orange); font-size: 20px;
+  background: var(--bg);
+}
+
+/* ── HOW ── */
+.how-bg { background: var(--bg2); }
+.how-headline {
+  font-family: var(--f-latin);
+  font-size: clamp(52px, 8vw, 120px);
+  line-height: .88; letter-spacing: .02em;
+  color: var(--cream); margin-bottom: 56px;
+}
+.steps {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 0; background: var(--dim); border: 1px solid var(--dim);
+}
+.step {
+  background: var(--bg2); padding: 28px 24px 36px;
+  position: relative; overflow: hidden;
+  transition: background .25s;
+}
+.step:hover { background: var(--bg3); }
+.step::after {
+  content: attr(data-n);
+  position: absolute; bottom: -28px; right: -8px;
+  font-family: var(--f-latin); font-size: 128px; color: var(--bg3);
+  line-height: 1; transition: color .25s;
+}
+.step:hover::after { color: var(--bg4); }
+.step-num {
+  font-size: 9px; letter-spacing: .2em; color: var(--orange);
+  margin-bottom: 20px; text-transform: uppercase;
+}
+.step-title {
+  font-family: var(--f-kr); font-size: 22px;
+  color: var(--cream); margin-bottom: 12px; line-height: 1.3;
+}
+.step-body {
+  font-size: 11px; color: var(--cream3); line-height: 1.8; margin-bottom: 20px;
+}
+.step-cmd {
+  font-family: var(--f-mono); font-size: 11px;
+  color: var(--orange3); padding: 8px 12px;
+  background: var(--bg); border-left: 2px solid var(--orange);
+  position: relative; z-index: 1;
+}
+
+/* ── CLI ── */
+.cli-split {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 64px;
+  align-items: start;
+}
+.cli-headline {
+  font-family: var(--f-kr);
+  font-size: clamp(42px, 6vw, 84px);
+  line-height: .9; letter-spacing: -.01em;
+  color: var(--cream); margin-bottom: 28px;
+}
+.cli-intro { font-size: 12px; color: var(--cream3); line-height: 1.8; margin-bottom: 40px; }
+.cmd-group { margin-bottom: 28px; }
+.cmd-group-label {
+  font-size: 9px; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--orange); margin-bottom: 10px;
+}
+.cmd-table {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 1px; background: var(--dim); border: 1px solid var(--dim);
+}
+.cmd-cell {
+  background: var(--bg); padding: 11px 14px;
+  transition: background .15s;
+}
+.cmd-cell:hover { background: var(--bg3); cursor: default; }
+.cmd-name { font-size: 12px; color: var(--orange2); margin-bottom: 2px; }
+.cmd-desc { font-size: 10px; color: var(--cream3); letter-spacing: .02em; }
+.cli-term {
+  background: var(--bg2); border: 1px solid var(--dim);
+  overflow: hidden; position: sticky; top: 72px;
+}
+.cli-term-bar {
+  padding: 12px 16px; border-bottom: 1px solid var(--dim);
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg3);
+}
+.cli-dot { width: 8px; height: 8px; border-radius: 50%; }
+.cli-dot:nth-child(1) { background: #f87171; }
+.cli-dot:nth-child(2) { background: #fbbf24; }
+.cli-dot:nth-child(3) { background: #4ade80; }
+.cli-term-title {
+  font-size: 10px; letter-spacing: .1em; color: var(--cream3);
+  margin-left: auto; margin-right: auto;
+}
+.cli-term-body { padding: 20px 20px 24px; }
+.l { display: block; font-size: 12px; line-height: 1.85; }
+.l.p { color: var(--orange2); }
+.l.c { color: var(--dim3); font-style: italic; }
+.l.o { color: var(--cream2); }
+.l.s { color: #4ade80; }
+.l.i { color: var(--cream3); }
+.l.g { height: 10px; display: block; }
+.csr {
+  display: inline-block; width: 7px; height: 13px;
+  background: var(--orange2); vertical-align: middle;
+  animation: blink .9s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* ── MONITOR ── */
+.monitor-bg { background: var(--bg2); }
+.monitor-headline {
+  font-family: var(--f-latin);
+  font-size: clamp(52px, 7vw, 108px);
+  line-height: .88; letter-spacing: .02em;
+  color: var(--cream); margin-bottom: 56px;
+}
+.repo-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1px; background: var(--dim); border: 1px solid var(--dim);
+}
+.rc {
+  background: var(--bg2); padding: 24px;
+  transition: background .2s; position: relative; overflow: hidden;
+}
+.rc:hover { background: var(--bg3); }
+.rc.add {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  min-height: 200px; cursor: pointer;
+  border: 1px dashed var(--dim2) !important;
+  background: transparent;
+  transition: border-color .2s, color .2s;
+  gap: 8px;
+}
+.rc.add:hover { border-color: var(--orange) !important; color: var(--orange); }
+.rc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+.rc-name { font-family: var(--f-mono); font-size: 13px; color: var(--cream); }
+.rc-badge {
+  font-size: 8px; letter-spacing: .1em; padding: 3px 8px; text-transform: uppercase;
+}
+.b-active  { background: rgba(74,222,128,.12); color: #4ade80; }
+.b-idle    { background: rgba(156,163,175,.1);  color: #9ca3af; }
+.b-stopped { background: rgba(248,113,113,.1);  color: #f87171; }
+.rc-agent {
+  font-size: 10px; font-family: var(--f-mono);
+  padding: 2px 8px; display: inline-block; margin-bottom: 14px;
+}
+.a-claude  { background: rgba(240,72,0,.15); color: var(--orange2); }
+.a-codex   { background: rgba(96,165,250,.12); color: #93c5fd; }
+.a-gemini  { background: rgba(192,132,252,.12); color: #c4b5fd; }
+.rc-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.rc-m-val {
+  font-family: var(--f-latin); font-size: 36px; line-height: 1;
+  color: var(--cream); margin-bottom: 2px;
+}
+.rc-m-val.ok { color: #4ade80; }
+.rc-m-val.dim { color: var(--dim3); }
+.rc-m-label { font-size: 8px; letter-spacing: .12em; color: var(--cream3); }
+.rc-id { font-size: 9px; color: var(--dim2); font-family: var(--f-mono); margin-top: 14px; }
+.rc-pulse {
+  position: absolute; top: 24px; right: 60px;
+  width: 6px; height: 6px; border-radius: 50%; background: #4ade80;
+  box-shadow: 0 0 0 0 rgba(74,222,128,.4);
+  animation: pulse 2s ease-out infinite;
+}
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(74,222,128,.5); }
+  70%  { box-shadow: 0 0 0 8px rgba(74,222,128,0); }
+  100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); }
+}
+.add-icon { font-size: 28px; color: var(--dim2); transition: color .2s; }
+.rc.add:hover .add-icon { color: var(--orange); }
+.add-label { font-size: 10px; letter-spacing: .1em; color: var(--cream3); transition: color .2s; }
+.rc.add:hover .add-label { color: var(--orange); }
+
+/* ── VAULT STRIP ── */
+.vault-strip {
+  border-top: 1px solid var(--dim);
+  background: var(--orangebg);
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+}
+.vault-panel {
+  padding: 48px 48px;
+  border-right: 1px solid rgba(240,70,0,.2);
+}
+.vault-panel:last-child { border-right: none; }
+.vault-panel-label { font-size: 9px; letter-spacing: .2em; color: var(--orange3); margin-bottom: 14px; }
+.vault-panel-title {
+  font-family: var(--f-kr); font-size: 26px; color: var(--cream);
+  margin-bottom: 12px; line-height: 1.3;
+}
+.vault-panel-body { font-size: 12px; color: var(--cream3); line-height: 1.8; }
+.vault-code {
+  margin-top: 16px; font-size: 11px; color: var(--orange2);
+  padding: 10px 14px; background: rgba(0,0,0,.3);
+  border-left: 2px solid var(--orange);
+}
+
+/* ── CTA ── */
+.cta-sec {
+  padding: 120px 64px;
+  border-top: 1px solid var(--dim);
+  text-align: center; position: relative; overflow: hidden;
+}
+.cta-glow {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 700px; height: 500px;
+  background: radial-gradient(ellipse, rgba(240,70,0,.06) 0%, transparent 65%);
+  pointer-events: none;
+}
+.cta-headline {
+  font-family: var(--f-kr);
+  font-size: clamp(52px, 9vw, 130px);
+  line-height: .88; letter-spacing: -.02em;
+  color: var(--cream); margin-bottom: 20px;
+  position: relative;
+}
+.cta-headline .ora { color: var(--orange); }
+.cta-sub { font-size: 13px; color: var(--cream3); margin-bottom: 52px; }
+.cta-buttons { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.cta-install {
+  display: inline-block; margin-top: 48px;
+  font-size: 11px; color: var(--cream3); line-height: 1;
+}
+.cta-install code {
+  display: inline-block; padding: 10px 24px;
+  background: var(--bg2); border: 1px solid var(--dim2);
+  color: var(--orange2); font-family: var(--f-mono); font-size: 12px;
+  letter-spacing: .03em; margin-top: 8px;
+}
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--dim);
+  padding: 28px 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg2);
+}
+.f-logo {
+  font-family: var(--f-latin); font-size: 22px;
+  letter-spacing: .08em; color: var(--cream2);
+}
+.f-logo em { color: var(--orange); font-style: normal; }
+.f-links { display: flex; gap: 24px; }
+.f-link {
+  font-size: 10px; letter-spacing: .1em; color: var(--cream3);
+  transition: color .2s; text-transform: uppercase;
+}
+.f-link:hover { color: var(--orange2); }
+.f-copy { font-size: 10px; color: var(--dim2); }
+
+/* ── REVEAL ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade { opacity: 0; animation: fadeUp .6s ease forwards; }
+.d1 { animation-delay: .05s; } .d2 { animation-delay: .15s; }
+.d3 { animation-delay: .25s; } .d4 { animation-delay: .35s; }
+.d5 { animation-delay: .45s; } .d6 { animation-delay: .55s; }
+
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity .5s ease, transform .5s ease; }
+.reveal.visible { opacity: 1; transform: none; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1024px) {
+  .hero-body { grid-template-columns: 1fr; }
+  .hero-right { border-right: none; border-top: 1px solid var(--dim); }
+  .hero-counter-block { grid-template-columns: repeat(4, 1fr); }
+  .versus { grid-template-columns: 1fr; }
+  .vs-mid { display: none; }
+  .steps { grid-template-columns: 1fr 1fr; }
+  .cli-split { grid-template-columns: 1fr; }
+  .cli-term { position: static; }
+  .repo-grid { grid-template-columns: 1fr 1fr; }
+  .vault-strip { grid-template-columns: 1fr; }
+  footer { flex-direction: column; gap: 16px; text-align: center; }
+  .sec-inner { padding: 80px 32px 60px; }
+}
+@media (max-width: 640px) {
+  .hero-left { padding: 48px 28px; }
+  .hero-counter-block { grid-template-columns: 1fr 1fr; }
+  .steps { grid-template-columns: 1fr; }
+  .repo-grid { grid-template-columns: 1fr; }
+  .cmd-table { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">dal<em>forge</em></div>
+  <div class="nav-links">
+    <a class="nav-link" href="#problem">Problem</a>
+    <a class="nav-link" href="#how">How</a>
+    <a class="nav-link" href="#cli">CLI</a>
+    <a class="nav-link" href="#monitor">Agents</a>
+    <a class="nav-btn" href="https://github.com/dalsoop/dalforge" target="_blank">GitHub →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-body">
+    <div class="hero-left">
+      <div>
+        <div class="hero-eyebrow fade d1">AI Agent Container Infrastructure</div>
+        <div class="hero-headline fade d2">
+          레포마다<br>
+          <span class="hl">AI.</span>
+        </div>
+        <div class="hero-sub fade d3">CONTAINERS.</div>
+      </div>
+      <div class="hero-bottom fade d4">
+        <p class="hero-desc">
+          달포지는 GitHub 레포지토리마다 독립된 AI 에이전트 컨테이너를 부여합니다.<br>
+          선언하고, 등록하고, 프로비저닝하면 — 나머지는 자동으로.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#how">시작하기</a>
+          <a class="btn btn-outline" href="https://github.com/dalsoop/dalforge" target="_blank">문서 →</a>
+        </div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-counter-block">
+        <div class="hc fade d2">
+          <span class="hc-val" id="c-repos">0</span>
+          <div class="hc-label">Repos Watched</div>
+          <div class="hc-bg">R</div>
+        </div>
+        <div class="hc fade d3">
+          <span class="hc-val" id="c-agents">0</span>
+          <div class="hc-label">Agents Running</div>
+          <div class="hc-bg">A</div>
+        </div>
+        <div class="hc fade d4">
+          <span class="hc-val" id="c-secrets">0</span>
+          <div class="hc-label">Secrets Vaulted</div>
+          <div class="hc-bg">S</div>
+        </div>
+        <div class="hc fade d5">
+          <span class="hc-val">60s</span>
+          <div class="hc-label">Reconcile Cycle</div>
+          <div class="hc-bg">W</div>
+        </div>
+      </div>
+      <div class="hero-dal-id fade d6">
+        <div class="dal-id-label">LATEST REGISTERED DAL ID</div>
+        <div class="dal-id-val" id="live-id">DAL:CLI:a3f82c1d</div>
+        <div class="dal-id-sub">player: claude · repo: acme/backend-api · status: active</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TICKER -->
+  <div class="ticker-wrap">
+    <div class="ticker-inner" id="ticker"></div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section class="sec" id="problem">
+  <div class="sec-bg-num">01</div>
+  <div class="sec-inner">
+    <div class="sec-label reveal">01 — The Problem</div>
+    <div class="problem-headline reveal">AI가 여기저기<br>흩어져 있다면.</div>
+    <div class="versus reveal">
+      <div class="vs-side before">
+        <div class="vs-title bad">BEFORE — 기존 방식</div>
+        <ul class="vs-list">
+          <li class="vs-item">
+            <span class="vs-item-icon">✕</span>
+            <span>AI 설정이 레포마다 제각각이라 누가 어디에 뭘 붙였는지 파악이 안 됨</span>
+          </li>
+          <li class="vs-item">
+            <span class="vs-item-icon">✕</span>
+            <span>시크릿이 .env 파일에 평문으로 존재 — 노출 위험</span>
+          </li>
+          <li class="vs-item">
+            <span class="vs-item-icon">✕</span>
+            <span>에이전트 죽어도 모름, 재시작도 수동, 업데이트도 수동</span>
+          </li>
+          <li class="vs-item">
+            <span class="vs-item-icon">✕</span>
+            <span>스킬, 훅, 환경변수 관리 분산 — 레포마다 중복 설정</span>
+          </li>
+          <li class="vs-item">
+            <span class="vs-item-icon">✕</span>
+            <span>AI 사용 현황 전체 파악 불가능 — 한눈에 보이지 않음</span>
+          </li>
+        </ul>
+      </div>
+      <div class="vs-mid">
+        <div class="vs-arrow">→</div>
+      </div>
+      <div class="vs-side after">
+        <div class="vs-title good">AFTER — dalforge 방식</div>
+        <ul class="vs-list">
+          <li class="vs-item">
+            <span class="vs-item-icon check">✓</span>
+            <span>.dalfactory/dal.cue 하나로 레포 AI 환경 전체 선언 — SSOT</span>
+          </li>
+          <li class="vs-item">
+            <span class="vs-item-icon check">✓</span>
+            <span>AES-256-GCM SecretVault — 암호화 저장, 컨테이너 기동 시 자동 주입</span>
+          </li>
+          <li class="vs-item">
+            <span class="vs-item-icon check">✓</span>
+            <span>watch 모드 60s 자동 감시 — drift 감지 즉시 reconcile 자동 실행</span>
+          </li>
+          <li class="vs-item">
+            <span class="vs-item-icon check">✓</span>
+            <span>스킬/훅 .dalfactory에서 관리 → .claude/, .codex/ 자동 export</span>
+          </li>
+          <li class="vs-item">
+            <span class="vs-item-icon check">✓</span>
+            <span>dalcenter list — 전체 달의 상태를 한 명령으로 조회</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="sec how-bg" id="how">
+  <div class="sec-bg-num">02</div>
+  <div class="sec-inner">
+    <div class="sec-label reveal">02 — How It Works</div>
+    <div class="how-headline reveal">4 STEPS.<br>DONE.</div>
+    <div class="steps reveal">
+      <div class="step" data-n="1">
+        <div class="step-num">step 01</div>
+        <div class="step-title">레포에 선언</div>
+        <div class="step-body">
+          레포 루트에 .dalfactory/dal.cue 파일을 생성하고
+          사용할 AI 에이전트, 스킬, 훅, 시크릿을 CUE 문법으로 선언합니다.
+          dalcenter validate 로 유효성 즉시 검사.
+        </div>
+        <div class="step-cmd">$ dalcenter validate</div>
+      </div>
+      <div class="step" data-n="2">
+        <div class="step-num">step 02</div>
+        <div class="step-title">달 등록</div>
+        <div class="step-body">
+          dalcenter join 실행 시 레포가 달포지 레지스트리에 연결됩니다.
+          고유한 DAL ID (DAL:CLI:uuid8) 가 발급되고
+          SQLite 레지스트리에 기록됩니다.
+        </div>
+        <div class="step-cmd">$ dalcenter join</div>
+      </div>
+      <div class="step" data-n="3">
+        <div class="step-num">step 03</div>
+        <div class="step-title">컨테이너 기동</div>
+        <div class="step-body">
+          Proxmox LXC 컨테이너가 자동 프로비저닝됩니다.
+          Ubuntu 24.04 베이스, AI 에이전트 설치, SecretVault 자동 주입.
+          PLAYER (claude/codex/gemini) 즉시 실행.
+        </div>
+        <div class="step-cmd">$ dalcenter provision &lt;id&gt;</div>
+      </div>
+      <div class="step" data-n="4">
+        <div class="step-num">step 04</div>
+        <div class="step-title">자동 감시</div>
+        <div class="step-body">
+          watch 모드를 켜면 60초마다 전체 달의 상태를 점검합니다.
+          컨테이너 drift 감지 시 자동 reconcile.
+          멈추면 스스로 재기동합니다.
+        </div>
+        <div class="step-cmd">$ dalcenter watch</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CLI SHOWCASE -->
+<section class="sec" id="cli">
+  <div class="sec-bg-num">03</div>
+  <div class="sec-inner">
+    <div class="sec-label reveal">03 — Commands</div>
+    <div class="cli-split">
+      <div class="cli-left">
+        <div class="cli-headline reveal">달을<br>다루는<br>명령들.</div>
+        <div class="cli-intro reveal">
+          dalcenter CLI는 15개의 서브커맨드로 AI 에이전트
+          컨테이너의 전체 생애주기를 관리합니다.
+          Join → Provision → Watch → Destroy.
+        </div>
+        <div class="cmd-group reveal">
+          <div class="cmd-group-label">핵심 명령</div>
+          <div class="cmd-table">
+            <div class="cmd-cell">
+              <div class="cmd-name">join</div>
+              <div class="cmd-desc">레포 등록 및 달 생성</div>
+            </div>
+            <div class="cmd-cell">
+              <div class="cmd-name">list</div>
+              <div class="cmd-desc">전체 달 목록 조회</div>
+            </div>
+            <div class="cmd-cell">
+              <div class="cmd-name">status</div>
+              <div class="cmd-desc">달 상태 상세 조회</div>
+            </div>
+            <div class="cmd-cell">
+              <div class="cmd-name">validate</div>
+              <div class="cmd-desc">dal.cue 유효성 검사</div>
+            </div>
+          </div>
+        </div>
+        <div class="cmd-group reveal">
+          <div class="cmd-group-label">운영 명령</div>
+          <div class="cmd-table">
+            <div class="cmd-cell">
+              <div class="cmd-name">provision</div>
+              <div class="cmd-desc">LXC 컨테이너 프로비저닝</div>
+            </div>
+            <div class="cmd-cell">
+              <div class="cmd-name">watch</div>
+              <div class="cmd-desc">60s 자동 감시 루프</div>
+            </div>
+            <div class="cmd-cell">
+              <div class="cmd-name">reconcile</div>
+              <div class="cmd-desc">drift 감지 및 자동 복구</div>
+            </div>
+            <div class="cmd-cell">
+              <div class="cmd-name">destroy</div>
+              <div class="cmd-desc">컨테이너 완전 제거</div>
+            </div>
+          </div>
+        </div>
+        <div class="cmd-group reveal">
+          <div class="cmd-group-label">보안 / 내보내기</div>
+          <div class="cmd-table">
+            <div class="cmd-cell">
+              <div class="cmd-name">secret</div>
+              <div class="cmd-desc">AES-256-GCM 시크릿 관리</div>
+            </div>
+            <div class="cmd-cell">
+              <div class="cmd-name">export</div>
+              <div class="cmd-desc">스킬/훅 .claude/ 내보내기</div>
+            </div>
+            <div class="cmd-cell">
+              <div class="cmd-name">catalog</div>
+              <div class="cmd-desc">클라우드 허브 카탈로그 검색</div>
+            </div>
+            <div class="cmd-cell">
+              <div class="cmd-name">start / stop</div>
+              <div class="cmd-desc">컨테이너 시작 / 정지</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="cli-right reveal">
+        <div class="cli-term">
+          <div class="cli-term-bar">
+            <div class="cli-dot"></div>
+            <div class="cli-dot"></div>
+            <div class="cli-dot"></div>
+            <span class="cli-term-title">dalcenter</span>
+          </div>
+          <div class="cli-term-body">
+<span class="l c"># .dalfactory/dal.cue 검사</span>
+<span class="l p">$ dalcenter validate</span>
+<span class="l s">✓ dal.cue is valid</span>
+<span class="l i">  player: claude</span>
+<span class="l i">  skills: [code-review, pr-check]</span>
+<span class="l i">  secrets: [GITHUB_TOKEN, OPENAI_KEY]</span>
+<span class="l g"></span>
+<span class="l c"># 달 등록</span>
+<span class="l p">$ dalcenter join</span>
+<span class="l s">✓ DAL:CLI:a3f82c1d registered</span>
+<span class="l i">  repo:   github.com/acme/backend-api</span>
+<span class="l i">  player: claude</span>
+<span class="l g"></span>
+<span class="l c"># LXC 컨테이너 프로비저닝</span>
+<span class="l p">$ dalcenter provision a3f82c1d</span>
+<span class="l i">  → creating LXC (ubuntu-24.04)...</span>
+<span class="l i">  → installing claude player...</span>
+<span class="l i">  → injecting 2 secrets from vault...</span>
+<span class="l s">✓ DAL:CONTAINER:b71e3a9c online</span>
+<span class="l g"></span>
+<span class="l c"># 전체 상태 조회</span>
+<span class="l p">$ dalcenter list</span>
+<span class="l o">  ID        REPO           STATUS  PLAYER</span>
+<span class="l o">  a3f82c1d  backend-api    active  claude</span>
+<span class="l o">  c2d14e7f  frontend-app   active  codex</span>
+<span class="l o">  e8b92a3c  data-pipeline  idle    gemini</span>
+<span class="l g"></span>
+<span class="l p">$ <span class="csr"></span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MONITOR -->
+<section class="sec monitor-bg" id="monitor">
+  <div class="sec-bg-num">04</div>
+  <div class="sec-inner">
+    <div class="sec-label reveal">04 — Live Agents</div>
+    <div class="monitor-headline reveal">AGENTS<br>ONLINE.</div>
+    <div class="repo-grid reveal">
+      <!-- Card 1: active -->
+      <div class="rc">
+        <div class="rc-pulse"></div>
+        <div class="rc-top">
+          <div class="rc-name">backend-api</div>
+          <div class="rc-badge b-active">active</div>
+        </div>
+        <div class="rc-agent a-claude">claude</div>
+        <div class="rc-metrics">
+          <div>
+            <div class="rc-m-val ok" id="tick1">2s</div>
+            <div class="rc-m-label">LAST OK</div>
+          </div>
+          <div>
+            <div class="rc-m-val">99.8%</div>
+            <div class="rc-m-label">UPTIME</div>
+          </div>
+        </div>
+        <div class="rc-id">DAL:CLI:a3f82c1d · CONT:b71e3a9c</div>
+      </div>
+      <!-- Card 2: active -->
+      <div class="rc">
+        <div class="rc-pulse"></div>
+        <div class="rc-top">
+          <div class="rc-name">frontend-app</div>
+          <div class="rc-badge b-active">active</div>
+        </div>
+        <div class="rc-agent a-codex">codex</div>
+        <div class="rc-metrics">
+          <div>
+            <div class="rc-m-val ok" id="tick2">5s</div>
+            <div class="rc-m-label">LAST OK</div>
+          </div>
+          <div>
+            <div class="rc-m-val">98.2%</div>
+            <div class="rc-m-label">UPTIME</div>
+          </div>
+        </div>
+        <div class="rc-id">DAL:CLI:c2d14e7f · CONT:d94f1b2a</div>
+      </div>
+      <!-- Card 3: active -->
+      <div class="rc">
+        <div class="rc-pulse"></div>
+        <div class="rc-top">
+          <div class="rc-name">ml-pipeline</div>
+          <div class="rc-badge b-active">active</div>
+        </div>
+        <div class="rc-agent a-gemini">gemini</div>
+        <div class="rc-metrics">
+          <div>
+            <div class="rc-m-val ok" id="tick3">1s</div>
+            <div class="rc-m-label">LAST OK</div>
+          </div>
+          <div>
+            <div class="rc-m-val">100%</div>
+            <div class="rc-m-label">UPTIME</div>
+          </div>
+        </div>
+        <div class="rc-id">DAL:CLI:e8b92a3c · CONT:f12c4e7d</div>
+      </div>
+      <!-- Card 4: idle -->
+      <div class="rc">
+        <div class="rc-top">
+          <div class="rc-name">data-sync</div>
+          <div class="rc-badge b-idle">idle</div>
+        </div>
+        <div class="rc-agent a-claude">claude</div>
+        <div class="rc-metrics">
+          <div>
+            <div class="rc-m-val dim">—</div>
+            <div class="rc-m-label">LAST OK</div>
+          </div>
+          <div>
+            <div class="rc-m-val dim">—</div>
+            <div class="rc-m-label">UPTIME</div>
+          </div>
+        </div>
+        <div class="rc-id">DAL:CLI:f4a91c0e · idle</div>
+      </div>
+      <!-- Card 5: stopped -->
+      <div class="rc">
+        <div class="rc-top">
+          <div class="rc-name">infra-tf</div>
+          <div class="rc-badge b-stopped">stopped</div>
+        </div>
+        <div class="rc-agent a-codex">codex</div>
+        <div class="rc-metrics">
+          <div>
+            <div class="rc-m-val dim">—</div>
+            <div class="rc-m-label">LAST OK</div>
+          </div>
+          <div>
+            <div class="rc-m-val dim">0%</div>
+            <div class="rc-m-label">UPTIME</div>
+          </div>
+        </div>
+        <div class="rc-id">DAL:CLI:b2e73d5f · stopped</div>
+      </div>
+      <!-- Add card -->
+      <div class="rc add">
+        <div class="add-icon">+</div>
+        <div class="add-label">새 레포 등록</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VAULT STRIP -->
+<div class="vault-strip">
+  <div class="vault-panel">
+    <div class="vault-panel-label">Secret Vault</div>
+    <div class="vault-panel-title">시크릿 자동<br>암호화 주입</div>
+    <div class="vault-panel-body">
+      AES-256-GCM 암호화로 SQLite에 안전하게 저장됩니다.
+      컨테이너 기동 시 자동으로 복호화하여 환경변수로 주입 —
+      .env 파일 노출 위험 없음.
+    </div>
+    <div class="vault-code">$ dalcenter secret set GITHUB_TOKEN sk-...</div>
+  </div>
+  <div class="vault-panel">
+    <div class="vault-panel-label">ID System</div>
+    <div class="vault-panel-title">고유 ID로<br>모든 걸 추적</div>
+    <div class="vault-panel-body">
+      모든 달은 DAL:{CATEGORY}:{uuid8} 형식의 고유 ID를 가집니다.
+      CLI, PLAYER, CONTAINER, SKILL, HOOK — 카테고리별로
+      구분되어 완전한 추적이 가능합니다.
+    </div>
+    <div class="vault-code">DAL:CLI:a3f82c1d → DAL:CONTAINER:b71e3a9c</div>
+  </div>
+  <div class="vault-panel">
+    <div class="vault-panel-label">Cloud Hub</div>
+    <div class="vault-panel-title">스킬과 훅<br>마켓플레이스</div>
+    <div class="vault-panel-body">
+      dalforge cloud hub은 npm 방식의 스킬/훅 레지스트리입니다.
+      catalog search로 검색, remote join으로 설치,
+      .dalfactory에서 버전 관리까지.
+    </div>
+    <div class="vault-code">$ dalcenter catalog search code-review</div>
+  </div>
+</div>
+
+<!-- CTA -->
+<section class="cta-sec">
+  <div class="cta-glow"></div>
+  <div class="cta-headline reveal">
+    지금 바로<br><span class="ora">시작하세요.</span>
+  </div>
+  <div class="cta-sub reveal">레포마다 AI. 컨테이너로. dalforge.</div>
+  <div class="cta-buttons reveal">
+    <a class="btn btn-primary" href="https://github.com/dalsoop/dalforge" target="_blank">GitHub에서 시작하기 →</a>
+    <a class="btn btn-outline" href="#how">동작 방식 보기</a>
+  </div>
+  <div class="cta-install reveal">
+    설치 명령
+    <code>go install dalforge-hub/dalcenter/cmd/dalcenter@latest</code>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="f-logo">dal<em>forge</em></div>
+  <div class="f-links">
+    <a class="f-link" href="https://github.com/dalsoop/dalforge" target="_blank">GitHub</a>
+    <a class="f-link" href="#">Docs</a>
+    <a class="f-link" href="#">Catalog</a>
+    <a class="f-link" href="#">Changelog</a>
+  </div>
+  <div class="f-copy">MIT License · Go 1.25 · CUE 0.16 · SQLite</div>
+</footer>
+
+<script>
+/* ── COUNT UP ── */
+function countUp(el, target, suffix, dur) {
+  const start = performance.now();
+  function step(now) {
+    const t = Math.min((now - start) / dur, 1);
+    const ease = 1 - Math.pow(1 - t, 3);
+    el.textContent = Math.floor(ease * target) + (suffix||'');
+    if (t < 1) requestAnimationFrame(step);
+    else el.textContent = target + (suffix||'');
+  }
+  requestAnimationFrame(step);
+}
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    countUp(document.getElementById('c-repos'),   12, '', 1200);
+    countUp(document.getElementById('c-agents'),  12, '', 1400);
+    countUp(document.getElementById('c-secrets'), 38, '', 1600);
+  }, 400);
+});
+
+/* ── TICKER ── */
+const repos = [
+  { name:'backend-api',    agent:'claude',  status:'on'  },
+  { name:'frontend-app',   agent:'codex',   status:'on'  },
+  { name:'ml-pipeline',    agent:'gemini',  status:'on'  },
+  { name:'data-sync',      agent:'claude',  status:'idle'},
+  { name:'infra-terraform',agent:'codex',   status:'off' },
+  { name:'mobile-rn',      agent:'claude',  status:'on'  },
+  { name:'auth-service',   agent:'codex',   status:'on'  },
+  { name:'analytics-etl',  agent:'gemini',  status:'idle'},
+  { name:'admin-panel',    agent:'claude',  status:'on'  },
+  { name:'doc-generator',  agent:'codex',   status:'on'  },
+  { name:'test-runner',    agent:'gemini',  status:'on'  },
+  { name:'deploy-pipeline',agent:'claude',  status:'off' },
+];
+function buildTicker() {
+  const t = document.getElementById('ticker');
+  // duplicate for seamless loop
+  const all = [...repos, ...repos];
+  t.innerHTML = all.map(r => `
+    <div class="ticker-item">
+      <div class="t-dot ${r.status}"></div>
+      <span class="t-repo">${r.name}</span>
+      <span class="t-sep">·</span>
+      <span class="t-agent">${r.agent}</span>
+    </div>
+  `).join('');
+}
+buildTicker();
+
+/* ── LIVE TICK (ok seconds) ── */
+const ticks = [
+  { el: document.getElementById('tick1'), base: 2 },
+  { el: document.getElementById('tick2'), base: 5 },
+  { el: document.getElementById('tick3'), base: 1 },
+];
+setInterval(() => {
+  ticks.forEach(t => {
+    const s = Math.floor(Math.random() * 12) + 1;
+    if (t.el) t.el.textContent = s + 's';
+  });
+}, 2000);
+
+/* ── LIVE DAL ID CYCLE ── */
+const ids = [
+  { id:'DAL:CLI:a3f82c1d', player:'claude',  repo:'acme/backend-api' },
+  { id:'DAL:CLI:c2d14e7f', player:'codex',   repo:'acme/frontend-app' },
+  { id:'DAL:CLI:e8b92a3c', player:'gemini',  repo:'acme/ml-pipeline' },
+];
+let idIdx = 0;
+const liveid = document.getElementById('live-id');
+if (liveid) {
+  setInterval(() => {
+    idIdx = (idIdx + 1) % ids.length;
+    const cur = ids[idIdx];
+    liveid.textContent = cur.id;
+    liveid.nextElementSibling.textContent = `player: ${cur.player} · repo: ${cur.repo} · status: active`;
+  }, 3000);
+}
+
+/* ── SCROLL REVEAL ── */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prelik — Tools That Move With You</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --fg:#111;--fg2:#333;--fg3:#666;--fg4:#999;--fg5:#ccc;--fg6:#e8e8e8;
+  --bg:#fff;--off:#f5f5f3;--dark:#111;--dark2:#1a1a1c;--dark3:#252528;
+  --g-vault:linear-gradient(135deg,#7c5bf5,#e44d90);
+  --g-flow:linear-gradient(135deg,#00b4f0,#0066dd);
+  --g-spark:linear-gradient(135deg,#ff8800,#ffcc00);
+  --g-shield:linear-gradient(135deg,#e84040,#ff80a0);
+  --g-lens:linear-gradient(135deg,#00c48c,#00ddf0);
+  --g-wave:linear-gradient(135deg,#9955ff,#5566ff);
+  --g-cast:linear-gradient(135deg,#f04060,#ff8844);
+  --g-core:linear-gradient(135deg,#3080f0,#00bbdd);
+  --sans:'Inter',system-ui,sans-serif;
+  --code:'JetBrains Mono',monospace;
+}
+
+html{scroll-behavior:smooth;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;-webkit-font-smoothing:antialiased}
+body{overflow-x:hidden}
+::selection{background:var(--dark);color:white}
+a{color:inherit;text-decoration:none}
+.w{max-width:1200px;margin:0 auto;padding:0 clamp(1.5rem,4vw,3.5rem)}
+
+/* ═══ NAV ═══ */
+nav{position:fixed;top:0;left:0;right:0;z-index:300;background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--fg6)}
+.ni{max-width:1200px;margin:0 auto;padding:0 clamp(1.5rem,4vw,3.5rem);display:flex;align-items:center;height:60px;gap:1.5rem}
+.logo{display:flex;align-items:center;gap:0.5rem;font-weight:800;font-size:0.95rem;flex-shrink:0}
+.logo-sq{width:26px;height:26px;border-radius:5px;background:var(--g-vault);display:grid;place-items:center;font-size:0.6rem;font-weight:900;color:white}
+.nav-products{display:flex;gap:0;flex:1;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none}
+.nav-products::-webkit-scrollbar{display:none}
+.np{font-size:0.78rem;font-weight:600;color:var(--fg4);padding:0.35rem 0.65rem;border-radius:6px;transition:all 0.15s;display:flex;align-items:center;gap:0.3rem;white-space:nowrap;cursor:pointer}
+.np:hover{color:var(--fg);background:var(--off)}
+.np-dot{width:6px;height:6px;border-radius:2px;flex-shrink:0}
+.nav-r{display:flex;align-items:center;gap:0.8rem;flex-shrink:0;margin-left:auto}
+.nav-r a{font-size:0.82rem;color:var(--fg3);font-weight:500;transition:color 0.15s}
+.nav-r a:hover{color:var(--fg)}
+.nr-cta{font-size:0.82rem!important;font-weight:700!important;padding:0.45rem 1.2rem;background:var(--dark);color:white!important;border-radius:6px;transition:all 0.2s}
+.nr-cta:hover{background:var(--dark2)!important}
+
+/* ═══ HERO ═══ */
+.hero{padding:10rem 0 4rem;text-align:center;position:relative;overflow:hidden}
+
+/* animated gradient mesh — 3 blobs orbiting */
+.hero-blobs{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.hb{position:absolute;border-radius:50%;filter:blur(120px);opacity:0.09;will-change:transform}
+.hb-1{width:600px;height:600px;background:#7c5bf5;animation:orbit1 20s ease-in-out infinite}
+.hb-2{width:500px;height:500px;background:#ff8800;animation:orbit2 25s ease-in-out infinite}
+.hb-3{width:400px;height:400px;background:#00c48c;animation:orbit3 18s ease-in-out infinite}
+
+.hero-inner{position:relative;z-index:1}
+.hero h1{font-size:clamp(3rem,7vw,5.5rem);font-weight:900;line-height:1;letter-spacing:-0.05em;margin-bottom:1.5rem;animation:heroUp .7s ease both}
+.hero-sub{font-size:1.2rem;color:var(--fg2);max-width:560px;margin:0 auto 3rem;line-height:1.8;animation:heroUp .7s ease .08s both}
+.hero-btns{display:flex;justify-content:center;gap:0.6rem;flex-wrap:wrap;animation:heroUp .7s ease .16s both}
+.btn{font-family:var(--sans);font-size:0.9rem;font-weight:700;padding:0.85rem 2rem;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;transition:all 0.2s;border-radius:8px}
+.btn-dark{background:var(--dark);color:white}
+.btn-dark:hover{background:var(--dark2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,0.12)}
+.btn-outline{background:transparent;border:1.5px solid var(--fg6);color:var(--fg2)}
+.btn-outline:hover{border-color:var(--fg5);background:var(--off)}
+
+.hero-note{margin-top:1.5rem;font-size:0.82rem;color:var(--fg4);animation:heroUp .7s ease .24s both}
+
+/* ═══ PRODUCT CAROUSEL — auto-scrolling tiles ═══ */
+.carousel-section{padding:2rem 0 5rem;overflow:hidden}
+
+.carousel-label{
+  text-align:center;font-size:0.68rem;font-weight:700;
+  letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--fg4);margin-bottom:1.5rem;
+}
+
+.carousel-track{
+  display:flex;gap:1rem;
+  animation:carouselScroll 40s linear infinite;
+  width:max-content;
+}
+.carousel-track:hover{animation-play-state:paused}
+
+.car-tile{
+  width:280px;flex-shrink:0;
+  border-radius:16px;padding:1.5rem;
+  color:white;position:relative;overflow:hidden;
+  cursor:pointer;transition:transform 0.3s;
+  min-height:160px;display:flex;flex-direction:column;
+}
+.car-tile:hover{transform:scale(1.03)}
+.car-tile::before{content:'';position:absolute;inset:0;z-index:0;opacity:0.95}
+.car-tile>*{position:relative;z-index:1}
+.car-tile::after{
+  content:'';position:absolute;z-index:0;
+  width:200px;height:200px;border-radius:30%;
+  background:rgba(255,255,255,0.07);
+  right:-60px;bottom:-60px;transform:rotate(20deg);
+}
+
+.car-tile .ct-icon{font-size:1.2rem;margin-bottom:auto}
+.car-tile .ct-name{font-size:1rem;font-weight:800;margin-bottom:0.1rem}
+.car-tile .ct-tag{font-size:0.78rem;opacity:0.75}
+.car-tile .ct-badge{
+  position:absolute;top:1rem;right:1rem;
+  font-size:0.5rem;font-weight:700;letter-spacing:0.06em;
+  padding:0.15rem 0.5rem;border-radius:100px;
+  background:rgba(255,255,255,0.2);text-transform:uppercase;
+}
+
+/* ═══ PRODUCT SHOWCASE — click to reveal ═══ */
+.showcase-section{padding:5rem 0}
+
+.showcase-tabs{
+  display:flex;gap:0;margin-bottom:0;
+  border-bottom:1.5px solid var(--fg6);
+  overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none;
+}
+.showcase-tabs::-webkit-scrollbar{display:none}
+
+.stab{
+  font-size:0.82rem;font-weight:600;color:var(--fg4);
+  padding:0.8rem 1.2rem;border-bottom:2px solid transparent;
+  cursor:pointer;transition:all 0.15s;
+  display:flex;align-items:center;gap:0.4rem;white-space:nowrap;
+  background:none;border-top:none;border-left:none;border-right:none;
+  font-family:var(--sans);
+}
+.stab:hover{color:var(--fg2)}
+.stab.active{color:var(--fg);border-bottom-color:var(--fg)}
+.stab .stab-dot{width:8px;height:8px;border-radius:3px}
+
+/* product detail panel — full width */
+.spanel{display:none;padding-top:3rem}
+.spanel.active{display:block;animation:panelIn .5s ease both}
+
+.spanel-hero{
+  display:grid;grid-template-columns:1fr 1.1fr;gap:3rem;align-items:center;
+  margin-bottom:3rem;
+}
+
+.sp-info .sp-icon-wrap{
+  width:64px;height:64px;border-radius:16px;
+  display:grid;place-items:center;font-size:1.8rem;
+  margin-bottom:1.5rem;
+  position:relative;overflow:hidden;
+}
+.sp-info .sp-icon-wrap::before{content:'';position:absolute;inset:0;opacity:0.12}
+
+.sp-info h2{font-size:2rem;font-weight:900;letter-spacing:-0.03em;margin-bottom:0.2rem}
+.sp-info .sp-tagline{font-size:1rem;color:var(--fg3);margin-bottom:1rem}
+.sp-info p{font-size:0.95rem;color:var(--fg2);line-height:1.8;margin-bottom:1.5rem;max-width:440px}
+
+.sp-feats{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:2rem}
+.sp-feat{
+  display:flex;align-items:center;gap:0.5rem;
+  font-size:0.85rem;color:var(--fg2);
+}
+.sp-feat-check{
+  width:18px;height:18px;border-radius:5px;flex-shrink:0;
+  display:grid;place-items:center;font-size:0.5rem;font-weight:900;color:white;
+}
+
+.sp-btns{display:flex;gap:0.5rem;flex-wrap:wrap}
+.sp-btn{
+  font-family:var(--sans);font-size:0.85rem;font-weight:700;
+  padding:0.7rem 1.5rem;border:none;border-radius:8px;
+  cursor:pointer;transition:all 0.2s;
+}
+
+/* preview window */
+.sp-preview{
+  border:1.5px solid var(--fg6);border-radius:16px;overflow:hidden;
+  box-shadow:0 1px 3px rgba(0,0,0,0.03),0 16px 40px rgba(0,0,0,0.05);
+  background:var(--bg);
+  transform:perspective(800px) rotateY(-2deg);
+  transition:transform 0.5s;
+}
+.sp-preview:hover{transform:perspective(800px) rotateY(0deg)}
+
+.spp-bar{padding:0.5rem 0.8rem;display:flex;align-items:center;gap:0.4rem;border-bottom:1px solid var(--fg6);background:var(--off)}
+.spp-dot{width:8px;height:8px;border-radius:50%}
+.spp-dot:nth-child(1){background:#ff5f57}
+.spp-dot:nth-child(2){background:#ffbd2e}
+.spp-dot:nth-child(3){background:#28c840}
+.spp-title{margin-left:auto;font-family:var(--code);font-size:0.6rem;color:var(--fg4)}
+
+.spp-body{padding:1.5rem;min-height:320px;font-family:var(--code);font-size:0.78rem;line-height:2.1;position:relative;overflow:hidden}
+
+/* animated typing cursor in preview */
+.type-cursor{display:inline-block;width:7px;height:1em;background:var(--fg);vertical-align:text-bottom;animation:blink .7s step-end infinite}
+
+/* dashboard in preview */
+.prev-dash{display:grid;grid-template-columns:1fr 1fr;gap:0.8rem}
+.pd-card{padding:1rem;background:var(--off);border-radius:10px;border:1px solid var(--fg6);position:relative;overflow:hidden}
+.pd-label{font-size:0.6rem;color:var(--fg4);letter-spacing:0.06em;text-transform:uppercase;font-family:var(--sans)}
+.pd-value{font-size:1.4rem;font-weight:800;font-family:var(--sans);margin-top:0.2rem}
+.pd-spark{display:flex;align-items:flex-end;gap:2px;height:24px;margin-top:0.4rem}
+.pd-spark span{flex:1;border-radius:2px 2px 0 0;animation:sparkGrow .6s ease forwards;transform-origin:bottom}
+.pd-change{font-size:0.65rem;font-family:var(--sans);margin-top:0.2rem}
+.pd-up{color:#10b981}
+
+/* chat in preview */
+.prev-chat{display:flex;flex-direction:column;gap:0.5rem;font-family:var(--sans)}
+.pc-msg{max-width:85%;padding:0.6rem 0.9rem;border-radius:10px;font-size:0.82rem;line-height:1.55;opacity:0;animation:msgIn .3s ease forwards}
+.pc-msg.h{align-self:flex-end;background:var(--fg);color:white;border-bottom-right-radius:3px}
+.pc-msg.b{align-self:flex-start;background:var(--off);border:1px solid var(--fg6);color:var(--fg2);border-bottom-left-radius:3px}
+.pc-msg code{font-family:var(--code);font-size:0.72rem;padding:0.05rem 0.3rem;border-radius:3px}
+.pc-typing{display:flex;gap:4px;padding:0.5rem 0.8rem;align-self:flex-start}
+.pc-typing span{width:5px;height:5px;border-radius:50%;background:var(--fg5);animation:typing 1.2s ease-in-out infinite}
+.pc-typing span:nth-child(2){animation-delay:.15s}
+.pc-typing span:nth-child(3){animation-delay:.3s}
+
+/* code lines in preview */
+.prev-code-line{display:flex;opacity:0;animation:codeLine .2s ease forwards}
+.pcl-key{color:var(--fg3)}
+.pcl-eq{color:var(--fg5)}
+.pcl-bad{color:#e44040}
+.pcl-good{font-weight:600}
+.pcl-ok{color:#10b981}
+
+/* ═══ FEATURES GRID ═══ */
+.features-section{padding:5rem 0;background:var(--off);border-top:1px solid var(--fg6);border-bottom:1px solid var(--fg6)}
+.feat-grid{margin-top:2.5rem;display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--fg6);border-radius:12px;overflow:hidden;background:var(--bg)}
+.feat-cell{padding:1.8rem;border-right:1px solid var(--fg6);border-bottom:1px solid var(--fg6);transition:background 0.2s}
+.feat-cell:nth-child(4n){border-right:none}
+.feat-cell:nth-child(n+5){border-bottom:none}
+.feat-cell:hover{background:var(--off)}
+.feat-cell .fc-num{font-family:var(--code);font-size:0.58rem;font-weight:600;color:var(--fg5);margin-bottom:0.5rem}
+.feat-cell h3{font-size:0.9rem;font-weight:800;margin-bottom:0.3rem}
+.feat-cell p{font-size:0.82rem;color:var(--fg3);line-height:1.6}
+
+/* ═══ PRICING ═══ */
+.pricing-section{padding:5rem 0}
+.price-grid{margin-top:3rem;display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;max-width:960px;margin-left:auto;margin-right:auto}
+.pr-card{border:1.5px solid var(--fg6);border-radius:16px;padding:2.5rem 2rem;transition:all 0.3s;position:relative}
+.pr-card:hover{border-color:var(--fg5);box-shadow:0 8px 24px rgba(0,0,0,0.04);transform:translateY(-3px)}
+.pr-card.pop{border-color:var(--fg);box-shadow:0 0 0 1px var(--fg)}
+.pr-card.pop::before{content:'POPULAR';position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:0.55rem;font-weight:800;letter-spacing:0.08em;padding:0.2rem 0.8rem;background:var(--dark);color:white;border-radius:100px}
+.pr-name{font-size:0.82rem;font-weight:700;color:var(--fg3);margin-bottom:0.8rem}
+.pr-price{font-size:2.5rem;font-weight:900;letter-spacing:-0.04em;line-height:1}
+.pr-price .cur{font-size:1rem;vertical-align:super;color:var(--fg4)}
+.pr-period{font-size:0.78rem;color:var(--fg4);margin-top:0.3rem;margin-bottom:1.5rem}
+.pr-list{list-style:none;display:flex;flex-direction:column;gap:0.5rem;margin-bottom:2rem}
+.pr-list li{font-size:0.85rem;color:var(--fg2);display:flex;align-items:flex-start;gap:0.5rem}
+.pr-list li::before{content:'✓';font-weight:800;flex-shrink:0}
+.pr-btn{width:100%;padding:0.75rem;border-radius:8px;font-family:var(--sans);font-size:0.88rem;font-weight:700;cursor:pointer;border:none;transition:all 0.2s}
+.pr-btn-out{background:transparent;border:1.5px solid var(--fg6);color:var(--fg2)}
+.pr-btn-out:hover{border-color:var(--fg5);background:var(--off)}
+.pr-btn-fill{background:var(--dark);color:white}
+.pr-btn-fill:hover{background:var(--dark2)}
+
+/* ═══ CTA ═══ */
+.cta-section{margin:3rem clamp(0.5rem,2vw,1.5rem);padding:5rem 2rem;border-radius:20px;text-align:center;position:relative;overflow:hidden;color:white}
+.cta-section::before{content:'';position:absolute;inset:0;background:var(--dark);z-index:0}
+/* animated gradient shapes */
+.cta-shapes{position:absolute;inset:0;z-index:1;overflow:hidden}
+.cta-shapes span{position:absolute;border-radius:30%;opacity:0.1}
+.cta-shapes span:nth-child(1){width:500px;height:500px;left:-120px;top:-120px;background:var(--g-vault);animation:ctaFloat1 12s ease-in-out infinite}
+.cta-shapes span:nth-child(2){width:400px;height:400px;right:-100px;bottom:-100px;background:var(--g-spark);animation:ctaFloat2 15s ease-in-out infinite}
+.cta-shapes span:nth-child(3){width:300px;height:300px;left:40%;top:-80px;background:var(--g-lens);animation:ctaFloat3 10s ease-in-out infinite}
+.cta-section>*{position:relative;z-index:2}
+.cta-section h2{font-size:clamp(2rem,4vw,3rem);font-weight:900;letter-spacing:-0.04em;margin-bottom:1rem}
+.cta-section>p{color:rgba(255,255,255,0.6);max-width:440px;margin:0 auto 2rem;font-size:1rem;line-height:1.8}
+.cta-btns{display:flex;justify-content:center;gap:0.6rem;flex-wrap:wrap}
+.btn-white{background:white;color:var(--dark);border-radius:8px}
+.btn-white:hover{box-shadow:0 4px 16px rgba(255,255,255,0.1);transform:translateY(-1px)}
+.btn-ghost{background:transparent;border:1.5px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);border-radius:8px}
+.btn-ghost:hover{background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.25)}
+
+/* ═══ FOOTER ═══ */
+footer{padding:3rem 0 2rem}
+.ft-grid{display:grid;grid-template-columns:2.5fr 1fr 1fr 1fr 1fr;gap:2rem;margin-bottom:2rem}
+.ft-brand .fb-name{font-weight:800;font-size:1rem;margin-bottom:0.4rem;display:flex;align-items:center;gap:0.4rem}
+.ft-brand p{font-size:0.82rem;color:var(--fg3);line-height:1.6;max-width:220px}
+.ft-col h4{font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--fg4);margin-bottom:0.6rem}
+.ft-col a{display:block;font-size:0.82rem;color:var(--fg3);padding:0.2rem 0;transition:color 0.15s}
+.ft-col a:hover{color:var(--fg)}
+.ft-bottom{padding-top:1.5rem;border-top:1px solid var(--fg6);display:flex;justify-content:space-between;font-size:0.75rem;color:var(--fg4)}
+
+/* ═══ ANIMATIONS ═══ */
+@keyframes heroUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes orbit1{0%{top:-10%;left:-5%}25%{top:5%;left:60%}50%{top:50%;left:40%}75%{top:20%;left:-10%}100%{top:-10%;left:-5%}}
+@keyframes orbit2{0%{top:60%;right:-10%}33%{top:-5%;right:30%}66%{top:40%;right:60%}100%{top:60%;right:-10%}}
+@keyframes orbit3{0%{bottom:-10%;left:30%}50%{bottom:30%;left:-5%}100%{bottom:-10%;left:30%}}
+@keyframes carouselScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes panelIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes blink{50%{opacity:0}}
+@keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes codeLine{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:translateX(0)}}
+@keyframes typing{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+@keyframes sparkGrow{from{height:0}to{height:var(--h,50%)}}
+@keyframes ctaFloat1{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(60px,-40px) rotate(15deg)}}
+@keyframes ctaFloat2{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(-50px,30px) rotate(-20deg)}}
+@keyframes ctaFloat3{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(30px,50px) rotate(25deg)}}
+
+.rv{opacity:0;transform:translateY(16px);transition:opacity .55s,transform .55s}
+.rv.vis{opacity:1;transform:translateY(0)}
+
+@media(max-width:1000px){.spanel-hero{grid-template-columns:1fr}.feat-grid{grid-template-columns:1fr 1fr}.feat-cell:nth-child(2n){border-right:none}.feat-cell:nth-child(n+3):nth-child(-n+4){border-bottom:1px solid var(--fg6)}.price-grid{grid-template-columns:1fr}.ft-grid{grid-template-columns:1fr 1fr}.nav-products{display:none}.prev-dash{grid-template-columns:1fr}}
+@media(max-width:700px){.feat-grid{grid-template-columns:1fr}.feat-cell{border-right:none!important}}
+</style>
+</head>
+<body>
+
+<nav><div class="ni">
+  <a href="#" class="logo"><div class="logo-sq">P</div>Prelik</a>
+  <div class="nav-products" id="navP"></div>
+  <div class="nav-r">
+    <a href="#pricing">Pricing</a>
+    <a href="#" class="nr-cta">Get Started</a>
+  </div>
+</div></nav>
+
+<section class="hero">
+  <div class="hero-blobs"><div class="hb hb-1"></div><div class="hb hb-2"></div><div class="hb hb-3"></div></div>
+  <div class="w"><div class="hero-inner">
+    <h1>Essential tools<br>for builders.</h1>
+    <p class="hero-sub">Eight AI-native products — security, automation, observability, deployment. Each works alone. All work together.</p>
+    <div class="hero-btns">
+      <a href="#showcase" class="btn btn-dark">Explore Products →</a>
+      <a href="#pricing" class="btn btn-outline">View Plans</a>
+    </div>
+    <p class="hero-note">Free tier · <strong>Pro from $29/mo</strong></p>
+  </div></div>
+</section>
+
+<!-- ═══ CAROUSEL ═══ -->
+<div class="carousel-section">
+  <div class="carousel-label">Our Products</div>
+  <div class="carousel-track" id="carTrack"></div>
+</div>
+
+<!-- ═══ SHOWCASE ═══ -->
+<section id="showcase" class="showcase-section">
+  <div class="w">
+    <div class="showcase-tabs rv" id="sTabs"></div>
+    <div id="sPanels"></div>
+  </div>
+</section>
+
+<!-- ═══ FEATURES ═══ -->
+<section class="features-section">
+  <div class="w">
+    <div class="rv"><h2 style="font-size:1.6rem;font-weight:900;letter-spacing:-0.03em">Why teams choose Prelik</h2></div>
+    <div class="feat-grid rv">
+      <div class="feat-cell"><div class="fc-num">01</div><h3>AI-native</h3><p>Agents, LLMs, automation — first-class, not bolted on.</p></div>
+      <div class="feat-cell"><div class="fc-num">02</div><h3>Self-hosted</h3><p>Your infrastructure, your data. No cloud lock-in.</p></div>
+      <div class="feat-cell"><div class="fc-num">03</div><h3>Open core</h3><p>Core products open source. Premium for teams.</p></div>
+      <div class="feat-cell"><div class="fc-num">04</div><h3>Integrated</h3><p>Shared auth, config, and data. Set up once.</p></div>
+      <div class="feat-cell"><div class="fc-num">05</div><h3>Fast</h3><p>Go + SQLite. Low memory, instant startup.</p></div>
+      <div class="feat-cell"><div class="fc-num">06</div><h3>Secure</h3><p>AES-256-GCM. Password files only.</p></div>
+      <div class="feat-cell"><div class="fc-num">07</div><h3>Observable</h3><p>Built-in metrics and tracing. One dashboard.</p></div>
+      <div class="feat-cell"><div class="fc-num">08</div><h3>Portable</h3><p>macOS, Linux, Docker, Proxmox. Runs anywhere.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PRICING ═══ -->
+<section id="pricing" class="pricing-section">
+  <div class="w">
+    <div style="text-align:center" class="rv"><h2 style="font-size:1.6rem;font-weight:900;letter-spacing:-0.03em;margin-bottom:0.3rem">Pricing</h2><p style="color:var(--fg3);font-size:.92rem">Start free. Upgrade when ready.</p></div>
+    <div class="price-grid rv">
+      <div class="pr-card"><div class="pr-name">Community</div><div class="pr-price"><span class="cur">$</span>0</div><div class="pr-period">free forever</div><ul class="pr-list"><li>Open source tools</li><li>VeilKey self-hosted</li><li>LensView basic</li><li>Community support</li></ul><button class="pr-btn pr-btn-out">Download Free</button></div>
+      <div class="pr-card pop"><div class="pr-name">Professional</div><div class="pr-price"><span class="cur">$</span>29</div><div class="pr-period">per user / month</div><ul class="pr-list"><li>All 8 products</li><li>Team workspaces</li><li>Priority support</li><li>Advanced dashboards</li><li>Unlimited deploys</li></ul><button class="pr-btn pr-btn-fill">Start Free Trial</button></div>
+      <div class="pr-card"><div class="pr-name">Enterprise</div><div class="pr-price" style="font-size:2rem">Custom</div><div class="pr-period">contact for pricing</div><ul class="pr-list"><li>Everything in Pro</li><li>On-premise deploy</li><li>Dedicated engineer</li><li>SLA guarantee</li></ul><button class="pr-btn pr-btn-out">Contact Sales</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ═══ -->
+<div class="cta-section rv">
+  <div class="cta-shapes"><span></span><span></span><span></span></div>
+  <h2>Start building today.</h2>
+  <p>Download free, or unlock the full suite with Pro.</p>
+  <div class="cta-btns"><a href="#" class="btn btn-white">Download Free →</a><a href="#pricing" class="btn btn-ghost">Compare Plans</a></div>
+</div>
+
+<footer><div class="w">
+  <div class="ft-grid">
+    <div class="ft-brand"><div class="fb-name"><div class="logo-sq" style="width:20px;height:20px;border-radius:4px;font-size:.5rem">P</div>Prelik</div><p>AI-native tools for modern teams.</p></div>
+    <div class="ft-col"><h4>Products</h4><a href="#">VeilKey</a><a href="#">FlowForge</a><a href="#">SparkAgent</a><a href="#">LensView</a></div>
+    <div class="ft-col"><h4>Products</h4><a href="#">WaveDB</a><a href="#">CastDeploy</a><a href="#">CoreStack</a><a href="#">ShieldAI</a></div>
+    <div class="ft-col"><h4>Resources</h4><a href="#">Docs</a><a href="#">Blog</a><a href="#">Changelog</a><a href="https://github.com/prelik">GitHub</a></div>
+    <div class="ft-col"><h4>Company</h4><a href="#">About</a><a href="#">Careers</a><a href="#">Contact</a><a href="#">Legal</a></div>
+  </div>
+  <div class="ft-bottom"><span>© 2026 Prelik</span><span>Pre × Relik</span></div>
+</div></footer>
+
+<script>
+const P=[
+  {id:'veilkey',name:'VeilKey',icon:'🔐',grad:'var(--g-vault)',color:'#7c5bf5',tag:'Secret Lifecycle Manager',status:'Open Source',
+   desc:'Encrypt secrets at creation. Replace plaintext with scoped references. Rotate without downtime. AES-256-GCM, hub-and-spoke, zero plaintext at rest.',
+   feats:['222+ detection patterns','AES-256-GCM encryption','macOS + Linux','Self-hosted','AI-safe references','Key rotation'],
+   preview:'veilkey',link:'https://github.com/veilkey/veilkey-selfhosted'},
+  {id:'sparkagent',name:'SparkAgent',icon:'🤖',grad:'var(--g-spark)',color:'#ff8800',tag:'Autonomous AI Agents',status:'Beta',
+   desc:'Build and deploy autonomous agents with multi-step reasoning, tool use, and persistent memory. Claude and GPT backends.',
+   feats:['Multi-agent orchestration','Tool use framework','Persistent memory','Claude + GPT','Temporal workflows','Streaming'],
+   preview:'agent',link:'#'},
+  {id:'flowforge',name:'FlowForge',icon:'⚡',grad:'var(--g-flow)',color:'#00b4f0',tag:'Workflow Automation',status:'Beta',
+   desc:'Visual workflow builder with AI-assisted step generation. Connect any API, trigger on events, deploy instantly.',
+   feats:['Visual builder','AI step generation','100+ connectors','Temporal engine','Webhooks','Scheduling'],
+   preview:'dashboard',link:'#'},
+  {id:'lensview',name:'LensView',icon:'📊',grad:'var(--g-lens)',color:'#00c48c',tag:'AI Observability',status:'GA',
+   desc:'Track token usage, latency, costs, and quality across all AI calls. Real-time dashboards, alerts, anomaly detection.',
+   feats:['Token tracking','Cost analytics','Latency monitoring','Quality scoring','Custom dashboards','Slack alerts'],
+   preview:'dashboard',link:'#'},
+  {id:'castdeploy',name:'CastDeploy',icon:'🚀',grad:'var(--g-cast)',color:'#f04060',tag:'One-Click Deploy',status:'GA',
+   desc:'Git push to production. Proxmox, Docker, and bare metal. Zero-downtime rolling updates, health checks, rollback.',
+   feats:['Git push deploy','Rolling updates','Proxmox support','Docker native','Health checks','Rollback'],
+   preview:'dashboard',link:'#'},
+  {id:'shieldai',name:'ShieldAI',icon:'🛡️',grad:'var(--g-shield)',color:'#e84040',tag:'Security Monitoring',status:'Coming Soon',
+   desc:'AI-powered security monitoring. Real-time anomaly detection, threat scoring, automated incident response.',
+   feats:['Anomaly detection','Threat scoring','Auto-response','Compliance','Integration APIs','Alert routing'],
+   preview:'dashboard',link:'#'},
+  {id:'wavedb',name:'WaveDB',icon:'🗄️',grad:'var(--g-wave)',color:'#9955ff',tag:'Vector + Relational',status:'Alpha',
+   desc:'Vector similarity search and relational queries in one engine. SQLite-compatible, embeddable, fast.',
+   feats:['Vector search','SQL queries','SQLite compatible','Embeddable','Full-text search','JSON support'],
+   preview:'dashboard',link:'#'},
+  {id:'corestack',name:'CoreStack',icon:'🏗️',grad:'var(--g-core)',color:'#3080f0',tag:'Infrastructure Platform',status:'Enterprise',
+   desc:'Complete self-hosted infrastructure. 30+ services managed as code — GitLab, monitoring, secrets, networking.',
+   feats:['30+ services','Infrastructure as code','GitOps','Monitoring','Secrets management','Network automation'],
+   preview:'dashboard',link:'#'},
+];
+
+// ═══ NAV ═══
+const navP=document.getElementById('navP');
+P.forEach(p=>{const a=document.createElement('a');a.className='np';a.href='#showcase';a.innerHTML=`<span class="np-dot" style="background:${p.grad}"></span>${p.name}`;a.onclick=()=>setTimeout(()=>selectTab(p.id),100);navP.appendChild(a)});
+
+// ═══ CAROUSEL ═══
+const car=document.getElementById('carTrack');
+[...P,...P,...P].forEach(p=>{
+  const t=document.createElement('div');t.className='car-tile';
+  t.style.cssText=``;
+  t.innerHTML=`<div style="position:absolute;inset:0;background:${p.grad};opacity:0.95;z-index:0"></div><span class="ct-badge">${p.status}</span><div class="ct-icon">${p.icon}</div><div style="margin-top:auto"><div class="ct-name">${p.name}</div><div class="ct-tag">${p.tag}</div></div>`;
+  t.onclick=()=>{selectTab(p.id);document.getElementById('showcase').scrollIntoView({behavior:'smooth'})};
+  car.appendChild(t);
+});
+
+// ═══ SHOWCASE TABS + PANELS ═══
+const tabs=document.getElementById('sTabs');
+const panels=document.getElementById('sPanels');
+
+P.forEach((p,i)=>{
+  const tab=document.createElement('button');tab.className='stab'+(i===0?' active':'');tab.dataset.id=p.id;
+  tab.innerHTML=`<span class="stab-dot" style="background:${p.grad}"></span>${p.name}`;
+  tab.onclick=()=>selectTab(p.id);
+  tabs.appendChild(tab);
+
+  const panel=document.createElement('div');panel.className='spanel'+(i===0?' active':'');panel.id='sp-'+p.id;
+  panel.innerHTML=`<div class="spanel-hero"><div class="sp-info">
+    <div class="sp-icon-wrap" style=""><div style="position:absolute;inset:0;background:${p.grad};opacity:0.12;border-radius:16px"></div><span style="position:relative;z-index:1">${p.icon}</span></div>
+    <h2>${p.name}</h2><div class="sp-tagline">${p.tag}</div>
+    <p>${p.desc}</p>
+    <div class="sp-feats">${p.feats.map(f=>`<div class="sp-feat"><span class="sp-feat-check" style="background:${p.color}">✓</span>${f}</div>`).join('')}</div>
+    <div class="sp-btns"><a href="${p.link}" class="sp-btn" style="background:${p.color};color:white">${p.status==='Coming Soon'?'Join Waitlist →':'Try '+p.name+' →'}</a></div>
+  </div><div class="sp-preview"><div class="spp-bar"><span class="spp-dot"></span><span class="spp-dot"></span><span class="spp-dot"></span><span class="spp-title">${p.name.toLowerCase()}</span></div><div class="spp-body" id="prev-${p.id}"></div></div></div>`;
+  panels.appendChild(panel);
+});
+
+function selectTab(id){
+  document.querySelectorAll('.stab').forEach(t=>t.classList.toggle('active',t.dataset.id===id));
+  document.querySelectorAll('.spanel').forEach(p=>{p.classList.toggle('active',p.id==='sp-'+id)});
+  renderPreview(id);
+}
+
+function renderPreview(id){
+  const p=P.find(x=>x.id===id);
+  const el=document.getElementById('prev-'+id);
+  if(!el||el.dataset.done)return;el.dataset.done='1';
+
+  if(p.preview==='veilkey'){
+    const s=[{k:'DATABASE_URL',d:'postgres://admin:s3cret',v:'VK:LOCAL:db01'},{k:'AWS_SECRET',d:'wJalrXUtnFEMI',v:'VK:LOCAL:aws4'},{k:'GITHUB_TOKEN',d:'ghp_abc123def',v:'VK:LOCAL:gh7e'},{k:'STRIPE_SK',d:'sk_live_51HG8',v:'VK:LOCAL:st0b'},{k:'JWT_SECRET',d:'super-secret-jwt',v:'VK:LOCAL:jw3e'}];
+    let html='';s.forEach((x,i)=>{html+=`<div class="prev-code-line" style="animation-delay:${i*120}ms"><span class="pcl-key">${x.k}</span><span class="pcl-eq">=</span><span class="pcl-good" style="color:${p.color}">${x.v}</span></div>`});
+    html+=`<br><div class="prev-code-line" style="animation-delay:700ms"><span class="pcl-ok">✓ 5 secrets sealed · 0 plaintext</span></div>`;
+    el.innerHTML=html;
+  } else if(p.preview==='agent'){
+    el.innerHTML=`<div class="prev-chat">
+      <div class="pc-msg h" style="animation-delay:.1s">Deploy staging environment</div>
+      <div class="pc-msg b" style="animation-delay:.4s">Reading config... Found <code style="background:${p.color}15;color:${p.color}">VK:LOCAL:db01</code>. Running deploy.</div>
+      <div class="pc-msg b" style="animation-delay:.7s">✓ Deployed. Health check passed. 2 secrets resolved at runtime.</div>
+      <div class="pc-msg h" style="animation-delay:1s">Run tests</div>
+      <div class="pc-typing" style="animation-delay:1.2s"><span></span><span></span><span></span></div>
+    </div>`;
+  } else {
+    const m=[{l:'Requests',v:'12,847',c:'+18%',bars:[40,55,30,65,80,45,72]},{l:'Latency',v:'142ms',c:'-8%',bars:[70,55,60,45,35,40,35]},{l:'Success',v:'99.7%',c:'+0.2%',bars:[95,92,97,96,99,98,99]},{l:'Users',v:'284',c:'+12',bars:[30,35,40,42,48,52,56]}];
+    el.innerHTML=`<div class="prev-dash">${m.map(x=>`<div class="pd-card">
+      <div class="pd-label">${x.l}</div><div class="pd-value">${x.v}</div>
+      <div class="pd-spark">${x.bars.map(b=>`<span style="--h:${b}%;background:${p.color}30;height:0"></span>`).join('')}</div>
+      <div class="pd-change pd-up">${x.c}</div>
+    </div>`).join('')}</div>`;
+    // animate spark bars
+    setTimeout(()=>{el.querySelectorAll('.pd-spark span').forEach(s=>{s.style.animation='sparkGrow .6s ease forwards';s.style.height='var(--h)'})},100);
+  }
+}
+renderPreview('veilkey');
+
+// ═══ REVEAL ═══
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis')})},{threshold:.05,rootMargin:'0px 0px -20px 0px'});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+</script>
+
+</body>
+</html>

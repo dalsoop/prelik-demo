@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prelik</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Inconsolata:wght@400;500;600;700&display=swap');
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--fg:#0c0c0c;--fg2:#3a3a3a;--fg3:#7a7a7a;--fg4:#aaa;--fg5:#d5d5d5;--fg6:#ebebeb;--bg:#fdfdfc;--red:#e03030;--red-soft:rgba(224,48,48,0.06);--sans:'Noto Sans KR',sans-serif;--display:'Cormorant Garamond',Georgia,serif;--mono:'Inconsolata',monospace}
+
+html{scroll-behavior:smooth;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;-webkit-font-smoothing:antialiased}
+body{overflow-x:hidden}
+::selection{background:var(--red);color:white}
+a{color:inherit;text-decoration:none}
+.w{max-width:1140px;margin:0 auto;padding:0 clamp(2rem,5vw,4.5rem)}
+
+/* ═══ NAV ═══ */
+nav{position:fixed;top:0;left:0;right:0;z-index:300;background:rgba(253,253,252,0.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid transparent;transition:border-color 0.3s}
+nav.s{border-bottom-color:var(--fg6)}
+.ni{max-width:1140px;margin:0 auto;padding:0 clamp(2rem,5vw,4.5rem);display:flex;align-items:center;justify-content:space-between;height:58px}
+.logo{font-family:var(--display);font-weight:600;font-size:1.4rem;font-style:italic;letter-spacing:-0.02em}
+.logo .dot{color:var(--red)}
+.nk{display:flex;gap:1.5rem;align-items:center}
+.nk a{font-size:0.82rem;font-weight:500;color:var(--fg3);transition:color 0.15s}
+.nk a:hover{color:var(--fg)}
+.nk .nc{color:var(--red);font-weight:700}
+
+/* ═══ HERO — cinematic split ═══ */
+.hero{min-height:100vh;display:flex;align-items:center;position:relative;overflow:hidden}
+
+.hero-split{display:grid;grid-template-columns:1fr 1fr;min-height:100vh}
+
+/* left: dark panel */
+.hero-dark{
+  background:var(--fg);color:white;
+  display:flex;align-items:center;justify-content:center;
+  padding:4rem;position:relative;overflow:hidden;
+}
+
+/* animated red line drawing */
+.hero-dark svg.hero-lines{
+  position:absolute;inset:0;width:100%;height:100%;
+  opacity:0.06;
+}
+.hero-dark svg.hero-lines line{
+  stroke:var(--red);stroke-width:0.5;
+  stroke-dasharray:800;stroke-dashoffset:800;
+  animation:drawLine 3s ease forwards;
+}
+.hero-dark svg.hero-lines line:nth-child(2){animation-delay:0.5s}
+.hero-dark svg.hero-lines line:nth-child(3){animation-delay:1s}
+.hero-dark svg.hero-lines line:nth-child(4){animation-delay:1.5s}
+
+.hero-dark-content{position:relative;z-index:1;max-width:420px}
+
+.hd-eyebrow{
+  font-family:var(--mono);font-size:0.62rem;letter-spacing:0.2em;
+  text-transform:uppercase;color:var(--red);margin-bottom:2rem;
+  overflow:hidden;
+}
+.hd-eyebrow span{display:inline-block;animation:slideUp 0.6s cubic-bezier(0.22,1,0.36,1) 0.3s both}
+
+.hd-title{
+  font-family:var(--display);font-size:clamp(2.8rem,5vw,4.2rem);
+  font-weight:300;font-style:italic;line-height:1.2;
+  margin-bottom:1.5rem;letter-spacing:-0.02em;
+}
+.hd-title strong{font-weight:700}
+
+.hd-desc{font-size:0.92rem;color:rgba(255,255,255,0.45);line-height:1.9;margin-bottom:2.5rem}
+
+.hd-btns{display:flex;gap:0.6rem;flex-wrap:wrap}
+.btn{font-family:var(--sans);font-size:0.85rem;font-weight:700;padding:0.75rem 1.8rem;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;transition:all 0.25s}
+.btn-red{background:var(--red);color:white}
+.btn-red:hover{box-shadow:0 6px 20px rgba(224,48,48,0.3);transform:translateY(-2px)}
+.btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6)}
+.btn-ghost:hover{border-color:rgba(255,255,255,0.3);color:white}
+
+/* right: light panel with live terminal */
+.hero-light{
+  display:flex;align-items:center;justify-content:center;
+  padding:4rem;position:relative;
+}
+
+/* subtle dot pattern */
+.hero-light::before{
+  content:'';position:absolute;inset:0;
+  background-image:radial-gradient(var(--fg6) 1px,transparent 1px);
+  background-size:20px 20px;opacity:0.5;
+}
+
+.hero-term{
+  position:relative;z-index:1;width:100%;max-width:420px;
+  background:var(--fg);color:white;
+  font-family:var(--mono);font-size:0.78rem;
+  box-shadow:0 24px 60px rgba(0,0,0,0.1);
+  animation:fadeUp 0.7s ease 0.4s both;
+}
+.ht-bar{padding:0.5rem 0.8rem;display:flex;align-items:center;gap:0.4rem;border-bottom:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02)}
+.ht-dot{width:7px;height:7px;border-radius:50%}
+.ht-dot:nth-child(1){background:#ff5f57}
+.ht-dot:nth-child(2){background:#ffbd2e}
+.ht-dot:nth-child(3){background:#28c840}
+.ht-title{margin-left:auto;font-size:0.58rem;color:rgba(255,255,255,0.2)}
+.ht-body{padding:1.2rem 1.5rem;min-height:220px;line-height:2.2}
+.ht-body .p{color:rgba(255,255,255,0.25)}
+.ht-body .c{color:rgba(255,255,255,0.8)}
+.ht-body .f{color:var(--red)}
+.ht-body .d{color:rgba(255,255,255,0.18)}
+.ht-body .ok{color:#4ade80}
+.ht-body .ref{color:var(--red)}
+.type-line{opacity:0;transform:translateY(3px);animation:tl 0.2s ease forwards}
+.type-cursor{display:inline-block;width:7px;height:1em;background:var(--red);vertical-align:text-bottom;animation:blink 0.7s step-end infinite}
+
+/* ═══ STRIP ═══ */
+.strip{
+  display:flex;align-items:center;
+  border-top:1px solid var(--fg6);border-bottom:1px solid var(--fg6);
+}
+.strip-item{
+  flex:1;padding:2rem 1.5rem;text-align:center;
+  border-right:1px solid var(--fg6);
+  transition:background 0.2s;
+}
+.strip-item:last-child{border-right:none}
+.strip-item:hover{background:var(--red-soft)}
+.si-val{font-family:var(--display);font-size:2.2rem;font-weight:700;font-style:italic;line-height:1}
+.si-label{font-size:0.68rem;color:var(--fg4);margin-top:0.3rem}
+
+/* ═══ ABOUT ═══ */
+.about{padding:8rem 0}
+.about-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:6rem;align-items:start}
+.about-left{position:sticky;top:90px}
+.about-big{
+  font-family:var(--display);font-size:clamp(2.5rem,4.5vw,3.5rem);
+  font-weight:300;font-style:italic;line-height:1.3;
+  letter-spacing:-0.02em;margin-bottom:1.5rem;
+}
+.about-big strong{font-weight:700}
+.about-big .rd{color:var(--red)}
+.about-note{font-family:var(--mono);font-size:0.68rem;color:var(--fg4);line-height:2;padding-top:1rem;border-top:1px solid var(--fg6)}
+.about-right p{font-size:0.95rem;color:var(--fg2);line-height:2.1;margin-bottom:1.5rem}
+
+/* ═══ BUSINESS ═══ */
+.biz{padding:6rem 0}
+.biz-label{font-family:var(--mono);font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--fg4);margin-bottom:2.5rem}
+
+/* accordion style */
+.biz-item{
+  border-top:1px solid var(--fg6);
+  overflow:hidden;
+  cursor:pointer;
+}
+.biz-item:last-child{border-bottom:1px solid var(--fg6)}
+
+.bi-header{
+  display:grid;grid-template-columns:48px 200px 1fr 40px;gap:1.5rem;
+  align-items:center;padding:1.8rem 0;
+  transition:all 0.3s;
+}
+.bi-header:hover{padding-left:1rem}
+
+.bi-num{font-family:var(--mono);font-size:0.62rem;color:var(--fg5);transition:color 0.3s}
+.bi-header:hover .bi-num{color:var(--red)}
+.bi-name{font-family:var(--display);font-size:1.3rem;font-weight:600;font-style:italic;display:flex;align-items:center;gap:0.5rem}
+.bi-tag{font-family:var(--mono);font-size:0.5rem;font-weight:400;font-style:normal;color:var(--fg4);padding:0.1rem 0.4rem;border:1px solid var(--fg6)}
+.bi-desc{font-size:0.85rem;color:var(--fg3);line-height:1.6}
+.bi-toggle{
+  font-size:1.2rem;color:var(--fg5);text-align:right;
+  transition:all 0.3s;transform:rotate(0deg);
+}
+.biz-item.open .bi-toggle{transform:rotate(45deg);color:var(--red)}
+
+.bi-expand{
+  max-height:0;overflow:hidden;
+  transition:max-height 0.5s cubic-bezier(0.22,1,0.36,1),padding 0.5s;
+  padding:0 0 0 calc(48px + 1.5rem);
+}
+.biz-item.open .bi-expand{max-height:300px;padding-bottom:2rem}
+
+.bi-expand-inner{
+  display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;
+  padding-top:0.5rem;
+}
+.bi-expand-inner p{font-size:0.88rem;color:var(--fg2);line-height:1.8}
+.bi-expand-inner .bi-link{
+  font-size:0.82rem;font-weight:700;color:var(--red);
+  display:flex;align-items:center;gap:0.3rem;margin-top:0.5rem;
+}
+
+/* ═══ MANIFESTO ═══ */
+.manifesto{
+  padding:8rem 0;background:var(--fg);color:white;
+  position:relative;overflow:hidden;
+}
+
+/* animated red crossing lines */
+.mf-deco{position:absolute;inset:0;opacity:0.04;pointer-events:none}
+.mf-deco span{
+  position:absolute;background:var(--red);
+}
+.mf-deco span:nth-child(1){width:120%;height:1px;top:20%;left:-10%;transform:rotate(-8deg);animation:lineSweep 8s ease-in-out infinite}
+.mf-deco span:nth-child(2){width:120%;height:1px;top:50%;left:-10%;transform:rotate(5deg);animation:lineSweep 10s ease-in-out infinite reverse}
+.mf-deco span:nth-child(3){width:120%;height:1px;top:80%;left:-10%;transform:rotate(-3deg);animation:lineSweep 12s ease-in-out infinite}
+
+.mf-inner{position:relative;z-index:1;max-width:680px;margin:0 auto;text-align:center}
+.mf-inner h2{
+  font-family:var(--display);font-size:clamp(1.4rem,2.5vw,2rem);
+  font-weight:300;font-style:italic;line-height:1.7;
+  margin-bottom:3rem;color:rgba(255,255,255,0.6);
+}
+.mf-inner h2 strong{font-weight:700;color:white}
+.mf-inner h2 .rd{color:var(--red)}
+
+.mf-items{display:flex;flex-direction:column;gap:0;text-align:left}
+.mf-row{
+  padding:1.5rem 0;border-top:1px solid rgba(255,255,255,0.05);
+  display:grid;grid-template-columns:36px 1fr;gap:1rem;align-items:baseline;
+  opacity:0;transform:translateX(-12px);
+  transition:opacity 0.5s ease,transform 0.5s ease;
+}
+.mf-row.vis{opacity:1;transform:translateX(0)}
+.mf-n{font-family:var(--mono);font-size:0.58rem;color:rgba(255,255,255,0.15)}
+.mf-text{font-size:0.92rem;color:rgba(255,255,255,0.4);line-height:1.75}
+.mf-text strong{color:rgba(255,255,255,0.85)}
+.mf-text .rd{color:var(--red)}
+
+/* ═══ TECH ═══ */
+.tech{padding:6rem 0}
+.tech-grid{display:grid;grid-template-columns:1fr 1fr;gap:5rem}
+.tech-left h2{font-family:var(--display);font-size:2rem;font-weight:300;font-style:italic;line-height:1.4;margin-bottom:1.2rem}
+.tech-left h2 strong{font-weight:700}
+.tech-left p{font-size:0.92rem;color:var(--fg3);line-height:1.9}
+
+/* counters — animated on scroll */
+.tech-counters{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:2rem}
+.tc-box{padding:1.5rem;border:1px solid var(--fg6);transition:border-color 0.2s}
+.tc-box:hover{border-color:var(--red)}
+.tc-val{font-family:var(--display);font-size:2.2rem;font-weight:700;font-style:italic;line-height:1}
+.tc-label{font-size:0.68rem;color:var(--fg4);margin-top:0.2rem}
+
+.tech-tags{display:flex;flex-wrap:wrap;gap:0.4rem}
+.tt{
+  font-family:var(--mono);font-size:0.7rem;padding:0.4rem 0.9rem;
+  border:1px solid var(--fg6);color:var(--fg3);
+  transition:all 0.25s;cursor:default;position:relative;overflow:hidden;
+}
+.tt::before{content:'';position:absolute;inset:0;background:var(--red);transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.22,1,0.36,1);z-index:0}
+.tt:hover::before{transform:translateY(0)}
+.tt span{position:relative;z-index:1;transition:color 0.3s}
+.tt:hover span{color:white}
+
+/* ═══ NEWS ═══ */
+.news{padding:6rem 0;border-top:1px solid var(--fg6)}
+.news-item{
+  display:grid;grid-template-columns:100px 1fr;gap:2rem;
+  padding:1.5rem 0;border-bottom:1px solid var(--fg6);
+  cursor:pointer;transition:padding-left 0.2s;position:relative;
+}
+.news-item::after{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:var(--red);transform:scaleY(0);transform-origin:top;
+  transition:transform 0.3s cubic-bezier(0.22,1,0.36,1);
+}
+.news-item:hover{padding-left:1rem}
+.news-item:hover::after{transform:scaleY(1)}
+.nx-date{font-family:var(--mono);font-size:0.68rem;color:var(--fg4)}
+.nx-title{font-size:0.92rem;font-weight:600}
+
+/* ═══ CONTACT ═══ */
+.contact{padding:8rem 0;text-align:center;position:relative}
+
+/* red dot that follows scroll position */
+.contact-dot{
+  width:120px;height:120px;border-radius:50%;
+  background:var(--red);opacity:0.04;
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  filter:blur(40px);pointer-events:none;
+  animation:dotPulse 4s ease-in-out infinite;
+}
+
+.contact h2{
+  font-family:var(--display);font-size:clamp(2.5rem,6vw,5rem);
+  font-weight:300;font-style:italic;line-height:1.15;margin-bottom:1.5rem;
+  letter-spacing:-0.02em;position:relative;
+}
+.contact h2 strong{font-weight:700}
+.contact h2 .rd{color:var(--red)}
+.contact>p{font-size:1rem;color:var(--fg3);max-width:380px;margin:0 auto 2.5rem;line-height:1.8;position:relative}
+.contact-links{display:flex;justify-content:center;gap:2rem;font-size:0.88rem;position:relative}
+.cl{font-weight:600;padding-bottom:0.25rem;border-bottom:2px solid var(--fg6);transition:border-color 0.2s}
+.cl:hover{border-color:var(--red)}
+
+/* ═══ FOOTER ═══ */
+footer{border-top:1px solid var(--fg6);padding:2rem 0}
+.ft{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+.ft-logo{font-family:var(--display);font-weight:600;font-style:italic;font-size:1rem}
+.ft-logo .rd{color:var(--red)}
+.ft-links{display:flex;gap:1.5rem;font-size:0.78rem;color:var(--fg3)}
+.ft-links a{transition:color 0.15s}
+.ft-links a:hover{color:var(--fg)}
+.ft-copy{font-size:0.68rem;color:var(--fg4)}
+
+/* ═══ KEYFRAMES ═══ */
+@keyframes slideUp{from{transform:translateY(110%)}to{transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes tl{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+@keyframes blink{50%{opacity:0}}
+@keyframes drawLine{to{stroke-dashoffset:0}}
+@keyframes lineSweep{0%,100%{transform:rotate(var(--r,0deg)) translateX(0)}50%{transform:rotate(var(--r,0deg)) translateX(30px)}}
+@keyframes dotPulse{0%,100%{opacity:0.04;transform:translate(-50%,-50%) scale(1)}50%{opacity:0.08;transform:translate(-50%,-50%) scale(1.5)}}
+
+.rv{opacity:0;transform:translateY(18px);transition:opacity 0.6s,transform 0.6s}
+.rv.vis{opacity:1;transform:translateY(0)}
+
+@media(max-width:1000px){
+  .hero-split{grid-template-columns:1fr;min-height:auto}
+  .hero-dark{min-height:60vh}
+  .hero-light{min-height:auto;padding:3rem 2rem}
+  .about-grid{grid-template-columns:1fr}
+  .about-left{position:static}
+  .bi-header{grid-template-columns:36px 1fr 30px;gap:0.8rem}
+  .bi-desc{display:none}
+  .bi-expand-inner{grid-template-columns:1fr}
+  .tech-grid{grid-template-columns:1fr}
+  .nk a:nth-child(-n+2){display:none}
+  .strip{flex-wrap:wrap}
+  .strip-item{flex:1 1 50%;border-bottom:1px solid var(--fg6)}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav"><div class="ni">
+  <a href="#" class="logo">Prelik<span class="dot">.</span></a>
+  <div class="nk"><a href="#about">소개</a><a href="#biz">사업</a><a href="#tech">기술</a><a href="#contact" class="nc">문의 →</a></div>
+</div></nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="hero-split">
+    <div class="hero-dark">
+      <svg class="hero-lines" viewBox="0 0 600 900" preserveAspectRatio="none">
+        <line x1="0" y1="0" x2="600" y2="900"/>
+        <line x1="600" y1="0" x2="0" y2="900"/>
+        <line x1="300" y1="0" x2="300" y2="900"/>
+        <line x1="0" y1="450" x2="600" y2="450"/>
+      </svg>
+      <div class="hero-dark-content">
+        <div class="hd-eyebrow"><span>Pre × Relik — AI Services</span></div>
+        <h1 class="hd-title"><strong>레거시가 되기 전에</strong> 만드는 사람들.</h1>
+        <p class="hd-desc">AI 기반 서비스를 설계하고, 직접 코드를 쓰고, 자체 인프라에서 운영하는 기술 기업.</p>
+        <div class="hd-btns">
+          <a href="#biz" class="btn btn-red">사업영역 →</a>
+          <a href="https://github.com/prelik" class="btn btn-ghost">GitHub</a>
+        </div>
+      </div>
+    </div>
+    <div class="hero-light">
+      <div class="hero-term">
+        <div class="ht-bar"><span class="ht-dot"></span><span class="ht-dot"></span><span class="ht-dot"></span><span class="ht-title">veilkey</span></div>
+        <div class="ht-body" id="termBody"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ STRIP ═══ -->
+<div class="strip rv">
+  <div class="strip-item"><div class="si-val">8</div><div class="si-label">자체 제품</div></div>
+  <div class="strip-item"><div class="si-val">30+</div><div class="si-label">운영 서비스</div></div>
+  <div class="strip-item"><div class="si-val">222+</div><div class="si-label">보안 패턴</div></div>
+  <div class="strip-item"><div class="si-val">24/7</div><div class="si-label">셀프호스팅</div></div>
+  <div class="strip-item"><div class="si-val">0</div><div class="si-label">평문 at rest</div></div>
+</div>
+
+<!-- ═══ ABOUT ═══ -->
+<section id="about" class="about">
+  <div class="w">
+    <div class="about-grid rv">
+      <div class="about-left">
+        <div class="about-big"><strong>만들기 전에는</strong> 존재하지 않았던 것을 <span class="rd">만듭니다.</span></div>
+        <div class="about-note">Pre·lik /prɛlɪk/<br>Pre (이전의) × Relik (유물)<br>레거시가 되기 전에 만든다.</div>
+      </div>
+      <div class="about-right">
+        <p>Prelik은 AI 기반 서비스를 설계하고, 직접 코드를 쓰고, 자체 인프라에서 운영하는 기술 기업입니다.</p>
+        <p>비밀 관리, 자율 에이전트, 워크플로 자동화, 관측 플랫폼 — 팀이 매일 쓰는 도구를 만듭니다. 핵심 제품은 오픈소스로 공개하고, 셀프호스팅을 기본으로 합니다.</p>
+        <p>고객의 데이터는 고객의 인프라 위에 있어야 합니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ BUSINESS ═══ -->
+<section id="biz" class="biz">
+  <div class="w">
+    <div class="biz-label rv">사업영역 — 8 Products</div>
+    <div id="bizList" class="rv"></div>
+  </div>
+</section>
+
+<!-- ═══ MANIFESTO ═══ -->
+<section class="manifesto">
+  <div class="mf-deco"><span></span><span></span><span></span></div>
+  <div class="w">
+    <div class="mf-inner">
+      <h2><strong>기술은 도구가 아니라</strong> <span class="rd">태도</span>입니다.</h2>
+      <div class="mf-items">
+        <div class="mf-row" data-s="0"><span class="mf-n">01</span><div class="mf-text"><strong>필요해지기 전에 만든다.</strong> 남들이 문제를 인식할 때, 우리는 이미 해결책을 갖고 있습니다.</div></div>
+        <div class="mf-row" data-s="1"><span class="mf-n">02</span><div class="mf-text"><strong>직접 운영한다.</strong> 우리가 만든 것은 우리가 씁니다.</div></div>
+        <div class="mf-row" data-s="2"><span class="mf-n">03</span><div class="mf-text">핵심 기술을 <strong class="rd">공개한다.</strong></div></div>
+        <div class="mf-row" data-s="3"><span class="mf-n">04</span><div class="mf-text"><strong>평문은 존재하지 않는다.</strong> 모든 비밀은 생성 시점에 암호화됩니다.</div></div>
+        <div class="mf-row" data-s="4"><span class="mf-n">05</span><div class="mf-text">고객의 데이터는 <strong>고객의 서버에.</strong></div></div>
+        <div class="mf-row" data-s="5"><span class="mf-n">06</span><div class="mf-text"><strong>Go와 SQLite.</strong> 복잡함 대신 <span class="rd">확실함.</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TECH ═══ -->
+<section id="tech" class="tech">
+  <div class="w">
+    <div class="tech-grid rv">
+      <div class="tech-left">
+        <h2><strong>직접 만들고,</strong> 직접 운영합니다.</h2>
+        <p>Go, Python, TypeScript 풀스택. 자체 인프라에서 30개 이상의 서비스를 24시간 운영합니다.</p>
+      </div>
+      <div>
+        <div class="tech-counters" id="techCounters">
+          <div class="tc-box"><div class="tc-val"><span class="cv" data-t="8">0</span></div><div class="tc-label">자체 제품</div></div>
+          <div class="tc-box"><div class="tc-val"><span class="cv" data-t="30">0</span>+</div><div class="tc-label">운영 서비스</div></div>
+          <div class="tc-box"><div class="tc-val"><span class="cv" data-t="222">0</span>+</div><div class="tc-label">보안 패턴</div></div>
+          <div class="tc-box"><div class="tc-val">24/7</div><div class="tc-label">셀프호스팅</div></div>
+        </div>
+        <div class="tech-tags" id="techTags"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ NEWS ═══ -->
+<section class="news">
+  <div class="w">
+    <div class="biz-label rv">소식</div>
+    <div class="rv">
+      <div class="news-item"><span class="nx-date">2026.03.17</span><span class="nx-title">VeilKey 오픈소스 공개 — GitHub AGPL-3.0</span></div>
+      <div class="news-item"><span class="nx-date">2026.03.15</span><span class="nx-title">SparkAgent 퍼블릭 베타 시작</span></div>
+      <div class="news-item"><span class="nx-date">2026.03.10</span><span class="nx-title">Prelik 공식 런칭</span></div>
+      <div class="news-item"><span class="nx-date">2026.03.05</span><span class="nx-title">CoreStack v2 릴리스</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CONTACT ═══ -->
+<section id="contact" class="contact">
+  <div class="contact-dot"></div>
+  <div class="w rv">
+    <h2><strong>이야기를</strong><br><span class="rd">나눠보겠습니다.</span></h2>
+    <p>AI 서비스, 보안, 인프라 — 어떤 단계든 편하게 연락해주세요.</p>
+    <div class="contact-links">
+      <a href="mailto:hello@prelik.com" class="cl">hello@prelik.com</a>
+      <a href="https://github.com/prelik" class="cl">GitHub</a>
+    </div>
+  </div>
+</section>
+
+<footer><div class="w"><div class="ft">
+  <span class="ft-logo">Prelik<span class="rd">.</span></span>
+  <div class="ft-links"><a href="#about">소개</a><a href="#biz">사업</a><a href="https://github.com/prelik">GitHub</a><a href="#contact">문의</a></div>
+  <span class="ft-copy">© 2026 Pre × Relik</span>
+</div></div></footer>
+
+<script>
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('s',scrollY>40));
+
+// ═══ TERMINAL TYPING ═══
+const lines=[
+  {t:'p',v:'$ '},{t:'c',v:'veilkey scan '},{t:'f',v:'.env'},{t:'br'},
+  {t:'d',v:'  [1] .env:3 — AWS_SECRET'},{t:'d',v:'  [2] .env:7 — STRIPE_SK'},{t:'br'},
+  {t:'p',v:'$ '},{t:'c',v:'veilkey filter '},{t:'f',v:'.env'},{t:'br'},
+  {t:'ref',v:'  AWS_SECRET=VK:LOCAL:aws4'},{t:'ref',v:'  STRIPE_SK=VK:LOCAL:st0b'},{t:'br'},
+  {t:'ok',v:'  ✓ 2 sealed · 0 plaintext'},
+];
+const tb=document.getElementById('termBody');
+async function typeLoop(){
+  tb.innerHTML='';
+  for(const l of lines){
+    if(l.t==='br'){tb.insertAdjacentHTML('beforeend','<br>');await sl(80);continue}
+    const s=document.createElement('span');s.className='type-line '+l.t;s.textContent=l.v;
+    tb.appendChild(s);await sl(l.t==='p'?80:150);
+  }
+  tb.insertAdjacentHTML('beforeend','<span class="type-cursor"></span>');
+  await sl(4000);typeLoop();
+}
+function sl(ms){return new Promise(r=>setTimeout(r,ms))}
+setTimeout(typeLoop,800);
+
+// ═══ BUSINESS ACCORDION ═══
+const biz=[
+  {name:'VeilKey',tag:'OPEN SOURCE',desc:'비밀 생명주기 관리.',detail:'시크릿을 생성 시점에 AES-256-GCM으로 암호화하고 VK: 참조로 대체합니다. AI 에이전트는 참조만 보고 작업합니다.',link:'https://github.com/veilkey/veilkey-selfhosted',linkText:'GitHub에서 보기'},
+  {name:'SparkAgent',tag:'BETA',desc:'자율 AI 에이전트.',detail:'다단계 추론, 도구 사용, 영속 메모리. Claude/GPT 백엔드를 Temporal로 오케스트레이션합니다.',link:'#',linkText:'개발 중'},
+  {name:'FlowForge',tag:'BETA',desc:'워크플로 자동화.',detail:'AI가 단계를 자동 생성하는 비주얼 빌더. 100+ API 커넥터와 이벤트 트리거.',link:'#',linkText:'베타 참여'},
+  {name:'LensView',tag:'GA',desc:'AI 관측 플랫폼.',detail:'토큰 사용량, 지연시간, 비용, 품질을 실시간으로 추적합니다.',link:'#',linkText:'시작하기'},
+  {name:'CastDeploy',tag:'GA',desc:'원클릭 배포.',detail:'Git push로 프로덕션까지. Proxmox, Docker, 베어메탈 지원.',link:'#',linkText:'시작하기'},
+  {name:'ShieldAI',tag:'SOON',desc:'AI 보안 모니터링.',detail:'실시간 이상 탐지, 위협 스코어링, 자동 대응.',link:'#',linkText:'대기 등록'},
+  {name:'WaveDB',tag:'ALPHA',desc:'벡터 + 관계형 DB.',detail:'SQLite 호환, 임베더블. 벡터 유사도 검색과 SQL을 하나의 엔진에서.',link:'#',linkText:'얼리 액세스'},
+  {name:'CoreStack',tag:'ENTERPRISE',desc:'인프라 플랫폼.',detail:'30개 이상의 서비스를 코드로 관리. GitLab, Grafana, Vault 등 통합 스택.',link:'#',linkText:'문의하기'},
+];
+const bl=document.getElementById('bizList');
+biz.forEach((b,i)=>{
+  const item=document.createElement('div');item.className='biz-item';
+  item.innerHTML=`
+    <div class="bi-header">
+      <span class="bi-num">0${i+1}</span>
+      <div class="bi-name">${b.name} <span class="bi-tag">${b.tag}</span></div>
+      <div class="bi-desc">${b.desc}</div>
+      <span class="bi-toggle">+</span>
+    </div>
+    <div class="bi-expand"><div class="bi-expand-inner">
+      <p>${b.detail}</p>
+      <div><a href="${b.link}" class="bi-link">${b.linkText} →</a></div>
+    </div></div>`;
+  item.querySelector('.bi-header').addEventListener('click',()=>{
+    document.querySelectorAll('.biz-item.open').forEach(x=>{if(x!==item)x.classList.remove('open')});
+    item.classList.toggle('open');
+  });
+  bl.appendChild(item);
+});
+
+// ═══ TECH TAGS ═══
+const tags=['Go','Python','TypeScript','Laravel','React','Vue','Proxmox','Docker','Temporal','Claude API','Ollama','PostgreSQL','SQLite','Grafana','GitLab CI','GitHub Actions','Playwright','Elasticsearch','Kestra','Mattermost'];
+const ttEl=document.getElementById('techTags');
+tags.forEach(t=>{ttEl.insertAdjacentHTML('beforeend',`<span class="tt"><span>${t}</span></span>`)});
+
+// ═══ COUNTER ═══
+let cDone=false;
+const cObs=new IntersectionObserver(es=>{es.forEach(e=>{
+  if(!e.isIntersecting||cDone)return;cDone=true;
+  document.querySelectorAll('.cv').forEach(el=>{
+    const target=+el.dataset.t,dur=1200,start=performance.now();
+    function tick(now){const p=Math.min((now-start)/dur,1);el.textContent=Math.round(target*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(tick)}
+    requestAnimationFrame(tick);
+  });
+})},{threshold:0.3});
+document.querySelectorAll('#techCounters').forEach(el=>cObs.observe(el));
+
+// ═══ MANIFESTO STAGGER ═══
+const mfObs=new IntersectionObserver(es=>{es.forEach(e=>{
+  if(!e.isIntersecting)return;
+  const d=+(e.target.dataset.s||0)*120;
+  setTimeout(()=>e.target.classList.add('vis'),d);
+  mfObs.unobserve(e.target);
+})},{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.mf-row').forEach(el=>mfObs.observe(el));
+
+// ═══ REVEAL ═══
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target)}})},{threshold:.05,rootMargin:'0px 0px -20px 0px'});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+</script>
+
+</body>
+</html>

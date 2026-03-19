@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VeilKey — Secrets Handled Right</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,300;0,7..72,400;0,7..72,500;0,7..72,600;0,7..72,700;1,7..72,300;1,7..72,400&family=Inter:wght@300;400;500;600&family=Source+Code+Pro:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --ink:#1a1713;
+  --ink2:#4a443b;
+  --ink3:#7d7568;
+  --ink4:#b0a898;
+  --ink5:#d6d0c6;
+  --ink6:#eae6de;
+  --cream:#f8f5ef;
+  --white:#fefcf8;
+  --teal:#0a7c6a;
+  --teal-light:#0d9980;
+  --teal-bg:rgba(10,124,106,0.05);
+  --teal-line:rgba(10,124,106,0.15);
+  --coral:#d94f3b;
+  --coral-bg:rgba(217,79,59,0.06);
+  --slate:#2c3640;
+  --slate-light:#3d4a56;
+  --display:'Literata',Georgia,serif;
+  --sans:'Inter',-apple-system,sans-serif;
+  --code:'Source Code Pro','Menlo',monospace;
+}
+
+html{scroll-behavior:smooth;background:var(--white);color:var(--ink);font-family:var(--sans);font-size:16px;-webkit-font-smoothing:antialiased}
+body{overflow-x:hidden}
+::selection{background:var(--teal);color:white}
+a{color:inherit;text-decoration:none}
+
+.w{max-width:1100px;margin:0 auto;padding:0 clamp(1.5rem,5vw,4rem)}
+
+/* ═══ NAV ═══ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:300;
+  background:rgba(254,252,248,0.88);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--ink6);
+  transition:box-shadow 0.3s;
+}
+nav.shadow{box-shadow:0 1px 20px rgba(26,23,19,0.06)}
+.nav-in{
+  max-width:1100px;margin:0 auto;padding:0 clamp(1.5rem,5vw,4rem);
+  display:flex;align-items:center;justify-content:space-between;height:58px;
+}
+.logo{
+  font-family:var(--display);font-weight:600;font-size:1.05rem;
+  color:var(--ink);display:flex;align-items:center;gap:0.6rem;
+}
+.logo-shield{
+  width:24px;height:28px;position:relative;
+}
+.logo-shield svg{width:100%;height:100%}
+.nav-r{display:flex;align-items:center;gap:2rem}
+.nav-r a{font-size:0.82rem;color:var(--ink3);transition:color 0.2s;font-weight:400}
+.nav-r a:hover{color:var(--ink)}
+.nav-r .nav-gh{
+  padding:0.45rem 1.2rem;background:var(--ink);color:var(--white);
+  border-radius:6px;font-size:0.82rem;font-weight:500;
+  transition:all 0.2s;
+}
+.nav-r .nav-gh:hover{background:var(--slate);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.12)}
+
+/* ═══ HERO ═══ */
+.hero{
+  padding:10rem 0 6rem;
+  position:relative;
+  overflow:hidden;
+}
+
+/* subtle topo lines */
+.hero::before{
+  content:'';position:absolute;inset:0;
+  opacity:0.025;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg width='800' height='800' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 400 Q200 350 400 400 T800 400' fill='none' stroke='%231a1713' stroke-width='1'/%3E%3Cpath d='M0 420 Q200 370 400 420 T800 420' fill='none' stroke='%231a1713' stroke-width='0.7'/%3E%3Cpath d='M0 380 Q200 330 400 380 T800 380' fill='none' stroke='%231a1713' stroke-width='0.7'/%3E%3Cpath d='M0 440 Q200 390 400 440 T800 440' fill='none' stroke='%231a1713' stroke-width='0.5'/%3E%3Cpath d='M0 360 Q200 310 400 360 T800 360' fill='none' stroke='%231a1713' stroke-width='0.5'/%3E%3C/svg%3E");
+  background-size:800px;
+}
+
+.hero-layout{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:4rem;align-items:center;
+}
+
+.hero-left{animation:slideUp 0.7s ease both}
+
+.hero-pill{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  font-size:0.72rem;font-weight:500;letter-spacing:0.06em;
+  color:var(--teal);
+  padding:0.3rem 0.9rem;
+  background:var(--teal-bg);border:1px solid var(--teal-line);
+  border-radius:100px;
+  margin-bottom:1.8rem;
+}
+.hero-pill .dot{
+  width:6px;height:6px;border-radius:50%;background:var(--teal);
+  animation:pulse 2s ease-in-out infinite;
+}
+
+.hero h1{
+  font-family:var(--display);
+  font-size:clamp(2.4rem,4.5vw,3.6rem);
+  font-weight:400;line-height:1.18;
+  color:var(--ink);margin-bottom:1.5rem;
+}
+.hero h1 em{font-style:italic;color:var(--teal)}
+
+.hero-desc{
+  font-size:1.05rem;color:var(--ink2);
+  line-height:1.85;font-weight:300;
+  max-width:440px;margin-bottom:2.5rem;
+}
+
+.hero-btns{display:flex;gap:0.7rem;flex-wrap:wrap}
+
+.btn{
+  font-family:var(--sans);font-size:0.88rem;font-weight:500;
+  padding:0.75rem 1.8rem;border:none;cursor:pointer;
+  display:inline-flex;align-items:center;gap:0.5rem;
+  transition:all 0.25s;border-radius:8px;
+}
+.btn-dark{background:var(--ink);color:var(--white)}
+.btn-dark:hover{background:var(--slate);transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,0.1)}
+.btn-outline{background:transparent;border:1.5px solid var(--ink5);color:var(--ink2)}
+.btn-outline:hover{border-color:var(--ink4);color:var(--ink)}
+
+/* Hero right — the interactive card */
+.hero-right{animation:slideUp 0.7s ease 0.15s both}
+
+.hero-card{
+  background:var(--white);
+  border:1px solid var(--ink6);
+  border-radius:14px;
+  box-shadow:0 20px 60px rgba(26,23,19,0.07),0 1px 3px rgba(26,23,19,0.04);
+  overflow:hidden;
+  position:relative;
+}
+
+.hero-card-header{
+  padding:1rem 1.5rem;
+  border-bottom:1px solid var(--ink6);
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--cream);
+}
+.hero-card-header .file-name{
+  font-family:var(--code);font-size:0.75rem;color:var(--ink3);
+  display:flex;align-items:center;gap:0.5rem;
+}
+.hero-card-header .file-icon{
+  width:14px;height:14px;
+  border:1.5px solid var(--ink4);border-radius:3px;
+  display:grid;place-items:center;
+  font-size:0.5rem;color:var(--ink4);font-weight:700;
+}
+.hero-card-header .badge{
+  font-size:0.6rem;font-weight:600;
+  padding:0.2rem 0.6rem;border-radius:100px;
+  letter-spacing:0.04em;
+  transition:all 0.5s;
+}
+.badge-danger{background:var(--coral-bg);color:var(--coral)}
+.badge-safe{background:var(--teal-bg);color:var(--teal)}
+
+.hero-card-body{
+  padding:1.2rem 1.5rem;
+  font-family:var(--code);font-size:0.8rem;
+  line-height:2.2;
+}
+
+.env-line{
+  display:flex;align-items:baseline;
+  padding:0.15rem 0;
+  border-radius:4px;
+  transition:background 0.3s;
+}
+.env-line:hover{background:var(--cream)}
+.env-ln{
+  width:22px;flex-shrink:0;text-align:right;
+  margin-right:1rem;color:var(--ink5);font-size:0.72rem;
+  user-select:none;
+}
+.env-key{color:var(--ink3)}
+.env-eq{color:var(--ink4)}
+.env-val{transition:all 0.4s}
+.env-val.danger{color:var(--coral)}
+.env-val.safe{color:var(--teal)}
+.env-val.morphing{
+  background:linear-gradient(90deg,var(--teal-bg),transparent);
+  border-radius:3px;padding:0 0.3rem;margin:0 -0.3rem;
+}
+.env-cm{color:var(--ink4);font-style:italic}
+
+.hero-card-footer{
+  padding:0.8rem 1.5rem;
+  border-top:1px solid var(--ink6);
+  background:var(--cream);
+  font-family:var(--code);font-size:0.7rem;
+  color:var(--ink4);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.hero-card-footer .status{display:flex;align-items:center;gap:0.4rem}
+.hero-card-footer .status .sd{
+  width:5px;height:5px;border-radius:50%;
+  transition:background 0.4s;
+}
+.sd-red{background:var(--coral)}
+.sd-green{background:var(--teal)}
+
+.hero-card-footer .replay-btn{
+  background:none;border:1px solid var(--ink6);
+  font-family:var(--code);font-size:0.65rem;color:var(--ink3);
+  padding:0.2rem 0.6rem;border-radius:4px;cursor:pointer;
+  transition:all 0.2s;
+}
+.hero-card-footer .replay-btn:hover{border-color:var(--teal-line);color:var(--teal)}
+
+/* ═══ LOGOS / TRUST ═══ */
+.trust{
+  padding:3rem 0;
+  border-top:1px solid var(--ink6);
+  border-bottom:1px solid var(--ink6);
+  background:var(--cream);
+}
+.trust-inner{
+  display:flex;align-items:center;justify-content:center;
+  gap:3rem;flex-wrap:wrap;
+}
+.trust-item{
+  font-family:var(--code);font-size:0.72rem;
+  color:var(--ink4);letter-spacing:0.06em;
+  display:flex;align-items:center;gap:0.5rem;
+}
+.trust-item .ti-num{font-weight:600;color:var(--ink2);font-size:1.1rem}
+
+/* ═══ SECTIONS ═══ */
+section{padding:6rem 0}
+
+.sec-ey{
+  font-size:0.68rem;font-weight:600;letter-spacing:0.14em;
+  text-transform:uppercase;color:var(--teal);margin-bottom:0.8rem;
+}
+.sec-h{
+  font-family:var(--display);font-size:clamp(1.8rem,3vw,2.6rem);
+  font-weight:400;line-height:1.2;margin-bottom:0.8rem;
+}
+.sec-h em{font-style:italic;color:var(--teal)}
+.sec-p{font-size:0.95rem;color:var(--ink2);line-height:1.8;font-weight:300;max-width:480px}
+
+/* ═══ HOW IT WORKS — Horizontal timeline ═══ */
+.how-section{background:var(--cream);border-top:1px solid var(--ink6);border-bottom:1px solid var(--ink6)}
+
+.how-timeline{
+  margin-top:3.5rem;
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:0;position:relative;
+}
+.how-timeline::before{
+  content:'';position:absolute;
+  top:32px;left:40px;right:40px;height:2px;
+  background:var(--ink6);
+}
+
+.how-step{text-align:center;padding:0 1rem;position:relative}
+
+.how-num{
+  width:64px;height:64px;margin:0 auto 1.5rem;
+  border:2px solid var(--ink6);border-radius:50%;
+  display:grid;place-items:center;
+  font-family:var(--display);font-size:1.5rem;
+  font-style:italic;color:var(--teal);
+  background:var(--cream);
+  position:relative;z-index:1;
+  transition:all 0.3s;
+}
+.how-step:hover .how-num{
+  border-color:var(--teal-line);
+  box-shadow:0 0 0 6px var(--teal-bg);
+}
+
+.how-step h3{
+  font-size:0.9rem;font-weight:600;margin-bottom:0.4rem;
+}
+.how-step p{
+  font-size:0.85rem;color:var(--ink3);line-height:1.65;
+}
+.how-cmd{
+  margin-top:0.8rem;
+  display:inline-block;
+  font-family:var(--code);font-size:0.72rem;
+  padding:0.3rem 0.8rem;
+  background:var(--white);border:1px solid var(--ink6);
+  border-radius:4px;color:var(--ink3);
+}
+
+/* ═══ ARCHITECTURE ═══ */
+.arch-grid{
+  margin-top:3.5rem;
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:1.2rem;
+}
+.arch-card{
+  background:var(--white);
+  border:1px solid var(--ink6);
+  border-radius:10px;
+  padding:1.8rem;
+  transition:all 0.3s;
+  position:relative;
+}
+.arch-card:hover{
+  border-color:var(--teal-line);
+  box-shadow:0 8px 30px rgba(26,23,19,0.06);
+  transform:translateY(-3px);
+}
+
+.arch-card-tag{
+  display:inline-block;
+  font-family:var(--code);font-size:0.62rem;font-weight:600;
+  letter-spacing:0.08em;
+  color:var(--teal);
+  padding:0.25rem 0.6rem;
+  background:var(--teal-bg);border:1px solid var(--teal-line);
+  border-radius:4px;margin-bottom:1rem;
+}
+.arch-card h3{
+  font-size:0.95rem;font-weight:600;margin-bottom:0.3rem;
+}
+.arch-card .port{
+  font-family:var(--code);font-size:0.72rem;color:var(--ink4);
+  margin-bottom:0.8rem;
+}
+.arch-card p{
+  font-size:0.85rem;color:var(--ink3);line-height:1.65;
+}
+
+/* ═══ AI SECTION ═══ */
+.ai-section{background:var(--cream);border-top:1px solid var(--ink6);border-bottom:1px solid var(--ink6)}
+
+.ai-layout{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:4rem;align-items:center;
+}
+.ai-visual{
+  background:var(--white);
+  border:1px solid var(--ink6);
+  border-radius:12px;
+  padding:2rem;
+  box-shadow:0 8px 30px rgba(26,23,19,0.04);
+}
+.ai-chat{display:flex;flex-direction:column;gap:1rem}
+.ai-msg{
+  max-width:85%;padding:0.8rem 1.1rem;
+  border-radius:10px;font-size:0.85rem;line-height:1.6;
+}
+.ai-msg.human{
+  align-self:flex-end;
+  background:var(--ink);color:var(--white);
+  border-bottom-right-radius:3px;
+}
+.ai-msg.agent{
+  align-self:flex-start;
+  background:var(--cream);color:var(--ink2);
+  border:1px solid var(--ink6);
+  border-bottom-left-radius:3px;
+}
+.ai-msg code{
+  font-family:var(--code);font-size:0.78rem;
+  background:rgba(10,124,106,0.08);color:var(--teal);
+  padding:0.1rem 0.4rem;border-radius:3px;
+}
+.ai-msg .env-ref{color:var(--teal);font-family:var(--code);font-size:0.8rem}
+
+.ai-text .detail-list{
+  list-style:none;margin-top:1.2rem;
+  display:flex;flex-direction:column;gap:0.5rem;
+}
+.ai-text .detail-list li{
+  font-size:0.88rem;color:var(--ink2);line-height:1.5;
+  display:flex;align-items:flex-start;gap:0.5rem;
+}
+.ai-text .detail-list li::before{content:'→';color:var(--teal);flex-shrink:0}
+
+/* ═══ SECURITY ═══ */
+.sec-chain{
+  margin-top:3.5rem;
+  display:flex;gap:0;
+  border:1px solid var(--ink6);border-radius:10px;overflow:hidden;
+}
+.sec-link{
+  flex:1;padding:2rem;
+  border-right:1px solid var(--ink6);
+  position:relative;
+  transition:background 0.3s;
+}
+.sec-link:last-child{border-right:none}
+.sec-link:hover{background:var(--cream)}
+
+.sec-link::after{
+  content:'→';position:absolute;
+  right:-9px;top:50%;transform:translateY(-50%);
+  color:var(--ink5);font-size:0.9rem;z-index:1;
+  background:var(--white);padding:0.2rem 0;
+}
+.sec-link:last-child::after{display:none}
+.sec-link:hover::after{color:var(--teal)}
+
+.sec-link .sl-name{
+  font-family:var(--code);font-size:0.7rem;font-weight:600;
+  letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--teal);margin-bottom:0.6rem;
+}
+.sec-link .sl-desc{
+  font-size:0.85rem;color:var(--ink2);line-height:1.6;
+}
+.sec-link .sl-algo{
+  margin-top:0.6rem;font-family:var(--code);
+  font-size:0.68rem;color:var(--ink4);
+}
+
+/* ═══ CTA ═══ */
+.cta-section{
+  padding:8rem 0;text-align:center;
+  position:relative;
+}
+.cta-section::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at center,var(--teal-bg),transparent 60%);
+  pointer-events:none;
+}
+.cta-section h2{
+  font-family:var(--display);
+  font-size:clamp(2rem,4vw,3.2rem);
+  font-weight:400;line-height:1.15;
+  margin-bottom:1rem;position:relative;
+}
+.cta-section h2 em{font-style:italic;color:var(--teal)}
+.cta-section p{
+  color:var(--ink2);max-width:420px;margin:0 auto 2.5rem;
+  font-size:1rem;line-height:1.8;font-weight:300;
+  position:relative;
+}
+.cta-btns{display:flex;justify-content:center;gap:0.7rem;flex-wrap:wrap;position:relative}
+.cta-meta{
+  margin-top:3rem;display:flex;justify-content:center;
+  gap:1.5rem;flex-wrap:wrap;position:relative;
+}
+.cta-meta span{
+  font-size:0.75rem;color:var(--ink4);font-weight:400;
+}
+
+/* ═══ FOOTER ═══ */
+footer{
+  border-top:1px solid var(--ink6);padding:2rem 0;
+  background:var(--cream);
+}
+.foot-in{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:0.78rem;color:var(--ink4);
+}
+.foot-in a{color:var(--ink3);transition:color 0.2s}
+.foot-in a:hover{color:var(--teal)}
+
+/* ═══ ANIM ═══ */
+@keyframes slideUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+.rv{opacity:0;transform:translateY(24px);transition:opacity 0.65s ease,transform 0.65s ease}
+.rv.vis{opacity:1;transform:translateY(0)}
+
+@media(max-width:900px){
+  .hero-layout{grid-template-columns:1fr}
+  .hero-right{margin-top:2rem}
+  .how-timeline{grid-template-columns:repeat(2,1fr);gap:2rem}
+  .how-timeline::before{display:none}
+  .arch-grid{grid-template-columns:1fr 1fr}
+  .ai-layout{grid-template-columns:1fr}
+  .sec-chain{flex-direction:column}
+  .sec-link{border-right:none!important;border-bottom:1px solid var(--ink6)}
+  .sec-link:last-child{border-bottom:none}
+  .sec-link::after{display:none}
+  .nav-r a:not(.nav-gh){display:none}
+}
+@media(max-width:600px){
+  .arch-grid{grid-template-columns:1fr}
+  .how-timeline{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<nav id="topnav">
+  <div class="nav-in">
+    <a href="#" class="logo">
+      <div class="logo-shield">
+        <svg viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 1L2 5.5V13C2 19.5 6.5 25.2 12 27C17.5 25.2 22 19.5 22 13V5.5L12 1Z" stroke="currentColor" stroke-width="1.8" fill="none"/>
+          <path d="M8 14L11 17L16 11" stroke="#0a7c6a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      VeilKey
+    </a>
+    <div class="nav-r">
+      <a href="#how">How It Works</a>
+      <a href="#arch">Architecture</a>
+      <a href="#ai">AI Safety</a>
+      <a href="https://github.com/veilkey/veilkey-selfhosted" class="nav-gh">GitHub →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="w">
+    <div class="hero-layout">
+      <div class="hero-left">
+        <div class="hero-pill"><span class="dot"></span>Open Source · Self-Hosted</div>
+        <h1>Encrypt at creation.<br>Reference <em>everywhere.</em></h1>
+        <p class="hero-desc">
+          VeilKey replaces plaintext secrets with encrypted references the moment they
+          enter your system. Your configs, your AI, your logs — they never see the real value.
+        </p>
+        <div class="hero-btns">
+          <a href="https://github.com/veilkey/veilkey-selfhosted" class="btn btn-dark">Get Started →</a>
+          <a href="https://github.com/veilkey/veilkey-selfhosted/blob/main/docs/architecture.md" class="btn btn-outline">Read Docs</a>
+        </div>
+      </div>
+      <div class="hero-right">
+        <div class="hero-card" id="heroCard">
+          <div class="hero-card-header">
+            <span class="file-name"><span class="file-icon">{ }</span>.env.production</span>
+            <span class="badge badge-danger" id="cardBadge">5 EXPOSED</span>
+          </div>
+          <div class="hero-card-body" id="cardBody"></div>
+          <div class="hero-card-footer">
+            <span class="status"><span class="sd sd-red" id="cardDot"></span><span id="cardStatus">scanning...</span></span>
+            <button class="replay-btn" id="replayBtn">↻ replay</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TRUST ═══ -->
+<div class="trust">
+  <div class="w">
+    <div class="trust-inner">
+      <div class="trust-item"><span class="ti-num">222+</span> detection patterns</div>
+      <div class="trust-item"><span class="ti-num">AES-256</span> encryption</div>
+      <div class="trust-item"><span class="ti-num">0</span> plaintext at rest</div>
+      <div class="trust-item"><span class="ti-num">∞</span> rotation cycles</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ HOW IT WORKS ═══ -->
+<section id="how" class="how-section">
+  <div class="w">
+    <div style="text-align:center" class="rv">
+      <div class="sec-ey">How It Works</div>
+      <h2 class="sec-h">Four steps to <em>zero</em> plaintext</h2>
+    </div>
+    <div class="how-timeline rv">
+      <div class="how-step">
+        <div class="how-num">1</div>
+        <h3>Scan</h3>
+        <p>Detect secrets in files with 222+ patterns. Fully offline.</p>
+        <span class="how-cmd">vk scan .env</span>
+      </div>
+      <div class="how-step">
+        <div class="how-num">2</div>
+        <h3>Filter</h3>
+        <p>Replace plaintext with encrypted VK: references instantly.</p>
+        <span class="how-cmd">vk filter .env</span>
+      </div>
+      <div class="how-step">
+        <div class="how-num">3</div>
+        <h3>Wrap</h3>
+        <p>Run commands with auto-masking. Secrets never leak to logs.</p>
+        <span class="how-cmd">vk wrap ./deploy</span>
+      </div>
+      <div class="how-step">
+        <div class="how-num">4</div>
+        <h3>Exec</h3>
+        <p>Resolve VK: tokens at launch. Injected in memory, never disk.</p>
+        <span class="how-cmd">vk exec ./app</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ ARCHITECTURE ═══ -->
+<section id="arch">
+  <div class="w">
+    <div style="text-align:center" class="rv">
+      <div class="sec-ey">Architecture</div>
+      <h2 class="sec-h">Every node <em>isolated.</em> Every key <em>unique.</em></h2>
+      <p class="sec-p" style="margin:0 auto">
+        Hub-and-spoke hierarchy. Compromise a node — the rest stay sealed.
+      </p>
+    </div>
+    <div class="arch-grid rv">
+      <div class="arch-card">
+        <div class="arch-card-tag">KC</div>
+        <h3>KeyCenter</h3>
+        <div class="port">:10181</div>
+        <p>Control plane. Node identity, DEK lifecycle, rotation policy, canonical secret registry.</p>
+      </div>
+      <div class="arch-card">
+        <div class="arch-card-tag">LV</div>
+        <h3>LocalVault</h3>
+        <div class="port">:10180</div>
+        <p>Node agent. Stores ciphertext, heartbeats every 5m. Cannot decrypt without KeyCenter.</p>
+      </div>
+      <div class="arch-card">
+        <div class="arch-card-tag">PX</div>
+        <h3>Proxy</h3>
+        <div class="port">:18080</div>
+        <p>Egress enforcement. Intercepts outbound HTTP, blocks plaintext leaks. Optional.</p>
+      </div>
+      <div class="arch-card">
+        <div class="arch-card-tag">CLI</div>
+        <h3>CLI</h3>
+        <div class="port">&nbsp;</div>
+        <p>Operator tool. scan, filter, wrap, exec, resolve. PTY wrapping with secret masking.</p>
+      </div>
+    </div>
+
+    <!-- Security chain -->
+    <div class="sec-chain rv" style="margin-top:2rem">
+      <div class="sec-link">
+        <div class="sl-name">KEK</div>
+        <div class="sl-desc">Derived from password. Never stored.</div>
+        <div class="sl-algo">scrypt · N=32768</div>
+      </div>
+      <div class="sec-link">
+        <div class="sl-name">DEK</div>
+        <div class="sl-desc">256-bit random. Encrypted with KEK. Rotatable.</div>
+        <div class="sl-algo">AES-256-GCM</div>
+      </div>
+      <div class="sec-link">
+        <div class="sl-name">Ciphertext</div>
+        <div class="sl-desc">Each secret encrypted with DEK. Unique nonce.</div>
+        <div class="sl-algo">VK:{SCOPE}:{REF}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ AI SECTION ═══ -->
+<section id="ai" class="ai-section">
+  <div class="w">
+    <div class="ai-layout rv">
+      <div class="ai-visual">
+        <div class="ai-chat">
+          <div class="ai-msg human">Deploy this app. The config is in <code>.env.production</code></div>
+          <div class="ai-msg agent">
+            I see the config references:<br>
+            <span class="env-ref">DATABASE_URL=VK:LOCAL:db01a2b3</span><br>
+            <span class="env-ref">STRIPE_KEY=VK:LOCAL:st4c5d6e</span><br><br>
+            Running <code>vk exec ./deploy.sh</code> — secrets will resolve at runtime. I never need the actual values.
+          </div>
+          <div class="ai-msg human">Perfect. Did the deploy succeed?</div>
+          <div class="ai-msg agent">
+            ✓ Deploy complete. 2 VK refs resolved at launch. The app is running with real credentials — but I only saw the references throughout.
+          </div>
+        </div>
+      </div>
+      <div class="ai-text">
+        <div class="sec-ey">AI Safety</div>
+        <h2 class="sec-h">Your AI agent never sees <em>real keys.</em></h2>
+        <p class="sec-p">
+          Claude, Codex, or any AI agent works with VK: references. It writes code, deploys,
+          runs tests — everything works. The real secret only exists in process memory at runtime.
+        </p>
+        <ul class="detail-list">
+          <li>AI reads VK:LOCAL:xxxx — works perfectly</li>
+          <li>Real secret injected only at exec time</li>
+          <li>Zero exposure in chat, logs, or git history</li>
+          <li>No workflow changes — same commands, safe by default</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ═══ -->
+<section class="cta-section">
+  <div class="w rv">
+    <h2>Plaintext secrets are<br>a <em>solved problem.</em></h2>
+    <p>Clone. Install. Your first secret is encrypted in under five minutes.</p>
+    <div class="cta-btns">
+      <a href="https://github.com/veilkey/veilkey-selfhosted" class="btn btn-dark">View on GitHub →</a>
+      <a href="https://github.com/veilkey/veilkey-selfhosted/blob/main/docs/installation.md" class="btn btn-outline">Install Guide</a>
+    </div>
+    <div class="cta-meta">
+      <span>AGPL-3.0</span><span>Go + SQLite</span><span>AES-256-GCM</span><span>macOS + Linux</span>
+    </div>
+  </div>
+</section>
+
+<footer><div class="w"><div class="foot-in">
+  <span>VeilKey — Secret Lifecycle Manager</span>
+  <a href="https://github.com/veilkey/veilkey-selfhosted">github.com/veilkey</a>
+</div></div></footer>
+
+<script>
+// ═══ NAV SHADOW ═══
+window.addEventListener('scroll',()=>{
+  document.getElementById('topnav').classList.toggle('shadow',window.scrollY>20);
+});
+
+// ═══ HERO CARD ANIMATION ═══
+const envData=[
+  {key:'DATABASE_URL',danger:'postgres://admin:s3cret@db/prod',safe:'VK:LOCAL:db01a2b3'},
+  {key:'AWS_SECRET',danger:'wJalrXUtnFEMI/K7MDENG',safe:'VK:LOCAL:aws4c5d6'},
+  {key:'GITHUB_TOKEN',danger:'ghp_abc123def456ghi789j',safe:'VK:LOCAL:gh7e8f9a'},
+  {key:'STRIPE_SK',danger:'sk_live_51HG8axYzKlMnOp',safe:'VK:LOCAL:st0b1c2d'},
+  {key:'JWT_SECRET',danger:'super-secret-jwt-key-2024',safe:'VK:LOCAL:jw3e4f5a'},
+];
+
+function buildCard(){
+  const body=document.getElementById('cardBody');
+  body.innerHTML='';
+  // comment
+  const cm=document.createElement('div');cm.className='env-line';
+  cm.innerHTML='<span class="env-ln">1</span><span class="env-cm"># production secrets</span>';
+  body.appendChild(cm);
+
+  envData.forEach((e,i)=>{
+    const row=document.createElement('div');row.className='env-line';
+    row.innerHTML=`<span class="env-ln">${i+2}</span><span class="env-key">${e.key}</span><span class="env-eq">=</span><span class="env-val danger" id="val-${i}">${e.danger}</span>`;
+    body.appendChild(row);
+  });
+}
+
+async function animateCard(){
+  buildCard();
+  const badge=document.getElementById('cardBadge');
+  const dot=document.getElementById('cardDot');
+  const status=document.getElementById('cardStatus');
+
+  badge.className='badge badge-danger';badge.textContent='5 EXPOSED';
+  dot.className='sd sd-red';status.textContent='scanning...';
+
+  await sleep(1500);
+  status.textContent='5 secrets detected';
+
+  await sleep(800);
+  status.textContent='encrypting...';
+
+  for(let i=0;i<envData.length;i++){
+    const el=document.getElementById('val-'+i);
+    el.classList.add('morphing');
+    await sleep(120);
+    el.textContent=envData[i].safe;
+    el.classList.remove('danger');el.classList.add('safe');
+    await sleep(80);
+    el.classList.remove('morphing');
+    await sleep(200);
+  }
+
+  badge.className='badge badge-safe';badge.textContent='ALL SEALED';
+  dot.className='sd sd-green';status.textContent='0 plaintext · 5 encrypted refs';
+
+  await sleep(5000);
+  animateCard();
+}
+
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+
+document.getElementById('replayBtn').addEventListener('click',()=>{animateCard()});
+setTimeout(animateCard,600);
+
+// ═══ SCROLL REVEAL ═══
+const obs=new IntersectionObserver(es=>{
+  es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis')});
+},{threshold:0.08,rootMargin:'0px 0px -30px 0px'});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+</script>
+
+</body>
+</html>

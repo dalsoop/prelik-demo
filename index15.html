@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prelik — Tools That Think</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,500&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,700;1,6..96,400;1,6..96,500&family=Fira+Code:wght@400;500;600&display=swap');
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --fg:#0c0c0c;
+  --fg2:#2d2d2d;
+  --fg3:#6b6b6b;
+  --fg4:#999;
+  --fg5:#ccc;
+  --fg6:#e8e8e8;
+  --bg:#fafafa;
+  --white:#fff;
+  --off:#f2f2f0;
+  --dark:#111;
+  --dark2:#1a1a1a;
+  --dark3:#252525;
+  /* product spectrum */
+  --c1:#5046e5;--c2:#0ea5e9;--c3:#f43f5e;--c4:#eab308;
+  --c5:#10b981;--c6:#8b5cf6;--c7:#ec4899;--c8:#3b82f6;
+  --display:'Bodoni Moda',Georgia,serif;
+  --sans:'Schibsted Grotesk',system-ui,sans-serif;
+  --code:'Fira Code',monospace;
+}
+
+html{scroll-behavior:smooth;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;-webkit-font-smoothing:antialiased}
+body{overflow-x:hidden}
+::selection{background:var(--c1);color:white}
+a{color:inherit;text-decoration:none}
+.w{max-width:1200px;margin:0 auto;padding:0 clamp(1.5rem,5vw,4rem)}
+
+/* ═══ NAV ═══ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:300;
+  background:rgba(250,250,250,0.85);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid transparent;transition:border-color 0.3s;
+}
+nav.s{border-bottom-color:var(--fg6)}
+.ni{max-width:1200px;margin:0 auto;padding:0 clamp(1.5rem,5vw,4rem);display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{display:flex;align-items:center;gap:0.6rem;font-weight:900;font-size:1.05rem;letter-spacing:-0.02em}
+.logo-dots{display:flex;gap:3px}
+.logo-dots span{width:8px;height:8px;border-radius:2px}
+.logo-dots span:nth-child(1){background:var(--c1)}
+.logo-dots span:nth-child(2){background:var(--c3)}
+.logo-dots span:nth-child(3){background:var(--c4)}
+.logo-dots span:nth-child(4){background:var(--c5)}
+
+.nk{display:flex;align-items:center;gap:0.3rem}
+.nk a{font-size:0.85rem;color:var(--fg3);font-weight:500;padding:0.4rem 0.9rem;border-radius:8px;transition:all 0.15s}
+.nk a:hover{color:var(--fg);background:var(--off)}
+.nk .nc{background:var(--fg);color:white;font-weight:700;margin-left:0.4rem}
+.nk .nc:hover{background:var(--dark2);color:white;transform:translateY(-1px)}
+
+/* ═══ HERO ═══ */
+.hero{padding:11rem 0 5rem;position:relative;overflow:hidden}
+
+.hero-mesh{
+  position:absolute;top:-200px;right:-300px;width:1000px;height:1000px;
+  background:
+    radial-gradient(circle at 25% 35%,rgba(80,70,229,0.06),transparent 40%),
+    radial-gradient(circle at 65% 55%,rgba(244,63,94,0.05),transparent 35%),
+    radial-gradient(circle at 45% 75%,rgba(234,179,8,0.04),transparent 35%);
+  filter:blur(60px);pointer-events:none;
+}
+
+.hero-inner{position:relative;z-index:1}
+
+.hero-top{
+  display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;
+}
+
+.hero-left{animation:up .7s ease both}
+.hero-pill{
+  display:inline-flex;align-items:center;gap:0.4rem;
+  font-size:0.72rem;font-weight:700;letter-spacing:0.04em;
+  color:var(--c1);padding:0.3rem 0.9rem;
+  background:rgba(80,70,229,0.05);border:1px solid rgba(80,70,229,0.12);
+  border-radius:100px;margin-bottom:1.8rem;
+}
+
+.hero h1{
+  font-size:clamp(2.6rem,5vw,4.2rem);
+  font-weight:900;line-height:1.05;letter-spacing:-0.04em;
+  margin-bottom:1.5rem;
+}
+.hero h1 .em{
+  font-family:var(--display);font-weight:400;font-style:italic;
+}
+
+.hero-p{
+  font-size:1.1rem;color:var(--fg2);max-width:440px;
+  line-height:1.85;margin-bottom:2.5rem;
+}
+
+.hero-btns{display:flex;gap:0.6rem;flex-wrap:wrap}
+.btn{font-family:var(--sans);font-size:0.9rem;font-weight:700;padding:0.85rem 2rem;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;transition:all 0.2s;border-radius:12px}
+.btn-primary{background:var(--fg);color:white}
+.btn-primary:hover{background:var(--dark2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.1)}
+.btn-secondary{background:var(--white);color:var(--fg2);border:1.5px solid var(--fg6)}
+.btn-secondary:hover{border-color:var(--fg5);background:var(--off)}
+
+/* HERO RIGHT — Product stack */
+.hero-right{animation:up .7s ease .12s both}
+
+.hero-stack{
+  display:flex;flex-direction:column;gap:0.6rem;
+}
+.hs-card{
+  display:flex;align-items:center;gap:1rem;
+  padding:1rem 1.4rem;
+  background:var(--white);border:1.5px solid var(--fg6);
+  border-radius:14px;transition:all 0.25s;cursor:default;
+}
+.hs-card:hover{
+  border-color:var(--fg5);transform:translateX(6px);
+  box-shadow:0 4px 16px rgba(0,0,0,0.04);
+}
+.hs-dot{width:12px;height:12px;border-radius:4px;flex-shrink:0}
+.hs-info{flex:1}
+.hs-name{font-size:0.88rem;font-weight:700}
+.hs-desc{font-size:0.75rem;color:var(--fg3)}
+.hs-badge{
+  font-size:0.55rem;font-weight:700;letter-spacing:0.06em;
+  padding:0.15rem 0.5rem;border-radius:100px;
+  text-transform:uppercase;flex-shrink:0;
+}
+
+/* ═══ RAINBOW DIVIDER ═══ */
+.rainbow{
+  height:3px;
+  background:linear-gradient(90deg,var(--c1),var(--c2),var(--c5),var(--c4),var(--c3),var(--c6),var(--c7),var(--c8),var(--c1));
+  background-size:200% 100%;
+  animation:rainbowSlide 8s linear infinite;
+}
+
+/* ═══ PRODUCT SHOWCASE — cards with live previews ═══ */
+.showcase{padding:7rem 0}
+
+.showcase-header{text-align:center;margin-bottom:4rem}
+.sey{font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.6rem}
+
+/* Tab bar */
+.product-tabs{
+  display:flex;justify-content:center;gap:0.3rem;flex-wrap:wrap;
+  margin-bottom:3rem;
+  padding:0.3rem;background:var(--off);border-radius:14px;
+  max-width:max-content;margin-left:auto;margin-right:auto;
+}
+.ptab{
+  font-size:0.82rem;font-weight:600;
+  padding:0.55rem 1.2rem;border-radius:10px;
+  background:transparent;border:none;
+  color:var(--fg3);cursor:pointer;
+  transition:all 0.2s;display:flex;align-items:center;gap:0.4rem;
+  font-family:var(--sans);
+}
+.ptab:hover{color:var(--fg)}
+.ptab.active{background:var(--white);color:var(--fg);box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.ptab-dot{width:8px;height:8px;border-radius:3px}
+
+/* Product detail panel */
+.product-panel{display:none}
+.product-panel.active{display:block;animation:fadeUp .4s ease both}
+
+.pp-layout{
+  display:grid;grid-template-columns:1fr 1.2fr;gap:3rem;align-items:start;
+}
+.pp-info .pp-icon{
+  width:56px;height:56px;border-radius:16px;
+  display:grid;place-items:center;font-size:1.5rem;margin-bottom:1.5rem;
+}
+.pp-info h2{font-size:1.8rem;font-weight:900;letter-spacing:-0.03em;margin-bottom:0.3rem}
+.pp-info .pp-tagline{
+  font-family:var(--display);font-size:1.1rem;font-style:italic;
+  color:var(--fg3);margin-bottom:1rem;
+}
+.pp-info p{font-size:0.95rem;color:var(--fg2);line-height:1.8;margin-bottom:1.5rem}
+
+.pp-features{display:flex;flex-direction:column;gap:0.5rem;margin-bottom:2rem}
+.pp-feat{
+  display:flex;align-items:center;gap:0.6rem;
+  font-size:0.88rem;color:var(--fg2);
+}
+.pp-feat::before{
+  content:'';width:18px;height:18px;flex-shrink:0;
+  border-radius:5px;display:grid;place-items:center;
+}
+.pp-feat .check{
+  width:18px;height:18px;border-radius:5px;flex-shrink:0;
+  display:grid;place-items:center;font-size:0.55rem;font-weight:900;color:white;
+}
+
+.pp-cta{display:flex;gap:0.5rem;flex-wrap:wrap}
+.pp-btn{
+  font-family:var(--sans);font-size:0.85rem;font-weight:700;
+  padding:0.7rem 1.6rem;border:none;cursor:pointer;
+  border-radius:10px;transition:all 0.2s;
+}
+
+/* product preview window */
+.pp-preview{
+  background:var(--white);border:1.5px solid var(--fg6);
+  border-radius:18px;overflow:hidden;
+  box-shadow:0 1px 3px rgba(0,0,0,0.03),0 16px 40px rgba(0,0,0,0.05);
+}
+.pp-prev-bar{
+  padding:0.6rem 1rem;display:flex;align-items:center;gap:0.4rem;
+  border-bottom:1px solid var(--fg6);background:var(--off);
+}
+.ppb-dot{width:9px;height:9px;border-radius:50%}
+.ppb-dot:nth-child(1){background:#ff5f57}
+.ppb-dot:nth-child(2){background:#ffbd2e}
+.ppb-dot:nth-child(3){background:#28c840}
+.ppb-title{margin-left:auto;font-family:var(--code);font-size:0.62rem;color:var(--fg4)}
+
+.pp-prev-body{
+  padding:1.5rem;min-height:320px;
+  font-family:var(--code);font-size:0.78rem;line-height:2.1;
+}
+
+/* preview content styles */
+.prev-line{display:flex;opacity:0;animation:lineIn .25s ease forwards}
+.prev-key{color:var(--fg3)}
+.prev-eq{color:var(--fg5)}
+.prev-danger{color:var(--c3)}
+.prev-safe{color:var(--c1);font-weight:500}
+.prev-ok{color:var(--c5)}
+.prev-dim{color:var(--fg4)}
+.prev-prompt{color:var(--fg4)}
+.prev-cmd{color:var(--fg)}
+
+/* dashboard preview */
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.8rem}
+.dash-card{
+  padding:1rem;background:var(--off);border-radius:10px;
+  border:1px solid var(--fg6);
+}
+.dash-card .dc-label{font-size:0.6rem;color:var(--fg4);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:0.3rem}
+.dash-card .dc-value{font-size:1.3rem;font-weight:700;font-family:var(--sans)}
+.dash-card .dc-change{font-size:0.65rem;margin-top:0.15rem}
+.dc-up{color:var(--c5)}
+.dc-bar{margin-top:0.5rem;height:4px;background:var(--fg6);border-radius:2px;overflow:hidden}
+.dc-bar-fill{height:100%;border-radius:2px;animation:barGrow 1s ease forwards}
+
+/* agent preview */
+.agent-msgs{display:flex;flex-direction:column;gap:0.5rem}
+.agent-msg{max-width:85%;padding:0.6rem 0.9rem;border-radius:10px;font-size:0.78rem;line-height:1.5;font-family:var(--sans)}
+.agent-msg.human{align-self:flex-end;background:var(--fg);color:white;border-bottom-right-radius:3px}
+.agent-msg.bot{align-self:flex-start;background:var(--off);border:1px solid var(--fg6);color:var(--fg2);border-bottom-left-radius:3px}
+.agent-msg code{font-family:var(--code);font-size:0.72rem;background:rgba(80,70,229,0.06);color:var(--c1);padding:0.05rem 0.3rem;border-radius:3px}
+.agent-typing{display:flex;gap:4px;padding:0.6rem 0.9rem;align-self:flex-start}
+.agent-typing span{width:6px;height:6px;border-radius:50%;background:var(--fg5);animation:typing 1.2s ease-in-out infinite}
+.agent-typing span:nth-child(2){animation-delay:0.15s}
+.agent-typing span:nth-child(3){animation-delay:0.3s}
+
+/* ═══ PRICING ═══ */
+.pricing-section{padding:7rem 0;background:var(--dark);color:white;border-radius:28px;margin:0 clamp(0.5rem,2vw,1.5rem);position:relative;overflow:hidden}
+.pricing-section::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 15% 50%,rgba(80,70,229,0.12),transparent 35%),
+    radial-gradient(circle at 85% 50%,rgba(244,63,94,0.08),transparent 35%);
+  pointer-events:none;
+}
+.pricing-section .sey{color:rgba(255,255,255,0.25)}
+
+.price-grid{
+  margin-top:3.5rem;
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1rem;max-width:960px;margin-left:auto;margin-right:auto;
+  position:relative;
+}
+
+.pr-card{
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);
+  border-radius:20px;padding:2.5rem 2rem;
+  transition:all 0.3s;position:relative;
+}
+.pr-card:hover{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.12);transform:translateY(-3px)}
+.pr-card.pop{
+  background:rgba(255,255,255,0.06);
+  border-color:var(--c1);
+  box-shadow:0 0 0 1px var(--c1);
+}
+.pr-card.pop::before{
+  content:'RECOMMENDED';position:absolute;top:-10px;left:50%;transform:translateX(-50%);
+  font-size:0.55rem;font-weight:800;letter-spacing:0.08em;
+  padding:0.2rem 0.8rem;
+  background:linear-gradient(135deg,var(--c1),var(--c3));
+  color:white;border-radius:100px;
+}
+
+.pr-name{font-size:0.78rem;font-weight:600;color:rgba(255,255,255,0.4);letter-spacing:0.04em;margin-bottom:0.8rem}
+.pr-price{font-size:2.8rem;font-weight:900;letter-spacing:-0.03em;line-height:1}
+.pr-price .cur{font-size:1rem;vertical-align:super;color:rgba(255,255,255,0.4)}
+.pr-period{font-size:0.78rem;color:rgba(255,255,255,0.3);margin-top:0.3rem;margin-bottom:1.5rem}
+.pr-list{list-style:none;display:flex;flex-direction:column;gap:0.5rem;margin-bottom:2rem}
+.pr-list li{font-size:0.85rem;color:rgba(255,255,255,0.6);display:flex;align-items:flex-start;gap:0.4rem}
+.pr-list li::before{content:'✓';color:var(--c1);font-weight:700;flex-shrink:0}
+.pr-btn{
+  width:100%;padding:0.75rem;border-radius:10px;
+  font-family:var(--sans);font-size:0.88rem;font-weight:700;
+  cursor:pointer;border:none;transition:all 0.2s;
+}
+.pr-btn-outline{background:transparent;border:1.5px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7)}
+.pr-btn-outline:hover{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.25)}
+.pr-btn-fill{background:white;color:var(--dark)}
+.pr-btn-fill:hover{box-shadow:0 4px 16px rgba(255,255,255,0.15);transform:translateY(-1px)}
+
+/* ═══ ALL PRODUCTS TABLE ═══ */
+.table-section{padding:7rem 0}
+
+.p-table{
+  margin-top:3rem;
+  width:100%;border-collapse:collapse;
+}
+.p-table th{
+  text-align:left;padding:0.8rem 1.2rem;
+  font-size:0.68rem;font-weight:700;letter-spacing:0.08em;
+  text-transform:uppercase;color:var(--fg4);
+  border-bottom:2px solid var(--fg6);
+}
+.p-table td{
+  padding:1rem 1.2rem;
+  border-bottom:1px solid var(--fg6);
+  font-size:0.88rem;color:var(--fg2);
+  vertical-align:middle;
+}
+.p-table tr:hover td{background:var(--off)}
+.p-table .pt-name{
+  display:flex;align-items:center;gap:0.8rem;
+  font-weight:700;color:var(--fg);
+}
+.pt-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.pt-badge{
+  font-size:0.55rem;font-weight:700;letter-spacing:0.04em;
+  padding:0.15rem 0.5rem;border-radius:100px;
+  text-transform:uppercase;
+}
+.pt-link{font-size:0.82rem;font-weight:600;transition:opacity 0.15s}
+.pt-link:hover{opacity:0.7}
+
+/* ═══ CTA ═══ */
+.cta{padding:7rem 0;text-align:center}
+.cta h2{font-size:clamp(2rem,4.5vw,3.2rem);font-weight:900;letter-spacing:-0.03em;line-height:1.1;margin-bottom:1rem}
+.cta h2 .em{font-family:var(--display);font-weight:400;font-style:italic}
+.cta>p{color:var(--fg2);max-width:440px;margin:0 auto 2.5rem;font-size:1.05rem;line-height:1.8}
+.cta-btns{display:flex;justify-content:center;gap:0.6rem;flex-wrap:wrap}
+
+/* ═══ FOOTER ═══ */
+footer{padding:3rem 0 2rem;border-top:1px solid var(--fg6)}
+.ft-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:2rem;margin-bottom:2rem}
+.ft-brand .fb-name{font-weight:900;font-size:1rem;margin-bottom:0.4rem;display:flex;align-items:center;gap:0.5rem}
+.ft-brand p{font-size:0.82rem;color:var(--fg3);line-height:1.6;max-width:200px}
+.ft-col h4{font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--fg4);margin-bottom:0.6rem}
+.ft-col a{display:block;font-size:0.82rem;color:var(--fg3);padding:0.2rem 0;transition:color 0.15s}
+.ft-col a:hover{color:var(--fg)}
+.ft-bottom{padding-top:1.5rem;border-top:1px solid var(--fg6);display:flex;justify-content:space-between;font-size:0.75rem;color:var(--fg4)}
+
+/* ═══ ANIM ═══ */
+@keyframes up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes lineIn{from{opacity:0}to{opacity:1}}
+@keyframes rainbowSlide{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+@keyframes barGrow{from{width:0}to{width:var(--w,60%)}}
+@keyframes typing{0%,100%{opacity:0.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+
+.rv{opacity:0;transform:translateY(16px);transition:opacity 0.55s,transform 0.55s}
+.rv.vis{opacity:1;transform:translateY(0)}
+
+@media(max-width:900px){
+  .hero-top{grid-template-columns:1fr}
+  .hero-right{margin-top:2rem}
+  .pp-layout{grid-template-columns:1fr}
+  .price-grid{grid-template-columns:1fr}
+  .p-table{font-size:0.8rem}
+  .ft-grid{grid-template-columns:1fr 1fr}
+  .nk a:not(.nc){display:none}
+  .product-tabs{overflow-x:auto;justify-content:flex-start;max-width:100%}
+  .dash-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav"><div class="ni">
+  <a href="#" class="logo">
+    <div class="logo-dots"><span></span><span></span><span></span><span></span></div>
+    Prelik
+  </a>
+  <div class="nk">
+    <a href="#products">Products</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#all">All Products</a>
+    <a href="https://github.com/prelik">Open Source</a>
+    <a href="#" class="nc">Get Started →</a>
+  </div>
+</div></nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="hero-mesh"></div>
+  <div class="w">
+    <div class="hero-top">
+      <div class="hero-left">
+        <div class="hero-pill">✦ 8 products, one platform</div>
+        <h1>Tools that<br><span class="em">think</span> with you.</h1>
+        <p class="hero-p">
+          Prelik builds AI-native software for teams that ship. Security, automation,
+          observability, deployment — each product works alone, all of them work together.
+        </p>
+        <div class="hero-btns">
+          <a href="#products" class="btn btn-primary">Explore Products →</a>
+          <a href="#pricing" class="btn btn-secondary">View Plans</a>
+        </div>
+      </div>
+      <div class="hero-right">
+        <div class="hero-stack" id="heroStack"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="rainbow"></div>
+
+<!-- ═══ PRODUCT SHOWCASE ═══ -->
+<section id="products" class="showcase">
+  <div class="w">
+    <div class="showcase-header rv">
+      <div class="sey" style="color:var(--c1)">Products</div>
+      <h2 style="font-size:clamp(2rem,4vw,3rem);font-weight:900;letter-spacing:-0.03em;line-height:1.1;margin-bottom:0.6rem">
+        Eight products. One <span class="em">ecosystem.</span>
+      </h2>
+      <p style="font-size:1rem;color:var(--fg2);max-width:500px;margin:0 auto;line-height:1.8">
+        Click any product to see what it does.
+      </p>
+    </div>
+
+    <div class="product-tabs rv" id="productTabs"></div>
+
+    <div class="rv" id="productPanels"></div>
+  </div>
+</section>
+
+<!-- ═══ ALL PRODUCTS TABLE ═══ -->
+<section id="all" class="table-section">
+  <div class="w">
+    <div style="text-align:center" class="rv">
+      <div class="sey" style="color:var(--c1)">Catalog</div>
+      <h2 style="font-size:clamp(1.8rem,3vw,2.4rem);font-weight:900;letter-spacing:-0.03em;margin-bottom:0.6rem">
+        Everything at a <span class="em">glance.</span>
+      </h2>
+    </div>
+    <table class="p-table rv" id="productTable"></table>
+  </div>
+</section>
+
+<!-- ═══ PRICING ═══ -->
+<section id="pricing" class="pricing-section">
+  <div class="w">
+    <div style="text-align:center;position:relative" class="rv">
+      <div class="sey">Pricing</div>
+      <h2 style="font-size:clamp(2rem,3.5vw,2.8rem);font-weight:900;letter-spacing:-0.03em;margin-bottom:0.6rem;color:white">
+        Start free. <span class="em" style="color:white">Scale</span> when ready.
+      </h2>
+      <p style="font-size:1rem;color:rgba(255,255,255,0.5);max-width:440px;margin:0 auto;line-height:1.8">Open source products are free forever. Pro unlocks the full suite.</p>
+    </div>
+
+    <div class="price-grid rv">
+      <div class="pr-card">
+        <div class="pr-name">Starter</div>
+        <div class="pr-price"><span class="cur">$</span>0</div>
+        <div class="pr-period">forever free</div>
+        <ul class="pr-list">
+          <li>All open source products</li>
+          <li>VeilKey self-hosted</li>
+          <li>Community support</li>
+          <li>1 user</li>
+        </ul>
+        <button class="pr-btn pr-btn-outline">Get Started</button>
+      </div>
+      <div class="pr-card pop">
+        <div class="pr-name">Pro</div>
+        <div class="pr-price"><span class="cur">$</span>29</div>
+        <div class="pr-period">per user / month</div>
+        <ul class="pr-list">
+          <li>Everything in Starter</li>
+          <li>All 8 products unlocked</li>
+          <li>Team collaboration</li>
+          <li>Priority support</li>
+          <li>Advanced dashboards</li>
+        </ul>
+        <button class="pr-btn pr-btn-fill">Start Pro Trial</button>
+      </div>
+      <div class="pr-card">
+        <div class="pr-name">Enterprise</div>
+        <div class="pr-price" style="font-size:2rem">Custom</div>
+        <div class="pr-period">tailored for your org</div>
+        <ul class="pr-list">
+          <li>Everything in Pro</li>
+          <li>On-premise deployment</li>
+          <li>Dedicated support</li>
+          <li>Custom integrations</li>
+          <li>SLA guarantee</li>
+        </ul>
+        <button class="pr-btn pr-btn-outline">Contact Sales</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div style="height:3rem"></div>
+
+<!-- ═══ CTA ═══ -->
+<section class="cta">
+  <div class="w rv">
+    <h2>Build what's <span class="em">next.</span></h2>
+    <p>Join teams using Prelik to ship faster, safer, and smarter.</p>
+    <div class="cta-btns">
+      <a href="#" class="btn btn-primary">Start Free →</a>
+      <a href="#all" class="btn btn-secondary">Browse Products</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer><div class="w">
+  <div class="ft-grid">
+    <div class="ft-brand">
+      <div class="fb-name">
+        <div class="logo-dots" style="gap:2px"><span style="width:6px;height:6px;border-radius:2px;background:var(--c1)"></span><span style="width:6px;height:6px;border-radius:2px;background:var(--c3)"></span><span style="width:6px;height:6px;border-radius:2px;background:var(--c4)"></span></div>
+        Prelik
+      </div>
+      <p>AI-native tools for modern teams. Pre × Relik.</p>
+    </div>
+    <div class="ft-col"><h4>Products</h4><a href="#">VeilKey</a><a href="#">FlowForge</a><a href="#">SparkAgent</a><a href="#">LensView</a></div>
+    <div class="ft-col"><h4>Products</h4><a href="#">WaveDB</a><a href="#">CastDeploy</a><a href="#">CoreStack</a><a href="#">ShieldAI</a></div>
+    <div class="ft-col"><h4>Company</h4><a href="#">About</a><a href="#">Blog</a><a href="#">Careers</a><a href="https://github.com/prelik">GitHub</a></div>
+    <div class="ft-col"><h4>Legal</h4><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Licenses</a></div>
+  </div>
+  <div class="ft-bottom"><span>© 2026 Prelik</span><span>Pre × Relik — Before it becomes legacy</span></div>
+</div></footer>
+
+<script>
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('s',scrollY>30));
+
+// ═══ PRODUCT DATA ═══
+const products=[
+  {id:'veilkey',name:'VeilKey',icon:'🔐',color:'#5046e5',tagline:'Secret Lifecycle Manager',
+   status:'Open Source',statusColor:'#5046e5',
+   desc:'Encrypt secrets at creation, replace plaintext with scoped references, rotate without downtime. AES-256-GCM, hub-and-spoke, zero plaintext at rest.',
+   features:['222+ detection patterns','AES-256-GCM encryption','macOS + Linux','Self-hosted','AI-safe references','Key rotation'],
+   category:'Security',link:'https://github.com/veilkey/veilkey-selfhosted',
+   previewType:'veilkey'},
+  {id:'flowforge',name:'FlowForge',icon:'⚡',color:'#0ea5e9',tagline:'Workflow Automation',
+   status:'Beta',statusColor:'#0ea5e9',
+   desc:'Visual workflow builder with AI-assisted step generation. Connect APIs, trigger on events, deploy instantly. Temporal-powered execution engine.',
+   features:['Visual builder','AI step generation','100+ connectors','Temporal engine','Webhooks','Scheduling'],
+   category:'Automation',link:'#',
+   previewType:'dashboard'},
+  {id:'sparkagent',name:'SparkAgent',icon:'🤖',color:'#eab308',tagline:'Autonomous AI Agents',
+   status:'Beta',statusColor:'#eab308',
+   desc:'Build and deploy autonomous AI agents with multi-step reasoning, tool use, and persistent memory. Claude and GPT backends.',
+   features:['Multi-agent orchestration','Tool use framework','Persistent memory','Claude + GPT','Temporal workflows','Real-time streaming'],
+   category:'AI',link:'#',
+   previewType:'agent'},
+  {id:'shieldai',name:'ShieldAI',icon:'🛡️',color:'#f43f5e',tagline:'Security Monitoring',
+   status:'Coming Soon',statusColor:'#f43f5e',
+   desc:'AI-powered security monitoring for infrastructure. Real-time anomaly detection, threat scoring, and automated incident response.',
+   features:['Anomaly detection','Threat scoring','Auto-response','Compliance reports','Integration APIs','Alert routing'],
+   category:'Security',link:'#',
+   previewType:'dashboard'},
+  {id:'lensview',name:'LensView',icon:'📊',color:'#10b981',tagline:'AI Observability',
+   status:'GA',statusColor:'#10b981',
+   desc:'Track token usage, latency, costs, and output quality across all AI calls. Real-time dashboards, alerts, and cost optimization.',
+   features:['Token tracking','Cost analytics','Latency monitoring','Quality scoring','Custom dashboards','Slack alerts'],
+   category:'Observability',link:'#',
+   previewType:'dashboard'},
+  {id:'wavedb',name:'WaveDB',icon:'🗄️',color:'#8b5cf6',tagline:'Vector + Relational',
+   status:'Alpha',statusColor:'#8b5cf6',
+   desc:'Unified database for AI workloads. Vector similarity search and relational queries in one engine. SQLite-compatible, embeddable.',
+   features:['Vector search','SQL queries','SQLite compatible','Embeddable','Full-text search','JSON support'],
+   category:'Data',link:'#',
+   previewType:'dashboard'},
+  {id:'castdeploy',name:'CastDeploy',icon:'🚀',color:'#ec4899',tagline:'One-Click Deploy',
+   status:'GA',statusColor:'#ec4899',
+   desc:'Deploy any service to your infrastructure with a git push. Proxmox, Docker, and bare metal. Zero-downtime rolling updates.',
+   features:['Git push deploy','Rolling updates','Proxmox support','Docker native','Health checks','Rollback'],
+   category:'DevOps',link:'#',
+   previewType:'dashboard'},
+  {id:'corestack',name:'CoreStack',icon:'🏗️',color:'#3b82f6',tagline:'Infrastructure Platform',
+   status:'Enterprise',statusColor:'#3b82f6',
+   desc:'Complete self-hosted infrastructure stack. 30+ services managed as code — GitLab, monitoring, secrets, networking, all integrated.',
+   features:['30+ services','Infrastructure as code','GitOps','Monitoring','Secrets management','Network automation'],
+   category:'Infrastructure',link:'#',
+   previewType:'dashboard'},
+];
+
+// ═══ HERO STACK ═══
+const stack=document.getElementById('heroStack');
+products.forEach(p=>{
+  const c=document.createElement('div');c.className='hs-card';
+  c.innerHTML=`
+    <span class="hs-dot" style="background:${p.color}"></span>
+    <div class="hs-info"><div class="hs-name">${p.name}</div><div class="hs-desc">${p.tagline}</div></div>
+    <span class="hs-badge" style="background:${p.color}11;color:${p.color}">${p.status}</span>
+  `;
+  c.addEventListener('click',()=>selectProduct(p.id));
+  stack.appendChild(c);
+});
+
+// ═══ PRODUCT TABS + PANELS ═══
+const tabs=document.getElementById('productTabs');
+const panels=document.getElementById('productPanels');
+
+products.forEach((p,i)=>{
+  // tab
+  const tab=document.createElement('button');
+  tab.className='ptab'+(i===0?' active':'');
+  tab.dataset.id=p.id;
+  tab.innerHTML=`<span class="ptab-dot" style="background:${p.color}"></span>${p.name}`;
+  tab.addEventListener('click',()=>selectProduct(p.id));
+  tabs.appendChild(tab);
+
+  // panel
+  const panel=document.createElement('div');
+  panel.className='product-panel'+(i===0?' active':'');
+  panel.id='panel-'+p.id;
+  panel.innerHTML=`
+    <div class="pp-layout">
+      <div class="pp-info">
+        <div class="pp-icon" style="background:${p.color}0d">${p.icon}</div>
+        <h2>${p.name}</h2>
+        <div class="pp-tagline">${p.tagline}</div>
+        <p>${p.desc}</p>
+        <div class="pp-features">${p.features.map(f=>`<div class="pp-feat"><span class="check" style="background:${p.color}"">✓</span>${f}</div>`).join('')}</div>
+        <div class="pp-cta">
+          <a href="${p.link}" class="pp-btn" style="background:${p.color};color:white;border-radius:10px;padding:0.7rem 1.6rem;font-family:var(--sans);font-size:0.85rem;font-weight:700">${p.status==='Coming Soon'?'Join Waitlist →':'Try '+p.name+' →'}</a>
+        </div>
+      </div>
+      <div class="pp-preview">
+        <div class="pp-prev-bar"><span class="ppb-dot"></span><span class="ppb-dot"></span><span class="ppb-dot"></span><span class="ppb-title">${p.name.toLowerCase()}</span></div>
+        <div class="pp-prev-body" id="prev-${p.id}"></div>
+      </div>
+    </div>
+  `;
+  panels.appendChild(panel);
+});
+
+function selectProduct(id){
+  document.querySelectorAll('.ptab').forEach(t=>t.classList.toggle('active',t.dataset.id===id));
+  document.querySelectorAll('.product-panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+id));
+  renderPreview(id);
+  // smooth scroll on mobile
+  const el=document.getElementById('panel-'+id);
+  if(window.innerWidth<900&&el)el.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function renderPreview(id){
+  const p=products.find(x=>x.id===id);
+  const el=document.getElementById('prev-'+id);
+  if(!el||el.dataset.rendered)return;
+  el.dataset.rendered='1';
+
+  if(p.previewType==='veilkey'){
+    const secrets=[{k:'DATABASE_URL',d:'postgres://admin:s3cret',s:'VK:LOCAL:db01'},{k:'AWS_SECRET',d:'wJalrXUtnFEMI/K7',s:'VK:LOCAL:aws4'},{k:'GITHUB_TOKEN',d:'ghp_abc123def456',s:'VK:LOCAL:gh7e'},{k:'STRIPE_SK',d:'sk_live_51HG8axYz',s:'VK:LOCAL:st0b'},{k:'JWT_SECRET',d:'super-secret-jwt',s:'VK:LOCAL:jw3e'}];
+    el.innerHTML=secrets.map((s,i)=>`<div class="prev-line" style="animation-delay:${i*80}ms"><span class="prev-key">${s.k}</span><span class="prev-eq">=</span><span class="prev-safe">${s.s}</span></div>`).join('')+`<br><div class="prev-line" style="animation-delay:500ms"><span class="prev-ok">✓ 5 secrets sealed · 0 plaintext</span></div>`;
+  } else if(p.previewType==='agent'){
+    el.innerHTML=`<div class="agent-msgs">
+      <div class="agent-msg human">Deploy the staging environment</div>
+      <div class="agent-msg bot">Checking config... Found <code>VK:LOCAL:db01</code>. Running <code>cast deploy staging</code>.</div>
+      <div class="agent-msg bot">✓ Deployed to staging. Health check passed. 2 secrets resolved at runtime.</div>
+      <div class="agent-msg human">Run the test suite</div>
+      <div class="agent-typing"><span></span><span></span><span></span></div>
+    </div>`;
+  } else {
+    const metrics=[
+      {label:'Total Requests',value:'12,847',change:'+18%',bar:72,barColor:p.color},
+      {label:'Avg Latency',value:'142ms',change:'-8%',bar:35,barColor:p.color},
+      {label:'Success Rate',value:'99.7%',change:'+0.2%',bar:99,barColor:'#10b981'},
+      {label:'Active Users',value:'284',change:'+12',bar:56,barColor:p.color},
+    ];
+    el.innerHTML=`<div class="dash-grid">${metrics.map(m=>`<div class="dash-card">
+      <div class="dc-label">${m.label}</div>
+      <div class="dc-value">${m.value}</div>
+      <div class="dc-change dc-up">${m.change}</div>
+      <div class="dc-bar"><div class="dc-bar-fill" style="--w:${m.bar}%;background:${m.barColor}"></div></div>
+    </div>`).join('')}</div>`;
+  }
+}
+
+// Render first preview
+renderPreview('veilkey');
+
+// ═══ PRODUCT TABLE ═══
+const table=document.getElementById('productTable');
+table.innerHTML=`
+  <thead><tr><th>Product</th><th>Category</th><th>Status</th><th>Description</th><th></th></tr></thead>
+  <tbody>${products.map(p=>`<tr>
+    <td><div class="pt-name"><span class="pt-dot" style="background:${p.color}"></span>${p.name}</div></td>
+    <td style="color:var(--fg3)">${p.category}</td>
+    <td><span class="pt-badge" style="background:${p.color}11;color:${p.color}">${p.status}</span></td>
+    <td style="color:var(--fg3)">${p.tagline}</td>
+    <td><a href="${p.link}" class="pt-link" style="color:${p.color}">View →</a></td>
+  </tr>`).join('')}</tbody>
+`;
+
+// ═══ REVEAL ═══
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis')})},{threshold:0.05,rootMargin:'0px 0px -20px 0px'});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+</script>
+
+</body>
+</html>

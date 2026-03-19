@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VeilKey — Your Secrets, Sealed</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Azeret+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,700;1,9..144,300;1,9..144,400&display=swap');
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --fg:#1b1b1b;
+  --fg2:#555;
+  --fg3:#999;
+  --fg4:#ccc;
+  --fg5:#e5e5e5;
+  --bg:#ffffff;
+  --bg2:#f7f7f5;
+  --bg3:#eeeee8;
+  --pop:#ff3d00;
+  --pop-soft:rgba(255,61,0,0.07);
+  --pop-line:rgba(255,61,0,0.2);
+  --navy:#0a1628;
+  --navy-soft:#1a2a44;
+  --blue:#2d5be3;
+  --green:#16a34a;
+  --green-bg:rgba(22,163,74,0.06);
+  --display:'Fraunces','Georgia',serif;
+  --sans:'Syne',system-ui,sans-serif;
+  --code:'Azeret Mono','Menlo',monospace;
+}
+
+html{scroll-behavior:smooth;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:16px;-webkit-font-smoothing:antialiased}
+body{overflow-x:hidden}
+::selection{background:var(--pop);color:white}
+a{color:inherit;text-decoration:none}
+
+.w{max-width:1200px;margin:0 auto;padding:0 clamp(1.5rem,5vw,4rem)}
+
+/* ═══ NAV ═══ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:300;
+  background:rgba(255,255,255,0.92);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--fg5);
+}
+.nav-in{
+  max-width:1200px;margin:0 auto;
+  padding:0 clamp(1.5rem,5vw,4rem);
+  display:flex;align-items:center;justify-content:space-between;height:60px;
+}
+.logo{
+  font-family:var(--sans);font-weight:800;font-size:1rem;
+  letter-spacing:-0.02em;
+  display:flex;align-items:center;gap:0.5rem;
+}
+.logo-box{
+  width:28px;height:28px;background:var(--pop);border-radius:6px;
+  display:grid;place-items:center;
+  color:white;font-family:var(--code);font-size:0.65rem;font-weight:700;
+  letter-spacing:0.05em;
+}
+.nr{display:flex;align-items:center;gap:2rem}
+.nr a{font-size:0.85rem;color:var(--fg2);font-weight:500;transition:color 0.2s}
+.nr a:hover{color:var(--fg)}
+.nr .nr-cta{
+  padding:0.5rem 1.4rem;background:var(--navy);color:white;
+  border-radius:8px;font-weight:600;font-size:0.85rem;
+  transition:all 0.2s;
+}
+.nr .nr-cta:hover{background:var(--navy-soft);transform:translateY(-1px);box-shadow:0 4px 16px rgba(10,22,40,0.15)}
+
+/* ═══ HERO ═══ */
+.hero{
+  padding:9rem 0 5rem;position:relative;overflow:hidden;
+}
+
+/* diagonal stripe bg */
+.hero::before{
+  content:'';position:absolute;
+  top:-200px;right:-300px;
+  width:900px;height:900px;
+  background:repeating-linear-gradient(
+    -45deg,
+    transparent,transparent 40px,
+    rgba(255,61,0,0.02) 40px,rgba(255,61,0,0.02) 42px
+  );
+  transform:rotate(15deg);
+  pointer-events:none;
+}
+
+.hero-top{
+  text-align:center;
+  position:relative;z-index:1;
+}
+
+.hero-tag{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  font-family:var(--code);font-size:0.68rem;font-weight:500;
+  letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--pop);
+  padding:0.35rem 1rem;
+  background:var(--pop-soft);
+  border-radius:100px;
+  margin-bottom:2rem;
+  animation:pop 0.6s ease both;
+}
+
+.hero h1{
+  font-family:var(--display);
+  font-size:clamp(3rem,7vw,5.5rem);
+  font-weight:300;line-height:1.05;
+  letter-spacing:-0.03em;
+  margin-bottom:1.8rem;
+  animation:pop 0.6s ease 0.08s both;
+}
+.hero h1 strong{font-weight:700}
+.hero h1 .accent{
+  color:var(--pop);font-style:italic;font-weight:400;
+}
+
+.hero-sub{
+  font-size:1.15rem;color:var(--fg2);
+  max-width:560px;margin:0 auto 3rem;
+  line-height:1.85;font-weight:400;
+  animation:pop 0.6s ease 0.16s both;
+}
+
+.hero-btns{
+  display:flex;justify-content:center;gap:0.7rem;flex-wrap:wrap;
+  animation:pop 0.6s ease 0.24s both;
+}
+
+.btn{
+  font-family:var(--sans);font-size:0.9rem;font-weight:600;
+  padding:0.85rem 2rem;border:none;cursor:pointer;
+  display:inline-flex;align-items:center;gap:0.5rem;
+  transition:all 0.25s;border-radius:10px;
+}
+.btn-pop{background:var(--pop);color:white}
+.btn-pop:hover{background:#e63600;transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,61,0,0.2)}
+.btn-soft{background:var(--bg2);color:var(--fg);border:1.5px solid var(--fg5)}
+.btn-soft:hover{background:var(--bg3);border-color:var(--fg4)}
+
+/* ═══ HERO INTERACTIVE — The Vault Door ═══ */
+.vault-demo{
+  margin:4rem auto 0;max-width:800px;
+  animation:pop 0.6s ease 0.32s both;
+  position:relative;z-index:1;
+}
+
+.vault-outer{
+  background:var(--bg2);
+  border:1.5px solid var(--fg5);
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 24px 80px rgba(0,0,0,0.06),0 2px 4px rgba(0,0,0,0.03);
+}
+
+.vault-toolbar{
+  padding:0.7rem 1.2rem;
+  border-bottom:1.5px solid var(--fg5);
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--bg);
+}
+.vault-toolbar .dots{display:flex;gap:6px}
+.vault-toolbar .dots span{
+  width:12px;height:12px;border-radius:50%;
+  border:1.5px solid var(--fg5);
+}
+.vault-toolbar .dots span:first-child{background:#ff5f57;border-color:#ff5f57}
+.vault-toolbar .dots span:nth-child(2){background:#ffbd2e;border-color:#ffbd2e}
+.vault-toolbar .dots span:nth-child(3){background:#28c840;border-color:#28c840}
+.vault-toolbar .vtitle{
+  font-family:var(--code);font-size:0.72rem;color:var(--fg3);
+}
+
+/* Two-column vault */
+.vault-cols{display:grid;grid-template-columns:1fr 1fr}
+.vault-col{padding:1.5rem 1.8rem;min-height:300px}
+.vault-col+.vault-col{border-left:1.5px solid var(--fg5)}
+
+.vault-col-label{
+  font-family:var(--code);font-size:0.62rem;font-weight:600;
+  letter-spacing:0.12em;text-transform:uppercase;
+  margin-bottom:1rem;
+  display:flex;align-items:center;gap:0.5rem;
+}
+.vcl-danger{color:var(--pop)}
+.vcl-safe{color:var(--green)}
+
+.vault-col-label .indicator{
+  width:7px;height:7px;border-radius:50%;
+}
+.indicator-red{background:var(--pop);box-shadow:0 0 6px rgba(255,61,0,0.3)}
+.indicator-green{background:var(--green);box-shadow:0 0 6px rgba(22,163,74,0.3)}
+
+.vault-line{
+  font-family:var(--code);font-size:0.78rem;line-height:2;
+  display:flex;
+  opacity:0;
+  animation:vaultLine 0.25s ease forwards;
+}
+.vault-line .vl-num{
+  width:20px;flex-shrink:0;color:var(--fg4);font-size:0.7rem;
+  text-align:right;margin-right:0.8rem;user-select:none;
+}
+.vl-key{color:var(--fg2)}
+.vl-eq{color:var(--fg4)}
+.vl-danger{color:var(--pop);font-weight:500}
+.vl-safe{color:var(--green);font-weight:500}
+.vl-cm{color:var(--fg4);font-style:italic}
+.vl-transit{
+  transition:all 0.35s ease;
+  position:relative;
+}
+.vl-transit.flash::after{
+  content:'';position:absolute;inset:-2px -6px;
+  background:var(--green-bg);border-radius:3px;
+  animation:flashFade 0.5s ease forwards;
+}
+
+/* arrow between columns */
+.vault-arrow{
+  position:absolute;
+  left:50%;top:50%;transform:translate(-50%,-50%);
+  z-index:5;
+  width:48px;height:48px;
+  background:var(--bg);border:1.5px solid var(--fg5);
+  border-radius:50%;
+  display:grid;place-items:center;
+  font-size:1.2rem;color:var(--fg3);
+  box-shadow:0 2px 8px rgba(0,0,0,0.06);
+  transition:all 0.3s;
+}
+.vault-arrow.active{
+  border-color:var(--green);color:var(--green);
+  box-shadow:0 0 16px rgba(22,163,74,0.15);
+}
+
+.vault-status{
+  padding:0.7rem 1.5rem;
+  border-top:1.5px solid var(--fg5);
+  background:var(--bg);
+  font-family:var(--code);font-size:0.7rem;
+  color:var(--fg3);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.vault-status .vs-count{
+  display:flex;align-items:center;gap:0.4rem;
+}
+.vault-status .replay{
+  background:none;border:1px solid var(--fg5);
+  font-family:var(--code);font-size:0.65rem;
+  color:var(--fg3);padding:0.2rem 0.6rem;
+  border-radius:4px;cursor:pointer;transition:all 0.2s;
+}
+.vault-status .replay:hover{border-color:var(--pop);color:var(--pop)}
+
+/* ═══ MARQUEE ═══ */
+.marquee-wrap{
+  padding:1.5rem 0;
+  border-top:1.5px solid var(--fg5);
+  border-bottom:1.5px solid var(--fg5);
+  overflow:hidden;
+  background:var(--navy);
+}
+.marquee-track{
+  display:flex;gap:3rem;
+  animation:marquee 25s linear infinite;
+  width:max-content;
+}
+.marquee-item{
+  font-family:var(--code);font-size:0.75rem;font-weight:500;
+  color:rgba(255,255,255,0.4);white-space:nowrap;
+  letter-spacing:0.06em;
+  display:flex;align-items:center;gap:0.6rem;
+}
+.marquee-item .mi-dot{
+  width:4px;height:4px;border-radius:50%;background:var(--pop);
+}
+
+/* ═══ BENTO GRID ═══ */
+.bento-section{padding:7rem 0}
+
+.bento{
+  margin-top:3rem;
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
+  grid-template-rows:auto auto auto;
+  gap:1.2rem;
+}
+
+.bento-card{
+  background:var(--bg2);
+  border:1.5px solid var(--fg5);
+  border-radius:14px;
+  padding:2rem;
+  transition:all 0.3s;
+  position:relative;
+  overflow:hidden;
+}
+.bento-card:hover{
+  border-color:var(--fg4);
+  box-shadow:0 12px 40px rgba(0,0,0,0.05);
+  transform:translateY(-2px);
+}
+
+.bc-1{grid-column:span 7}
+.bc-2{grid-column:span 5}
+.bc-3{grid-column:span 4}
+.bc-4{grid-column:span 4}
+.bc-5{grid-column:span 4}
+.bc-6{grid-column:span 6}
+.bc-7{grid-column:span 6}
+
+.bento-card .bc-tag{
+  display:inline-block;
+  font-family:var(--code);font-size:0.58rem;font-weight:600;
+  letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--pop);
+  padding:0.2rem 0.6rem;
+  background:var(--pop-soft);
+  border-radius:4px;
+  margin-bottom:1rem;
+}
+.bento-card h3{
+  font-family:var(--display);font-size:1.3rem;font-weight:400;
+  line-height:1.3;margin-bottom:0.6rem;
+}
+.bento-card h3 em{font-style:italic;color:var(--pop)}
+.bento-card p{
+  font-size:0.88rem;color:var(--fg2);line-height:1.7;font-weight:400;
+}
+
+/* special: AI card */
+.bc-ai-chat{
+  margin-top:1.2rem;
+  display:flex;flex-direction:column;gap:0.6rem;
+}
+.bc-ai-msg{
+  font-family:var(--code);font-size:0.72rem;
+  padding:0.5rem 0.8rem;border-radius:8px;
+  max-width:90%;line-height:1.5;
+}
+.bc-ai-msg.human{
+  align-self:flex-end;background:var(--navy);color:white;
+  border-bottom-right-radius:2px;
+}
+.bc-ai-msg.bot{
+  align-self:flex-start;background:var(--bg);
+  border:1px solid var(--fg5);color:var(--fg2);
+  border-bottom-left-radius:2px;
+}
+.bc-ai-msg code{
+  font-family:var(--code);color:var(--green);
+  background:var(--green-bg);padding:0.05rem 0.3rem;border-radius:2px;
+}
+
+/* special: arch card */
+.bc-arch-nodes{
+  margin-top:1rem;
+  display:flex;gap:0.6rem;flex-wrap:wrap;
+}
+.bc-arch-node{
+  font-family:var(--code);font-size:0.7rem;font-weight:500;
+  padding:0.4rem 0.8rem;
+  border:1.5px solid var(--fg5);border-radius:8px;
+  color:var(--fg2);
+  transition:all 0.2s;
+}
+.bc-arch-node:hover{border-color:var(--pop-line);color:var(--pop)}
+.bc-arch-node .an-port{color:var(--fg4);margin-left:0.3rem;font-weight:400}
+
+/* special: encryption card */
+.bc-enc-steps{
+  margin-top:1rem;
+  display:flex;flex-direction:column;gap:0.6rem;
+}
+.bc-enc-step{
+  display:flex;align-items:center;gap:0.8rem;
+  font-family:var(--code);font-size:0.75rem;
+}
+.bc-enc-step .enc-dot{
+  width:24px;height:24px;flex-shrink:0;
+  border:1.5px solid var(--fg5);border-radius:50%;
+  display:grid;place-items:center;
+  font-size:0.55rem;color:var(--pop);font-weight:700;
+}
+.bc-enc-step .enc-label{color:var(--fg2)}
+.bc-enc-step .enc-algo{color:var(--fg4);font-size:0.65rem;margin-left:auto}
+
+/* ═══ INSTALL SECTION ═══ */
+.install-section{
+  padding:7rem 0;
+  background:var(--navy);color:white;
+  position:relative;overflow:hidden;
+}
+.install-section::before{
+  content:'';position:absolute;
+  top:-200px;right:-200px;
+  width:600px;height:600px;
+  background:radial-gradient(circle,rgba(255,61,0,0.06),transparent 60%);
+  pointer-events:none;
+}
+
+.install-section .sec-ey{color:rgba(255,255,255,0.3)}
+.install-section .sec-h{color:white}
+.install-section .sec-h em{color:var(--pop)}
+
+.install-code{
+  margin-top:3rem;max-width:640px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px;overflow:hidden;
+}
+.install-code-bar{
+  padding:0.6rem 1.2rem;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  display:flex;align-items:center;gap:0.5rem;
+}
+.install-code-bar .icd{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.1)}
+.install-code-bar span:last-child{
+  margin-left:auto;font-family:var(--code);font-size:0.62rem;
+  color:rgba(255,255,255,0.2);
+}
+.install-code-body{
+  padding:1.5rem 1.8rem;
+  font-family:var(--code);font-size:0.8rem;line-height:2.2;
+  color:rgba(255,255,255,0.55);
+}
+.install-code-body .ic-prompt{color:rgba(255,255,255,0.25)}
+.install-code-body .ic-cmd{color:rgba(255,255,255,0.85)}
+.install-code-body .ic-flag{color:var(--pop)}
+.install-code-body .ic-ok{color:#4ade80}
+.install-code-body .ic-dim{color:rgba(255,255,255,0.25)}
+
+/* ═══ CTA ═══ */
+.cta-section{padding:8rem 0;text-align:center}
+.cta-section h2{
+  font-family:var(--display);
+  font-size:clamp(2.2rem,5vw,3.8rem);
+  font-weight:300;line-height:1.1;
+  margin-bottom:1rem;
+}
+.cta-section h2 em{font-style:italic;color:var(--pop)}
+.cta-section p{
+  color:var(--fg2);max-width:420px;margin:0 auto 2.5rem;
+  font-size:1.05rem;line-height:1.8;
+}
+.cta-btns{display:flex;justify-content:center;gap:0.7rem;flex-wrap:wrap}
+.cta-tags{
+  margin-top:3rem;display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;
+}
+.cta-tags span{
+  font-family:var(--code);font-size:0.68rem;font-weight:500;
+  color:var(--fg3);letter-spacing:0.04em;
+}
+
+/* ═══ FOOTER ═══ */
+footer{border-top:1.5px solid var(--fg5);padding:2rem 0}
+.ft{display:flex;justify-content:space-between;align-items:center;font-size:0.82rem;color:var(--fg3)}
+.ft a{color:var(--fg2);transition:color 0.2s}
+.ft a:hover{color:var(--pop)}
+
+/* ═══ SECTION COMMON ═══ */
+.sec-ey{
+  font-family:var(--code);font-size:0.62rem;font-weight:600;
+  letter-spacing:0.15em;text-transform:uppercase;color:var(--pop);
+  margin-bottom:0.6rem;
+}
+.sec-h{
+  font-family:var(--display);font-size:clamp(2rem,3.5vw,2.8rem);
+  font-weight:300;line-height:1.15;margin-bottom:0.6rem;
+}
+.sec-h em{font-style:italic;color:var(--pop)}
+.sec-p{font-size:0.95rem;color:var(--fg2);line-height:1.8;max-width:480px}
+
+/* ═══ ANIM ═══ */
+@keyframes pop{from{opacity:0;transform:translateY(20px) scale(0.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes vaultLine{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:translateX(0)}}
+@keyframes flashFade{from{opacity:1}to{opacity:0}}
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+.rv{opacity:0;transform:translateY(20px);transition:opacity 0.6s,transform 0.6s}
+.rv.vis{opacity:1;transform:translateY(0)}
+
+@media(max-width:900px){
+  .vault-cols{grid-template-columns:1fr}
+  .vault-col+.vault-col{border-left:none;border-top:1.5px solid var(--fg5)}
+  .vault-arrow{display:none}
+  .bento-card{grid-column:span 12!important}
+  .nr a:not(.nr-cta){display:none}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-in">
+    <a href="#" class="logo"><div class="logo-box">VK</div>VeilKey</a>
+    <div class="nr">
+      <a href="#features">Features</a>
+      <a href="#install">Install</a>
+      <a href="https://github.com/veilkey/veilkey-selfhosted" class="nr-cta">GitHub →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="w">
+    <div class="hero-top">
+      <div class="hero-tag">Open Source · AGPL-3.0</div>
+      <h1><strong>Paste a secret.</strong><br>Watch it <span class="accent">disappear.</span></h1>
+      <p class="hero-sub">
+        VeilKey seals every secret the instant it enters your system.
+        What stays behind is an encrypted reference — safe for configs, safe for AI, safe for git.
+      </p>
+      <div class="hero-btns">
+        <a href="https://github.com/veilkey/veilkey-selfhosted" class="btn btn-pop">Start Encrypting →</a>
+        <a href="https://github.com/veilkey/veilkey-selfhosted/blob/main/docs/architecture.md" class="btn btn-soft">Read Docs</a>
+      </div>
+    </div>
+
+    <!-- VAULT DEMO -->
+    <div class="vault-demo">
+      <div class="vault-outer" id="vaultOuter" style="position:relative">
+        <div class="vault-toolbar">
+          <div class="dots"><span></span><span></span><span></span></div>
+          <div class="vtitle">veilkey filter .env</div>
+        </div>
+        <div class="vault-cols">
+          <div class="vault-col" id="vaultLeft">
+            <div class="vault-col-label vcl-danger">
+              <span class="indicator indicator-red"></span> Input — plaintext
+            </div>
+          </div>
+          <div class="vault-col" id="vaultRight">
+            <div class="vault-col-label vcl-safe">
+              <span class="indicator indicator-green"></span> Output — sealed
+            </div>
+          </div>
+        </div>
+        <div class="vault-arrow" id="vaultArrow">→</div>
+        <div class="vault-status">
+          <span class="vs-count" id="vaultStatusText">ready</span>
+          <button class="replay" id="vaultReplay">↻ replay</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MARQUEE ═══ -->
+<div class="marquee-wrap">
+  <div class="marquee-track" id="marqueeTrack"></div>
+</div>
+
+<!-- ═══ BENTO FEATURES ═══ -->
+<section id="features" class="bento-section">
+  <div class="w">
+    <div style="text-align:center" class="rv">
+      <div class="sec-ey">Why VeilKey</div>
+      <h2 class="sec-h">Everything secrets need. <em>Nothing else.</em></h2>
+    </div>
+
+    <div class="bento rv">
+      <!-- AI Safety — big card -->
+      <div class="bento-card bc-1">
+        <div class="bc-tag">AI Safety</div>
+        <h3>Your AI works with <em>references.</em><br>Never real credentials.</h3>
+        <p>Claude, Codex, or any agent sees VK:LOCAL:xxxx. It writes code, deploys, tests — everything works. The real secret only exists in process memory.</p>
+        <div class="bc-ai-chat">
+          <div class="bc-ai-msg human">Deploy using the config in .env</div>
+          <div class="bc-ai-msg bot">Found <code>VK:LOCAL:db01</code> and <code>VK:LOCAL:sk4c</code>. Running <code>vk exec deploy.sh</code> — secrets resolve at runtime. I never need real values.</div>
+        </div>
+      </div>
+
+      <!-- Architecture card -->
+      <div class="bento-card bc-2">
+        <div class="bc-tag">Architecture</div>
+        <h3>Hub-and-spoke <em>hierarchy.</em></h3>
+        <p>One KeyCenter controls policy. LocalVault nodes hold only ciphertext. Breach a node — the rest stay sealed.</p>
+        <div class="bc-arch-nodes">
+          <div class="bc-arch-node">KeyCenter<span class="an-port">:10181</span></div>
+          <div class="bc-arch-node">LocalVault<span class="an-port">:10180</span></div>
+          <div class="bc-arch-node">Proxy<span class="an-port">:18080</span></div>
+          <div class="bc-arch-node">CLI</div>
+        </div>
+      </div>
+
+      <!-- 3 small cards -->
+      <div class="bento-card bc-3">
+        <div class="bc-tag">Detection</div>
+        <h3>222+ <em>patterns.</em></h3>
+        <p>AWS, GitHub, Stripe, private keys, JWTs, database URLs. Fully offline — no API needed.</p>
+      </div>
+      <div class="bento-card bc-4">
+        <div class="bc-tag">Rotation</div>
+        <h3>Zero-downtime <em>rotation.</em></h3>
+        <p>KeyCenter schedules. Each node re-encrypts independently. No restarts, no coordination.</p>
+      </div>
+      <div class="bento-card bc-5">
+        <div class="bc-tag">Isolation</div>
+        <h3>Every node, own <em>key.</em></h3>
+        <p>Each node has a unique DEK. Compromising one doesn't expose secrets on other nodes.</p>
+      </div>
+
+      <!-- Encryption -->
+      <div class="bento-card bc-6">
+        <div class="bc-tag">Encryption</div>
+        <h3>Three-layer <em>hierarchy.</em></h3>
+        <div class="bc-enc-steps">
+          <div class="bc-enc-step">
+            <div class="enc-dot">1</div>
+            <span class="enc-label">KEK — from password, never stored</span>
+            <span class="enc-algo">scrypt</span>
+          </div>
+          <div class="bc-enc-step">
+            <div class="enc-dot">2</div>
+            <span class="enc-label">DEK — 256-bit, encrypted with KEK</span>
+            <span class="enc-algo">AES-256-GCM</span>
+          </div>
+          <div class="bc-enc-step">
+            <div class="enc-dot">3</div>
+            <span class="enc-label">Ciphertext — per-secret nonce</span>
+            <span class="enc-algo">VK:{REF}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Self-hosted -->
+      <div class="bento-card bc-7">
+        <div class="bc-tag">Self-Hosted</div>
+        <h3>Your infra. Your <em>rules.</em></h3>
+        <p>SQLite backend, no cloud dependencies. macOS (launchd) or Linux (systemd). Passwords from files, never env vars. AGPL-3.0 licensed — fork it, run it, own it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ INSTALL ═══ -->
+<section id="install" class="install-section">
+  <div class="w rv">
+    <div class="sec-ey">Quick Start</div>
+    <h2 class="sec-h">Sealed in <em>five minutes.</em></h2>
+    <div class="install-code">
+      <div class="install-code-bar">
+        <span class="icd"></span><span class="icd"></span><span class="icd"></span>
+        <span>macOS</span>
+      </div>
+      <div class="install-code-body">
+<span class="ic-prompt">$</span> <span class="ic-cmd">git clone</span> <span class="ic-flag">https://github.com/veilkey/veilkey-selfhosted.git</span>
+<span class="ic-prompt">$</span> <span class="ic-cmd">cd</span> veilkey-selfhosted
+<span class="ic-prompt">$</span> <span class="ic-cmd">./installer/scripts/install-mac.sh</span> <span class="ic-flag">install</span>
+<span class="ic-dim">  [OK] Go installed · 5 binaries built</span>
+<span class="ic-dim">  [OK] KeyCenter initialized · LocalVault connected</span>
+<span class="ic-prompt">$</span> <span class="ic-cmd">./installer/scripts/install-mac.sh</span> <span class="ic-flag">start</span>
+<span class="ic-ok">  ✓ KeyCenter :10181 · LocalVault :10180</span>
+
+<span class="ic-prompt">$</span> <span class="ic-cmd">echo</span> <span class="ic-flag">"TOKEN=sk_live_abc123"</span> | <span class="ic-cmd">vk scan</span> -
+<span class="ic-dim">  [1] stdin:1 — stripe key</span> <span style="color:var(--pop)">■ detected</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ═══ -->
+<section class="cta-section">
+  <div class="w rv">
+    <h2>Plaintext is a<br><em>liability.</em> Fix it.</h2>
+    <p>One repo. One installer. Every secret encrypted before it hits disk.</p>
+    <div class="cta-btns">
+      <a href="https://github.com/veilkey/veilkey-selfhosted" class="btn btn-pop">View on GitHub →</a>
+      <a href="https://github.com/veilkey/veilkey-selfhosted/blob/main/docs/installation.md" class="btn btn-soft">Install Guide</a>
+    </div>
+    <div class="cta-tags">
+      <span>AGPL-3.0</span><span>Go + SQLite</span><span>AES-256-GCM</span><span>macOS + Linux</span>
+    </div>
+  </div>
+</section>
+
+<footer><div class="w"><div class="ft">
+  <span>VeilKey — Secret Lifecycle Manager</span>
+  <a href="https://github.com/veilkey/veilkey-selfhosted">github.com/veilkey</a>
+</div></div></footer>
+
+<script>
+// ═══ VAULT DEMO ═══
+const secrets=[
+  {key:'DATABASE_URL',d:'postgres://admin:s3cret@db:5432',s:'VK:LOCAL:db01a2b3'},
+  {key:'AWS_SECRET',d:'wJalrXUtnFEMI/K7MDENG',s:'VK:LOCAL:aws4c5d6'},
+  {key:'GITHUB_TOKEN',d:'ghp_abc123def456ghi789j',s:'VK:LOCAL:gh7e8f9a'},
+  {key:'STRIPE_SK',d:'sk_live_51HG8axYzKlMnOp',s:'VK:LOCAL:st0b1c2d'},
+  {key:'JWT_SECRET',d:'super-secret-jwt-2024!',s:'VK:LOCAL:jw3e4f5a'},
+  {key:'REDIS_URL',d:'redis://:p4ssw0rd@cache:6379',s:'VK:LOCAL:rd6g7h8i'},
+];
+
+const sl=ms=>new Promise(r=>setTimeout(r,ms));
+
+async function playVault(){
+  const left=document.getElementById('vaultLeft');
+  const right=document.getElementById('vaultRight');
+  const arrow=document.getElementById('vaultArrow');
+  const status=document.getElementById('vaultStatusText');
+
+  left.innerHTML='<div class="vault-col-label vcl-danger"><span class="indicator indicator-red"></span> Input — plaintext</div>';
+  right.innerHTML='<div class="vault-col-label vcl-safe"><span class="indicator indicator-green"></span> Output — sealed</div>';
+  arrow.classList.remove('active');arrow.textContent='→';
+  status.textContent='ready';
+
+  await sl(600);
+
+  // Type left side
+  const cm=document.createElement('div');cm.className='vault-line';
+  cm.innerHTML='<span class="vl-num">1</span><span class="vl-cm"># production</span>';
+  left.appendChild(cm);await sl(200);
+
+  for(let i=0;i<secrets.length;i++){
+    const ln=document.createElement('div');ln.className='vault-line';
+    ln.style.animationDelay=(i*60)+'ms';
+    ln.innerHTML=`<span class="vl-num">${i+2}</span><span class="vl-key">${secrets[i].key}</span><span class="vl-eq">=</span><span class="vl-danger">${secrets[i].d}</span>`;
+    left.appendChild(ln);
+    await sl(120);
+  }
+
+  status.textContent=`${secrets.length} secrets detected`;
+  await sl(1000);
+
+  // Encrypt animation
+  arrow.classList.add('active');arrow.textContent='⟩';
+  status.textContent='encrypting...';
+
+  // Comment on right
+  const rcm=document.createElement('div');rcm.className='vault-line';
+  rcm.innerHTML='<span class="vl-num">1</span><span class="vl-cm"># sealed</span>';
+  right.appendChild(rcm);
+
+  for(let i=0;i<secrets.length;i++){
+    const ln=document.createElement('div');ln.className='vault-line';
+    ln.style.animationDelay='0ms';
+    ln.innerHTML=`<span class="vl-num">${i+2}</span><span class="vl-key">${secrets[i].key}</span><span class="vl-eq">=</span><span class="vl-safe vl-transit">${secrets[i].s}</span>`;
+    right.appendChild(ln);
+
+    // flash on left side
+    const leftLines=left.querySelectorAll('.vault-line');
+    const ll=leftLines[i+1];
+    if(ll){
+      const dv=ll.querySelector('.vl-danger');
+      if(dv){dv.style.opacity='0.3';dv.style.textDecoration='line-through'}
+    }
+
+    await sl(250);
+  }
+
+  status.textContent=`${secrets.length} secrets sealed — 0 plaintext`;
+  arrow.textContent='✓';
+
+  await sl(6000);
+  playVault();
+}
+
+document.getElementById('vaultReplay').addEventListener('click',()=>playVault());
+setTimeout(playVault,800);
+
+// ═══ MARQUEE ═══
+const mItems=['AES-256-GCM','Zero plaintext','222+ patterns','Self-hosted','Node isolation','Key rotation','AGPL-3.0','macOS + Linux','AI-safe references','SQLite backend','Password-file only','Egress enforcement'];
+const track=document.getElementById('marqueeTrack');
+// duplicate for seamless loop
+[...mItems,...mItems].forEach(t=>{
+  const d=document.createElement('div');d.className='marquee-item';
+  d.innerHTML=`<span class="mi-dot"></span>${t}`;
+  track.appendChild(d);
+});
+
+// ═══ SCROLL REVEAL ═══
+const obs=new IntersectionObserver(es=>{
+  es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis')});
+},{threshold:0.06,rootMargin:'0px 0px -20px 0px'});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+</script>
+
+</body>
+</html>
