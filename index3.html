@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VeilKey — AI Never Sees Your Secrets</title>
-<meta name="description" content="Your AI agent works with encrypted references, never real secrets. Open-source secret lifecycle manager.">
+<title>VeilKey — AI는 당신의 비밀을 볼 수 없습니다</title>
+<meta name="description" content="AI 에이전트는 암호화된 참조값만 봅니다. 실제 시크릿은 절대 노출되지 않습니다. 오픈소스 시크릿 라이프사이클 매니저.">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,600;1,6..72,300;1,6..72,400&family=Geist+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,600;1,6..72,300;1,6..72,400&family=Geist+Mono:wght@400;500;600&family=Noto+Serif+KR:wght@300;400;600&family=Noto+Sans+KR:wght@400;500&display=swap');
+
 
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 
@@ -25,9 +26,9 @@
   --amber: #f5c24a;
   --red: #f5574a;
   --violet: #a474f5;
-  --display: 'Newsreader', Georgia, serif;
+  --display: 'Noto Serif KR', 'Newsreader', Georgia, serif;
   --mono: 'Geist Mono', 'SF Mono', monospace;
-  --body: 'Space Mono', monospace;
+  --body: 'Noto Sans KR', 'Space Mono', monospace;
 }
 
 html {
@@ -582,12 +583,12 @@ footer {
   <div class="w">
     <div class="hero-center">
       <div class="hero-pill"><span class="pulse-dot"></span> Open Source Secret Manager</div>
-      <h1><strong>AI works with references.</strong><br>Never your <span class="hl">real secrets.</span></h1>
+      <h1><strong>AI는 Reference만 봅니다.</strong><br>실제 <span class="hl">Secret은 절대 노출되지 않습니다.</span></h1>
       <p class="hero-sub">
-        VeilKey encrypts secrets at the point of creation and replaces them with
-        scoped references. Your AI agent, your CI, your logs — they all see
-        <code style="color:var(--mint);background:var(--mint-bg);padding:0.1rem 0.4rem;border-radius:2px;font-family:var(--mono);font-size:0.85rem;">VK:LOCAL:a1b2</code>,
-        never the real key.
+        VeilKey는 Secret이 생성되는 순간 암호화하고 범위 지정된 Reference로 대체합니다.
+        AI Agent, CI, Log — 모두
+        <code style="color:var(--mint);background:var(--mint-bg);padding:0.1rem 0.4rem;border-radius:2px;font-family:var(--mono);font-size:0.85rem;">VK:LOCAL:a1b2</code>만
+        볼 뿐, 실제 Key는 절대 노출되지 않습니다.
       </p>
 
       <!-- THE HOOK -->
@@ -595,17 +596,17 @@ footer {
         <div class="hook-window">
           <div class="hook-bar">
             <div class="hook-dots"><span></span><span></span><span></span></div>
-            <div class="hook-bar-title">veilkey — live encryption</div>
+            <div class="hook-bar-title">veilkey — 실시간 Encryption</div>
           </div>
           <div class="hook-tabs">
-            <button class="hook-tab active" data-scene="paste">Paste → Encrypt</button>
+            <button class="hook-tab active" data-scene="paste">붙여넣기 → Encrypt</button>
             <button class="hook-tab" data-scene="ai">AI Agent Flow</button>
             <button class="hook-tab" data-scene="scan">Scan & Filter</button>
           </div>
 
           <!-- Scene 1: Paste a real key, watch it morph -->
           <div class="hook-body">
-            <button class="hook-replay" title="Replay">↻ replay</button>
+            <button class="hook-replay" title="다시 재생">↻ 다시보기</button>
 
             <div class="hook-scene active" id="scene-paste">
               <div id="paste-content"></div>
@@ -621,7 +622,7 @@ footer {
 
             <div class="hook-status">
               <span class="status-dot green"></span>
-              <span id="hook-status-text">watching for secrets...</span>
+              <span id="hook-status-text">Secret 감지 중...</span>
             </div>
           </div>
         </div>
@@ -637,34 +638,34 @@ footer {
       <div class="concept-visual">
         <div class="concept-flow">
           <div class="concept-flow-row">
-            <div class="concept-flow-label">Developer</div>
+            <div class="concept-flow-label">개발자</div>
             <div class="concept-flow-box plain">sk_live_51HG8a...xYz</div>
           </div>
           <div class="concept-flow-arrow">↓ veilkey filter</div>
           <div class="concept-flow-row">
-            <div class="concept-flow-label">Config</div>
+            <div class="concept-flow-label">설정파일</div>
             <div class="concept-flow-box sealed">VK:LOCAL:e5f6a7b8</div>
           </div>
           <div class="concept-flow-arrow">↓ veilkey exec</div>
           <div class="concept-flow-row">
-            <div class="concept-flow-label">App</div>
+            <div class="concept-flow-label">앱</div>
             <div class="concept-flow-box sealed" style="border-color:rgba(164,116,245,0.3);background:rgba(164,116,245,0.04);color:var(--violet);">sk_live_51HG8a...xYz ✓</div>
           </div>
         </div>
       </div>
       <div class="concept-text">
-        <div class="sec-ey">The Idea</div>
-        <h2>Secrets exist in memory.<br>Never on <span class="hl">disk.</span></h2>
+        <div class="sec-ey">Core Concept</div>
+        <h2>Secret은 Memory에만 존재합니다.<br>Disk에는 <span class="hl">절대 저장되지 않습니다.</span></h2>
         <p>
-          The moment a secret enters VeilKey, it's encrypted with AES-256-GCM
-          and replaced with a scoped reference token. Your config files, your
-          git history, your CI logs — none of them ever contain plaintext.
+          Secret이 VeilKey에 입력되는 순간, AES-256-GCM으로 암호화되고
+          범위 지정된 Reference Token으로 대체됩니다. Config 파일, Git History,
+          CI Log — 어디에도 Plaintext는 존재하지 않습니다.
         </p>
         <ul class="detail-list">
-          <li>AI agents see only VK: references — work normally, zero risk</li>
-          <li>Rotation happens per-node without restarts</li>
-          <li>Each node has its own DEK — lateral movement is dead</li>
-          <li>Password read from file, never environment variable</li>
+          <li>AI Agent는 VK: Reference만 봅니다 — 정상 작동, 위험 제로</li>
+          <li>재시작 없이 Node별 Key 교체 가능</li>
+          <li>각 Node는 독립된 DEK 보유 — 측면 이동 공격 원천 차단</li>
+          <li>Password는 파일에서만 읽습니다 — 환경 변수 사용 불가</li>
         </ul>
       </div>
     </div>
@@ -677,11 +678,11 @@ footer {
     <div class="rv">
       <div class="sec-ey" style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--mint-dim);margin-bottom:1rem;">Architecture</div>
       <h2 style="font-family:var(--display);font-size:clamp(2rem,3.5vw,2.8rem);font-weight:300;line-height:1.2;margin-bottom:1rem;">
-        Hub-and-spoke. Every node <span class="hl">isolated.</span>
+        Hub-and-Spoke 구조. 모든 Node는 <span class="hl">완전히 격리됩니다.</span>
       </h2>
       <p style="font-size:0.95rem;color:var(--fg2);max-width:520px;line-height:1.75;">
-        One KeyCenter decides policy. LocalVault nodes hold only ciphertext.
-        Compromise a spoke — the hub and every other spoke stays sealed.
+        KeyCenter 하나가 Policy를 결정합니다. LocalVault Node는 Ciphertext만 보관합니다.
+        Spoke가 침해되더라도 — Hub와 다른 모든 Spoke는 안전하게 봉인됩니다.
       </p>
     </div>
     <div class="arch-cards rv">
@@ -689,25 +690,25 @@ footer {
         <div class="arch-card-icon">KC</div>
         <h3>KeyCenter</h3>
         <div class="arch-port">:10181</div>
-        <p>Control plane. Node identity, DEK lifecycle, rotation policy, secret registry. Single instance per deployment.</p>
+        <p>Control Plane. Node 식별, DEK Lifecycle, Rotation Policy, Secret Registry 관리. 배포당 단일 Instance.</p>
       </div>
       <div class="arch-card">
         <div class="arch-card-icon">LV</div>
         <h3>LocalVault</h3>
         <div class="arch-port">:10180</div>
-        <p>Node agent. Stores ciphertext, heartbeats every 5m. Cannot decrypt without KeyCenter. One per machine.</p>
+        <p>Node Agent. Ciphertext 저장, 5분마다 Heartbeat. KeyCenter 없이는 복호화 불가. 머신당 하나.</p>
       </div>
       <div class="arch-card">
         <div class="arch-card-icon">PX</div>
         <h3>Proxy</h3>
         <div class="arch-port">:18080</div>
-        <p>Egress enforcement. Intercepts outbound HTTP, blocks plaintext leaks, issues VK:TEMP: tokens. Optional.</p>
+        <p>Egress 강제 적용. Outbound HTTP 가로채기, Plaintext 유출 차단, VK:TEMP: Token 발급. 선택 사항.</p>
       </div>
       <div class="arch-card">
         <div class="arch-card-icon">CLI</div>
         <h3>CLI</h3>
         <div class="arch-port">&nbsp;</div>
-        <p>Operator tool. scan, filter, wrap, exec, resolve. PTY wrapping with automatic secret masking.</p>
+        <p>운영자 도구. scan, filter, wrap, exec, resolve. 자동 Secret Masking이 적용된 PTY Wrapping.</p>
       </div>
     </div>
   </div>
@@ -719,33 +720,33 @@ footer {
     <div class="rv">
       <div class="sec-ey" style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--mint-dim);margin-bottom:1rem;">Features</div>
       <h2 style="font-family:var(--display);font-size:clamp(2rem,3.5vw,2.8rem);font-weight:300;line-height:1.2;">
-        Built for the <span class="hl">AI era.</span>
+        <span class="hl">AI 시대</span>를 위해 설계되었습니다.
       </h2>
     </div>
     <div class="feat-row rv">
       <div class="feat-item">
-        <h3><span class="feat-dot"></span> AI-safe references</h3>
-        <p>AI agents work with VK: tokens. They read, write, and execute — without ever seeing real credentials.</p>
+        <h3><span class="feat-dot"></span> AI-Safe Reference</h3>
+        <p>AI Agent는 VK: Token으로만 작동합니다. 실제 Credential을 보지 않고도 읽고, 쓰고, 실행합니다.</p>
       </div>
       <div class="feat-item">
-        <h3><span class="feat-dot"></span> Zero plaintext at rest</h3>
-        <p>AES-256-GCM encryption at point of entry. Configs, git history, and logs contain only references.</p>
+        <h3><span class="feat-dot"></span> Zero Plaintext at Rest</h3>
+        <p>입력 시점에 AES-256-GCM Encryption. Config 파일, Git History, Log — 어디에도 Plaintext 없음.</p>
       </div>
       <div class="feat-item">
-        <h3><span class="feat-dot"></span> Seamless rotation</h3>
-        <p>KeyCenter schedules, each node re-encrypts. No restart, no downtime, no coordination needed.</p>
+        <h3><span class="feat-dot"></span> 무중단 Key Rotation</h3>
+        <p>KeyCenter가 Scheduling, 각 Node가 재암호화. 재시작 없음, Downtime 없음, 조율 불필요.</p>
       </div>
       <div class="feat-item">
-        <h3><span class="feat-dot"></span> 222+ patterns</h3>
-        <p>Detect AWS, GCP, GitHub, Stripe, private keys, JWTs. Fully offline scan — no API required.</p>
+        <h3><span class="feat-dot"></span> 222가지 이상의 Pattern</h3>
+        <p>AWS, GCP, GitHub, Stripe, Private Key, JWT 감지. 완전 Offline Scan — API 불필요.</p>
       </div>
       <div class="feat-item">
-        <h3><span class="feat-dot"></span> Egress enforcement</h3>
-        <p>Optional proxy blocks plaintext in outbound HTTP. Veilroot shell guards block direct curl/wget.</p>
+        <h3><span class="feat-dot"></span> Egress 강제 적용</h3>
+        <p>선택적 Proxy가 Outbound HTTP의 Plaintext를 차단합니다. Veilroot Shell Guard로 직접적인 curl/wget 차단.</p>
       </div>
       <div class="feat-item">
-        <h3><span class="feat-dot"></span> Self-hosted</h3>
-        <p>SQLite backend, no cloud deps. macOS launchd or Linux systemd. AGPL-3.0 licensed.</p>
+        <h3><span class="feat-dot"></span> Self-Hosted</h3>
+        <p>SQLite Backend, Cloud 의존성 없음. macOS launchd 또는 Linux systemd. AGPL-3.0 License.</p>
       </div>
     </div>
   </div>
@@ -757,7 +758,7 @@ footer {
     <div class="rv">
       <div class="sec-ey" style="font-family:var(--mono);font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--mint-dim);margin-bottom:1rem;">Quick Start</div>
       <h2 style="font-family:var(--display);font-size:clamp(2rem,3.5vw,2.8rem);font-weight:300;line-height:1.2;margin-bottom:1rem;">
-        Encrypted in <span class="hl">five minutes.</span>
+        <span class="hl">5분 안에</span> Encryption 완료.
       </h2>
     </div>
     <div class="qs-code rv">
@@ -769,13 +770,13 @@ footer {
 <span class="tok-prompt">$</span> <span class="tok-cmd">git clone</span> <span class="tok-flag">https://github.com/veilkey/veilkey-selfhosted.git</span>
 <span class="tok-prompt">$</span> <span class="tok-cmd">cd</span> veilkey-selfhosted
 <span class="tok-prompt">$</span> <span class="tok-cmd">./installer/scripts/install-mac.sh</span> <span class="tok-flag">install</span>
-<span class="tok-dim">  [OK] Go 1.26 installed</span>
-<span class="tok-dim">  [OK] 5 binaries built</span>
-<span class="tok-dim">  [OK] KeyCenter initialized · LocalVault connected</span>
+<span class="tok-dim">  [OK] Go 1.26 설치 완료</span>
+<span class="tok-dim">  [OK] Binary 5개 빌드 완료</span>
+<span class="tok-dim">  [OK] KeyCenter 초기화 완료 · LocalVault 연결됨</span>
 <span class="tok-prompt">$</span> <span class="tok-cmd">./installer/scripts/install-mac.sh</span> <span class="tok-flag">start</span>
 <span class="tok-ok">  ✓ KeyCenter :10181 · LocalVault :10180</span>
 
-<span class="tok-comment"># Try it</span>
+<span class="tok-comment"># 테스트해보기</span>
 <span class="tok-prompt">$</span> <span class="tok-cmd">echo</span> <span class="tok-danger">"STRIPE_KEY=sk_live_abc123"</span> | <span class="tok-cmd">vk scan</span> -
 <span class="tok-dim">  [1] stdin:1 — stripe secret key</span> <span class="tok-danger">■ high</span>
       </div>
@@ -786,11 +787,11 @@ footer {
 <!-- ═══ CTA ═══ -->
 <section class="cta-final">
   <div class="w rv">
-    <h2>Your AI doesn't need<br>your <span class="hl">real keys.</span></h2>
-    <p>Give it references. VeilKey handles the rest.</p>
+    <h2>AI에게 진짜 Key는<br><span class="hl">필요 없습니다.</span></h2>
+    <p>Reference만 주면 됩니다. 나머지는 VeilKey가 처리합니다.</p>
     <div class="cta-btns">
-      <a href="https://github.com/veilkey/veilkey-selfhosted" class="btn btn-mint">View on GitHub →</a>
-      <a href="https://github.com/veilkey/veilkey-selfhosted/blob/main/docs/installation.md" class="btn btn-outline">Install Guide</a>
+      <a href="https://github.com/veilkey/veilkey-selfhosted" class="btn btn-mint">GitHub에서 보기 →</a>
+      <a href="https://github.com/veilkey/veilkey-selfhosted/blob/main/docs/installation.md" class="btn btn-outline">설치 가이드</a>
     </div>
     <div class="cta-tags">
       <span>AGPL-3.0</span>
@@ -813,49 +814,49 @@ footer {
 const scenes = {
   paste: {
     lines: [
-      { type:'comment', text:'# You paste an API key into your config...' },
+      { type:'comment', text:'# API Key를 Config 파일에 붙여넣으면...' },
       { type:'blank' },
       { type:'static', text:'OPENAI_API_KEY=' },
       { type:'typeAndMorph', prefix:'OPENAI_API_KEY=', secret:'sk-proj-4f8a2b1c9d3e7f6a5b8c2d1e', result:'VK:LOCAL:4f8a2b1c', delay:800 },
       { type:'blank' },
-      { type:'comment', text:'# VeilKey encrypted it instantly.' },
-      { type:'output', text:'  ✓ 1 secret detected → encrypted → sealed', cls:'tok-ok' },
-      { type:'output', text:'  ✓ plaintext destroyed · reference stored', cls:'tok-ok' },
+      { type:'comment', text:'# VeilKey가 즉시 Encrypt합니다.' },
+      { type:'output', text:'  ✓ Secret 1개 감지 → Encrypt → 봉인 완료', cls:'tok-ok' },
+      { type:'output', text:'  ✓ Plaintext 삭제됨 · Reference 저장됨', cls:'tok-ok' },
     ],
-    status: '1 secret sealed — plaintext destroyed'
+    status: 'Secret 1개 봉인 완료 — Plaintext 삭제됨'
   },
   ai: {
     lines: [
-      { type:'comment', text:'# Your AI agent reads the config...' },
+      { type:'comment', text:'# AI Agent가 Config 파일을 읽으면...' },
       { type:'blank' },
-      { type:'output', text:'  Claude sees: DATABASE_URL=VK:LOCAL:a1b2c3d4', cls:'tok-safe' },
-      { type:'output', text:'  Claude sees: STRIPE_KEY=VK:LOCAL:e5f6a7b8', cls:'tok-safe' },
-      { type:'output', text:'  Claude sees: JWT_SECRET=VK:LOCAL:c9d0e1f2', cls:'tok-safe' },
+      { type:'output', text:'  Claude가 보는 값: DATABASE_URL=VK:LOCAL:a1b2c3d4', cls:'tok-safe' },
+      { type:'output', text:'  Claude가 보는 값: STRIPE_KEY=VK:LOCAL:e5f6a7b8', cls:'tok-safe' },
+      { type:'output', text:'  Claude가 보는 값: JWT_SECRET=VK:LOCAL:c9d0e1f2', cls:'tok-safe' },
       { type:'blank' },
-      { type:'comment', text:'# It writes code, deploys, runs tests — never touching real secrets.' },
+      { type:'comment', text:'# Code 작성, Deploy, Test — 실제 Secret은 절대 접근 불가.' },
       { type:'blank' },
       { type:'prompt', cmd:'veilkey exec', flag:'./deploy.sh' },
-      { type:'output', text:'  ✓ 3 refs resolved at runtime · app started', cls:'tok-ok' },
-      { type:'output', text:'  ✓ AI never saw plaintext · zero exposure', cls:'tok-ok' },
+      { type:'output', text:'  ✓ Reference 3개 Runtime 해석 완료 · 앱 시작됨', cls:'tok-ok' },
+      { type:'output', text:'  ✓ AI는 Plaintext를 본 적 없음 · 노출 제로', cls:'tok-ok' },
     ],
-    status: 'AI operated with references only — zero plaintext exposure'
+    status: 'AI가 Reference만으로 작동 완료 — Plaintext 노출 제로'
   },
   scan: {
     lines: [
       { type:'prompt', cmd:'veilkey scan', flag:'.env docker-compose.yml config/' },
       { type:'blank' },
       { type:'output', text:'  [1] .env:3           AWS_SECRET_ACCESS_KEY', cls:'tok-dim' },
-      { type:'output', text:'      pattern: aws-secret-key         confidence: 95', cls:'tok-dim' },
-      { type:'output', text:'      match: wJalrXUtnFEMI/K7MDENG/b█████████', cls:'tok-danger' },
+      { type:'output', text:'      Pattern: aws-secret-key         Confidence: 95', cls:'tok-dim' },
+      { type:'output', text:'      감지값: wJalrXUtnFEMI/K7MDENG/b█████████', cls:'tok-danger' },
       { type:'blank' },
       { type:'output', text:'  [2] docker-compose:12  POSTGRES_PASSWORD', cls:'tok-dim' },
-      { type:'output', text:'      match: sup3r-s3cret-██████', cls:'tok-danger' },
+      { type:'output', text:'      감지값: sup3r-s3cret-██████', cls:'tok-danger' },
       { type:'blank' },
       { type:'prompt', cmd:'veilkey filter', flag:'.env docker-compose.yml' },
-      { type:'output', text:'  ✓ 2 secrets → VK:LOCAL:* references', cls:'tok-ok' },
-      { type:'output', text:'  ✓ files updated in-place · originals encrypted', cls:'tok-ok' },
+      { type:'output', text:'  ✓ Secret 2개 → VK:LOCAL:* Reference로 교체', cls:'tok-ok' },
+      { type:'output', text:'  ✓ 파일 현장 업데이트 완료 · 원본 Encrypt됨', cls:'tok-ok' },
     ],
-    status: '2 secrets found and sealed across 3 files'
+    status: '3개 파일에서 Secret 2개 발견 및 봉인 완료'
   }
 };
 
@@ -964,7 +965,7 @@ async function playScene(name) {
   const containerId = name + '-content';
   const container = document.getElementById(containerId);
   container.innerHTML = '';
-  setStatus('watching for secrets...');
+  setStatus('Secret 감지 중...');
 
   for (const line of scene.lines) {
     switch (line.type) {
